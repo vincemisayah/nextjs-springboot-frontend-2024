@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
-import { Spacer } from "@nextui-org/react";
+import { Spacer, Spinner } from "@nextui-org/react";
 import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
 import {Accordion, AccordionItem} from "@nextui-org/accordion";
 import { id } from "postcss-selector-parser";
 import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, useDisclosure} from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
+import { FcBusinessman } from "react-icons/fc";
 import {
     Modal,
     ModalContent,
@@ -14,6 +15,13 @@ import {
     ModalBody,
     ModalFooter
 } from "@nextui-org/modal";
+import {
+    Listbox,
+    ListboxSection,
+    ListboxItem
+} from "@nextui-org/listbox";
+import { HiCalculator } from "react-icons/hi";
+import { HiMiniUserGroup, HiMiniUsers } from "react-icons/hi2";
 
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
@@ -46,54 +54,73 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         const tdData = [];
         let keyIndex = 0;
         for (const prop in object) {
+            console.log(object[prop]);
             // @ts-ignore
-            tdData.push(<td className={"pt-1 pb-1 pr-2 pl-2 text-sm antialiased"} key={++keyIndex}>{object[prop]}</td>);
+            // tdData.push(<TableCell key={++keyIndex}>{object[prop]}</TableCell>);
         }
         return tdData;
     };
 
     // @ts-ignore
     const SearchResults = ({ url, keyword }) => {
+        console.log("URL = ", url + keyword)
         const { data, error } = useSWR(
             `${url + keyword}`,
             fetcher
         );
 
+        console.log("DATA = ", data);
+
         if (error) return <div>failed to load</div>;
-        if (!data) return <div>loading...</div>;
+        if (!data) return <Spinner color="default" size={'lg'}/>;
         if (!data[0]) return <div>not found</div>;
 
-        const columnNames = new Set();
-        for (const property in data[0])
-            columnNames.add(<th className={"p-1 pr-2 pl-2"} key={property}>{property.toUpperCase()}</th>);
 
         return (
-            <ScrollShadow className="h-[50vh]" hideScrollBar={true}>
-                <table className={"customerListTable table-fixed"}>
-                    <thead>
-                    <tr className="border-b-2 border-slate-600">
-                        {/*@ts-ignore*/}
-                        {columnNames}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {data?.map((object: any, index: React.Key | null | undefined) => (
-                        <tr onClick={() => handleClick(object.arNumber, object.id, object.name)}
-                            key={index}
-                        >
-                            {showTableBodyData(object)}
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </ScrollShadow>
+            <div className={'overflow-auto'}>
+                <ScrollShadow className={"h-[50vh]"}hideScrollBar={true}>
+                    <Table selectionMode={'single'} align={'left'}>
+                        <TableHeader>
+                            <TableColumn>Customer ID</TableColumn>
+                            <TableColumn>Customer Name</TableColumn>
+                            <TableColumn>AR</TableColumn>
+                            <TableColumn className={'min-w-[20ch]'}>
+                                <div className={'flex'}>
+                                    <HiMiniUsers  size={'19'}/>
+                                    <Spacer x={1}/>
+                                    Sales
+                                </div>
+                            </TableColumn>
+                        </TableHeader>
+                        <TableBody>
+                            {data?.map((object: any, index: React.Key | null | undefined) => (
+                                // console.log("object = ", object)
+                                <TableRow key={index} onClick={() => handleClick(object.arNumber, object.id, object.name)}>
+                                    <TableCell>{object.id}</TableCell>
+                                    <TableCell>{object.name}</TableCell>
+                                    <TableCell>{object.arNumber}</TableCell>
+                                    <TableCell>
+                                        {object.salesPersonList.length > 0?
+                                            <ul>
+                                                {object.salesPersonList.map((name:any, index:any) =>(
+                                                    <li key={index}>&#8226;{' ' + name.lastNameFirstName}</li>
+                                                ))}
+                                            </ul>: <span className={'text-red-500'}>N/A</span>}
+
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </ScrollShadow>
+            </div>
         );
     };
 
 
     const InvoiceTaskItems = (arg: { arNumber: string }) => {
         const { data, error } = useSWR(
-            'http://localhost:1115/fpAppserverService/invoiceCommission/invoiceDepartmentList',
+            "http://localhost:1115/fpAppserverService/invoiceCommission/invoiceDepartmentList",
             fetcher
         );
 
@@ -171,28 +198,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             );
         }
 
-        const foo = ( ) =>{
-            console.log( "foo . . . " );
-            const rows = document.getElementsByClassName("taskRow");
 
-            if(selectedTaskItems.length > 0){
-                selectedTaskItems.splice(0, selectedTaskItems.length)
-            }
-            for(let i = 0; i < rows.length; i++){
-                if(rows[i].getAttribute("aria-selected") === 'true'){
-                    // console.log(rows[i].id)
-                    // @ts-ignore
-                    selectedTaskItems.push(rows[i].id);
-                }
-            }
-            // setSalesPersonList(arr);
-            // if(selectedTaskItems.length > 0){
-                onOpen( );
-            // }
-
-
-            // console.log( "selectedTaskItems  = ", selectedTaskItems);
-        }
 
 
         const ViewSelectedCustomer = () =>{
@@ -220,7 +226,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
 
 
-                    <Button onClick={foo} >Assign Commission Rates</Button>
+
                     {/*<Button onPress={onOpen}>Open Modal</Button>*/}
                 </div>
             );
@@ -248,16 +254,49 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         );
     };
 
+    function StickyDisplaySelectedTaskItems() {
+        const foo = ( ) =>{
+            console.log( "foo . . . " );
+            const rows = document.getElementsByClassName("taskRow");
+
+            if(selectedTaskItems.length > 0){
+                selectedTaskItems.splice(0, selectedTaskItems.length)
+            }
+            for(let i = 0; i < rows.length; i++){
+                if(rows[i].getAttribute("aria-selected") === 'true'){
+                    // console.log(rows[i].id)
+                    // @ts-ignore
+                    selectedTaskItems.push(rows[i].id);
+                }
+            }
+            // setSalesPersonList(arr);
+            // if(selectedTaskItems.length > 0){
+            onOpen( );
+            // }
+
+
+            // console.log( "selectedTaskItems  = ", selectedTaskItems);
+        }
+
+        return (
+            <div className="w-full min-w-fit max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 h-fit sticky top-40">
+                <Listbox className={'w-[100px]'}>
+                    <ListboxItem key="new">New file</ListboxItem>
+                    <ListboxItem key="copy">Copy link</ListboxItem>
+                    <ListboxItem key="edit">Edit file</ListboxItem>
+                    <ListboxItem key="delete" className="text-danger" color="danger">
+                        Delete file
+                    </ListboxItem>
+                </Listbox>
+                <Button onClick={foo} >Assign Commission Rates</Button>
+            </div>
+        );
+    }
+
     // @ts-ignore
     return (
         <>
             <div className="flex">
-                {/*<>*/}
-                {/*    <Button onPress={onOpen}>Open Modal</Button>*/}
-                {/*</>*/}
-
-
-
                 <div className={"space-y-4"}>
                     <input className={"border-1 border-slate-600 w-full max-w-64"}
                            type="text"
@@ -271,6 +310,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 <div>
                     {startFetchingTaskItems && <InvoiceTaskItems arNumber={arNumber} />}
                 </div>
+                <Spacer x={5} />
+                {startFetchingTaskItems &&  <StickyDisplaySelectedTaskItems/>}
             </div>
 
 
