@@ -1,0 +1,33 @@
+.searchListTableContainer{
+    --tw-border-opacity: 1;
+    border: 1px solid rgb(71 85 105 / var(--tw-border-opacity));
+    border-radius: 4px;
+    /*width:fit-content;*/
+    /*max-width:500px; !* or whatever width you want. *!*/
+    max-height:500px;
+    overflow:auto;
+}
+
+.searchListTable thead tr{
+    /*background-color: #f4f4f5;*/
+}
+
+.searchListTable tbody tr:nth-child(odd){
+    /*background-color: #f4f4f5;*/
+}
+
+
+.customerListTableContainer{
+    border: 1px solid red;
+    /*min-height: fit-content;*/
+    max-height: 65vh;
+    width: fit-content;
+    overflow-y: auto;
+}
+.customerListTable tbody tr:hover{
+    cursor:pointer;
+    background-color:#f4f4f5;
+    /*border-bottom: 1px solid black;*/
+    /*border-radius: 5px;*/
+    color:black;
+}
