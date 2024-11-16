@@ -21,6 +21,7 @@ import {
 import { HiMiniUser, HiMiniUserGroup, HiMiniUsers } from "react-icons/hi2";
 import { ListboxWrapper } from "../util/ListboxWrapper";
 
+// @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
@@ -34,12 +35,14 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [selectedTaskItems, setSelectedTaskItems] = useState([]);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [salesPersonList, setSalesPersonList] = useState([]);
-    const [selectedKeys, setSelectedKeys] = React.useState(new Set(["text"]));
+    const [taskCommRates, setTaskCommRates] = useState([
+        {taskID:100,
+        commRate:4.25,
+        assignedBy:3667,
+        notes:"Test note"}
+    ]);
 
-    const selectedValue = React.useMemo(
-        () => Array.from(selectedKeys).join(", "),
-        [selectedKeys]
-    );
+    const [mapTaskCommRates, setMapTaskCommRates] = useState(new Map( ));
 
 
     const handleClick = (arNumber: string, customerId:number, customerName:string, salesPersonList:string[]) => {
@@ -49,6 +52,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         setCustomerName(customerName);
         // @ts-ignore
         setSalesPersonList(salesPersonList);
+
+        // commRateTaskId#100
+        mapTaskCommRates.set('commRateTaskId#100', taskCommRates[0].commRate);
     };
 
     const handleChange = (e: any) => {
@@ -224,6 +230,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                type={"text"}
                                                maxLength={5}
                                                className={"commRateInput border-1 w-[7ch] rounded pr-2 pl-2"}
+                                               value={mapTaskCommRates.get("commRateTaskId#" + object.id)}
                                         />
                                     </TableCell>
                                     {/*@ts-ignore*/}
@@ -296,7 +303,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                            title={<span
                                                className={"font-bold text-lg text-cyan-700"}>{object.department}</span>}>
                                 <DepartmentInvoiceTaskItems deptId={object.id} />
-                                {/*{defaultContent}*/}
                             </AccordionItem>))}
                     </Accordion>
                 </div>
@@ -305,8 +311,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     };
 
     function StickyDisplaySelectedTaskItems() {
-
-
         return (
             <div className="w-full min-w-fit max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 h-fit sticky top-40">
                 <Listbox className={'w-[100px]'}>
