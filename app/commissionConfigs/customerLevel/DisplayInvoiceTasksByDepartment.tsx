@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
-import { Spacer, Spinner } from "@nextui-org/react";
-import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
+import { Skeleton, Spacer, Spinner } from "@nextui-org/react";
+import {Card} from "@nextui-org/react";
 import {Accordion, AccordionItem} from "@nextui-org/accordion";
-import { id } from "postcss-selector-parser";
 import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, useDisclosure} from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
-import { FcBusinessman } from "react-icons/fc";
 import {
     Modal,
     ModalContent,
@@ -20,8 +18,8 @@ import {
     ListboxSection,
     ListboxItem
 } from "@nextui-org/listbox";
-import { HiCalculator } from "react-icons/hi";
-import { HiMiniUserGroup, HiMiniUsers } from "react-icons/hi2";
+import { HiMiniUser, HiMiniUserGroup, HiMiniUsers } from "react-icons/hi2";
+import { ListboxWrapper } from "../util/ListboxWrapper";
 
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
@@ -35,30 +33,28 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [customerName, setCustomerName] = useState("");
     const [selectedTaskItems, setSelectedTaskItems] = useState([]);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [salesPersonList, setSalesPersonList] = useState([]);
+    const [selectedKeys, setSelectedKeys] = React.useState(new Set(["text"]));
 
-    const handleClick = (arNumber: string, customerId:number, customerName:string) => {
+    const selectedValue = React.useMemo(
+        () => Array.from(selectedKeys).join(", "),
+        [selectedKeys]
+    );
+
+
+    const handleClick = (arNumber: string, customerId:number, customerName:string, salesPersonList:string[]) => {
         setStartFetchingTaskItems(true);
         setArNumber(arNumber);
         setCustomerId(customerId);
         setCustomerName(customerName);
+        // @ts-ignore
+        setSalesPersonList(salesPersonList);
     };
 
     const handleChange = (e: any) => {
         setStartFetchingTaskItems(false);
         setStartFetching(true);
         setSearchTerm(e.target.value);
-    };
-
-
-    const showTableBodyData = (object: Object) => {
-        const tdData = [];
-        let keyIndex = 0;
-        for (const prop in object) {
-            console.log(object[prop]);
-            // @ts-ignore
-            // tdData.push(<TableCell key={++keyIndex}>{object[prop]}</TableCell>);
-        }
-        return tdData;
     };
 
     // @ts-ignore
@@ -69,17 +65,40 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             fetcher
         );
 
-        console.log("DATA = ", data);
-
         if (error) return <div>failed to load</div>;
-        if (!data) return <Spinner color="default" size={'lg'}/>;
-        if (!data[0]) return <div>not found</div>;
+        if (!data) return (
+            <div className={'mx-2 pt-5'} >
+                <Card className="w-[200px] space-y-5 p-4" radius="lg">
+                    <div className="space-y-3">
+                        <Skeleton className="w-3/5 rounded-lg">
+                            <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
+                        </Skeleton>
+                        <Skeleton className="w-4/5 rounded-lg">
+                            <div className="h-3 w-4/5 rounded-lg bg-default-200"></div>
+                        </Skeleton>
+                        <Skeleton className="w-2/5 rounded-lg">
+                            <div className="h-3 w-2/5 rounded-lg bg-default-300"></div>
+                        </Skeleton>
+                        <Skeleton className="w-3/5 rounded-lg">
+                            <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
+                        </Skeleton>
+                        <Skeleton className="w-4/5 rounded-lg">
+                            <div className="h-3 w-4/5 rounded-lg bg-default-200"></div>
+                        </Skeleton>
+                        <Skeleton className="w-2/5 rounded-lg">
+                            <div className="h-3 w-2/5 rounded-lg bg-default-300"></div>
+                        </Skeleton>
+                    </div>
+                </Card>
+            </div>
+        );
 
+        if (!data[0]) return <div>not found</div>;
 
         return (
             <div className={'overflow-auto'}>
                 <ScrollShadow className={"h-[50vh]"}hideScrollBar={true}>
-                    <Table selectionMode={'single'} align={'left'}>
+                    <Table selectionMode={'single'}>
                         <TableHeader>
                             <TableColumn>Customer ID</TableColumn>
                             <TableColumn>Customer Name</TableColumn>
@@ -94,8 +113,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         </TableHeader>
                         <TableBody>
                             {data?.map((object: any, index: React.Key | null | undefined) => (
-                                // console.log("object = ", object)
-                                <TableRow key={index} onClick={() => handleClick(object.arNumber, object.id, object.name)}>
+                                <TableRow key={index} onClick={() => handleClick(object.arNumber, object.id, object.name, object.salesPersonList)}>
                                     <TableCell>{object.id}</TableCell>
                                     <TableCell>{object.name}</TableCell>
                                     <TableCell>{object.arNumber}</TableCell>
@@ -106,7 +124,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                     <li key={index}>&#8226;{' ' + name.lastNameFirstName}</li>
                                                 ))}
                                             </ul>: <span className={'text-red-500'}>N/A</span>}
-
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -117,6 +134,50 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         );
     };
 
+    const CollectSelectedTaskItems = ( ) =>{
+        console.log('CollectSelectedTaskItems . . . ')
+        const rows = document.getElementsByClassName("taskRow");
+
+        if(selectedTaskItems.length > 0){
+            selectedTaskItems.splice(0, selectedTaskItems.length)
+        }
+        for(let i = 0; i < rows.length; i++){
+            if(rows[i].getAttribute("aria-selected") === 'true'){
+                // @ts-ignore
+                selectedTaskItems.push(rows[i].id);
+            }
+        }
+        console.log("selectedTaskItems = ", selectedTaskItems)
+        onOpen( );
+    }
+
+    const FieldPopulatorTools = ( ) =>{
+        return(
+            <>
+                <div>
+                    <span className={"ml-1"}>Auto-populate Tools</span>
+                    <div className="flex flex-row gap-4">
+                        <div>
+                            <ListboxWrapper>
+                                <Listbox variant="flat" selectionMode="multiple">
+                                    {salesPersonList.map((sales: any, index: any) => (
+                                        <ListboxItem key={index}>
+                                            {sales.lastNameFirstName}
+                                        </ListboxItem>
+                                    ))}
+                                </Listbox>
+                            </ListboxWrapper>
+                        </div>
+                        <div className={"border-1 rounded-lg shadow-sm p-4 align-middle"}>
+                            <input type={"text"} maxLength={5} className={"border-1 w-[8ch] rounded pr-2 pl-2"} />
+                            <Spacer y={5} />
+                            <Button size={"sm"}>Apply Rate</Button>
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    }
 
     const InvoiceTaskItems = (arg: { arNumber: string }) => {
         const { data, error } = useSWR(
@@ -124,19 +185,14 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             fetcher
         );
 
-        // console.log("InvoiceTaskItems data = ", data);
-
         if (error) return <div>failed to load</div>;
-        if (!data) return <div>loading...</div>;
+        if (!data) return <div><Spinner color={"default"} /></div>;
         if (!data[0]) return <div>not found</div>;
 
-        const defaultContent =
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-
         // @ts-ignore
-        const DepartmentInvoiceTaskitems = ({deptId})=>{
+        const DepartmentInvoiceTaskItems = ({ deptId }) => {
             const { data, error } = useSWR(
-                'http://localhost:1115/fpAppserverService/invoiceCommission/invoiceTaskItemListByDeptId?deptId='+deptId,
+                "http://localhost:1115/fpAppserverService/invoiceCommission/invoiceTaskItemListByDeptId?deptId=" + deptId,
                 fetcher
             );
 
@@ -144,90 +200,84 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             if (!data) return <div>loading...</div>;
             if (!data[0]) return <div>not found</div>;
 
-            // // console.log("DepartmentInvoiceTaskitems  data = ", data)
-            // {
-            //     "id": 91,
-            //     "deptId": 1,
-            //     "department": "Art",
-            //     "taskName": "Coupon",
-            //     "description": "Rate for Coupons"
-            // },
-
-            return(
-                <div>
-                    <Table color={"default"}
-                           // selectionMode="multiple"
-                           // aria-label="Example static collection table"
-                           // onRowAction={(key) => alert(`Opening item ${key}...`)}
-                           selectionMode="multiple"
-                           removeWrapper
-                        // selectionBehavior={'toggle'}
-                    >
+            return (
+                <div className={"border-1 p-3 rounded-lg"}>
+                    <FieldPopulatorTools/>
+                    <Spacer y={5} />
+                    <Table removeWrapper selectionMode={"none"}>
                         <TableHeader>
                             <TableColumn>Task Name</TableColumn>
                             <TableColumn>Description</TableColumn>
+                            <TableColumn>Comm. Rate %</TableColumn>
+                            {/*@ts-ignore*/}
+                            {salesPersonList.map((name: Object, index: any) => (
+                                <TableColumn key={index}>{name.lastNameFirstName}</TableColumn>
+                            ))}
                         </TableHeader>
                         <TableBody>
                             {data?.map((object: any, index: React.Key | null) => (
-                                <TableRow key={'taskId#' + object.id} id={'taskId#' + object.id} className={'taskRow'}>
+                                <TableRow key={"taskId#" + object.id} id={"taskId#" + object.id} className={"taskRow"}>
                                     <TableCell>{object.taskName}</TableCell>
                                     <TableCell>{object.description}</TableCell>
+                                    <TableCell>
+                                    <input id={"commRateTaskId#" + object.id}
+                                               type={"text"}
+                                               maxLength={5}
+                                               className={"commRateInput border-1 w-[7ch] rounded pr-2 pl-2"}
+                                        />
+                                    </TableCell>
+                                    {/*@ts-ignore*/}
+                                    {salesPersonList.map((sales: any) => (
+                                        <TableCell>
+                                            <input id={"taskId#" + object.id + "#salesId#" + sales.salesPersonId}
+                                                   type={"text"} maxLength={5}
+                                                   className={"border-1 w-[7ch] rounded pr-2 pl-2"} />
+                                        </TableCell>
+                                    ))}
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
-
-
-                    {/*<table className="table-auto">*/}
-                    {/*    <thead>*/}
-                    {/*        <tr className={'table-row'}>*/}
-                    {/*            <th>Task Name</th>*/}
-                    {/*            <th>Description</th>*/}
-                    {/*        </tr>*/}
-                    {/*    </thead>*/}
-                    {/*    <tbody>*/}
-                    {/*    {data?.map((object: any, index: React.Key | null) => (*/}
-                    {/*        <tr key={index} id={'taskId#' + object.id} className={'table-row border-1'}>*/}
-                    {/*            <td className={'pr-7'}>{object.taskName}</td>*/}
-                    {/*            <td className={'pr-7'}>{object.description}</td>*/}
-                    {/*        </tr>*/}
-                    {/*    ))}*/}
-                    {/*    </tbody>*/}
-                    {/*</table>*/}
                 </div>
             );
         }
 
-
-
-
-        const ViewSelectedCustomer = () =>{
+        const ViewSelectedCustomer = () => {
 
             return (
-                <div className={"mb-5"}>
-                    <h1>This configuration will apply to the following customer. To change the customer, simply search and click on the desired customer.</h1>
+                <div className={"mb-5 w-[65%]"}>
+                    <h1 className={"pb-5"}>This configuration will apply to the following customer's assigned sales
+                        people.</h1>
                     <Table aria-label="Example static collection table">
                         <TableHeader>
-                            <TableColumn>Customer Name</TableColumn>
                             <TableColumn>Customer ID</TableColumn>
+                            <TableColumn>Customer Name</TableColumn>
                             <TableColumn>AR Number</TableColumn>
+                            <TableColumn className={"min-w-[20ch]"}>
+                                <div className={"flex"}>
+                                    <HiMiniUsers  size={'19'}/>
+                                    <Spacer x={1}/>
+                                    Sales
+                                </div>
+                            </TableColumn>
                         </TableHeader>
                         <TableBody>
                             <TableRow key="1">
-                                <TableCell>{customerName}</TableCell>
                                 <TableCell>{customerId}</TableCell>
+                                <TableCell>{customerName}</TableCell>
                                 <TableCell>{arNumber}</TableCell>
+                                <TableCell>
+                                    {salesPersonList.length > 0?
+                                        <ul>
+                                            {salesPersonList.map((person:any, index:any) =>(
+                                                <li key={index}>&#8226;{' ' + person.lastNameFirstName}</li>
+                                            ))}
+                                        </ul>: <span className={'text-red-500'}>N/A</span>}
+                                </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
                     <Spacer y={5}/>
-
-
-
-
-
-
-                    {/*<Button onPress={onOpen}>Open Modal</Button>*/}
                 </div>
             );
         }
@@ -239,13 +289,13 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     <span className={"text-1xl text-slate-700"}>
                         Select the invoice department to view their associated task items</span>
                 </div>
-                <div className="task-dept-container flex w-full flex-col">
-                    <Accordion selectionMode="multiple" isCompact>
+                <div className="task-dept-container flex flex-col">
+                    <Accordion selectionMode="multiple" isCompact className={'w-full'}>
                         {data?.map((object: any, index: React.Key | null | undefined) => (
                             <AccordionItem key={index} aria-label="Accordion 1"
                                            title={<span
                                                className={"font-bold text-lg text-cyan-700"}>{object.department}</span>}>
-                                <DepartmentInvoiceTaskitems deptId={object.id} />
+                                <DepartmentInvoiceTaskItems deptId={object.id} />
                                 {/*{defaultContent}*/}
                             </AccordionItem>))}
                     </Accordion>
@@ -255,40 +305,16 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     };
 
     function StickyDisplaySelectedTaskItems() {
-        const foo = ( ) =>{
-            console.log( "foo . . . " );
-            const rows = document.getElementsByClassName("taskRow");
 
-            if(selectedTaskItems.length > 0){
-                selectedTaskItems.splice(0, selectedTaskItems.length)
-            }
-            for(let i = 0; i < rows.length; i++){
-                if(rows[i].getAttribute("aria-selected") === 'true'){
-                    // console.log(rows[i].id)
-                    // @ts-ignore
-                    selectedTaskItems.push(rows[i].id);
-                }
-            }
-            // setSalesPersonList(arr);
-            // if(selectedTaskItems.length > 0){
-            onOpen( );
-            // }
-
-
-            // console.log( "selectedTaskItems  = ", selectedTaskItems);
-        }
 
         return (
             <div className="w-full min-w-fit max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 h-fit sticky top-40">
                 <Listbox className={'w-[100px]'}>
-                    <ListboxItem key="new">New file</ListboxItem>
-                    <ListboxItem key="copy">Copy link</ListboxItem>
-                    <ListboxItem key="edit">Edit file</ListboxItem>
-                    <ListboxItem key="delete" className="text-danger" color="danger">
-                        Delete file
-                    </ListboxItem>
+                    {selectedTaskItems.map((object,index)=>(
+                        <ListboxItem key={index}>{object}</ListboxItem>
+                    ))}
                 </Listbox>
-                <Button onClick={foo} >Assign Commission Rates</Button>
+                <Button onClick={CollectSelectedTaskItems} >Assign Commission Rates</Button>
             </div>
         );
     }
@@ -311,16 +337,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     {startFetchingTaskItems && <InvoiceTaskItems arNumber={arNumber} />}
                 </div>
                 <Spacer x={5} />
-                {startFetchingTaskItems &&  <StickyDisplaySelectedTaskItems/>}
+                <StickyDisplaySelectedTaskItems/>
+                {/*{selectedTaskItems &&  <StickyDisplaySelectedTaskItems/>}*/}
             </div>
-
-
-
-
-
-
-
-
 
             <Modal
                 size={'5xl'}
