@@ -8,7 +8,7 @@ export default function CustomerContent() {
             <main>
                 {/*<SearchCustomer*/}
                 {/*    url={process.env.NEXT_PUBLIC_API_URL + 'fpAppserverService/invoiceCommission/customerListByAr?arNumber='} />*/}
-                <DisplayInvoiceTasksByDepartment url={process.env.NEXT_PUBLIC_API_URL + 'fpAppserverService/invoiceCommission/customerListByAr?arNumber='}/>
+                <DisplayInvoiceTasksByDepartment url={'http://localhost:1118/invoiceCommissionService/customerlevel/customerListByAr?arNumber='}/>
             </main>
         </>
     );
