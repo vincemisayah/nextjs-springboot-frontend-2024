@@ -314,6 +314,21 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             })
         }
 
+        const fillTaskFields = ( ) =>{
+            // @ts-ignore
+            const valueInput = document.getElementById('toFillValueInputTaskCommRateDeptId#' + deptID).value;
+            const table = document.getElementById('tableInvoiceTaskItemsDeptId#' + deptID);
+            // @ts-ignore
+            const tbody = Array.from(table.getElementsByTagName('tbody'))[0]
+            const tRows =  Array.from(tbody.getElementsByTagName('tr'))
+            tRows.forEach(row =>{
+                const taskId = (row.id).split('#').at((row.id).split('#').length - 1);
+                const inputTask = document.getElementById('commRateTaskId#' + taskId);
+                // @ts-ignore
+                inputTask.value = valueInput;
+            })
+        }
+
         return (
             <>
                 <Accordion       motionProps={{
@@ -355,7 +370,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     <AccordionItem key="anchor" aria-label="Anchor"
                                    indicator={<></>}
                                    // indicator={<FaToolbox />}
-                                   title={<div className={'flex gap-2 text-[#71717a] hover:text-cyan-500 text-[12pt]'}><FaToolbox className={'mt-1.5'} size={15}/> Field Populator Tools</div>}>
+                                   title={<div className={'flex gap-2 text-[#71717a] hover:text-cyan-500 text-[12pt]'}><FaToolbox className={'mt-1.5'} size={15}/>Tools</div>}>
                         <div className={'p-2'}>
                             <div className="flex flex-row gap-4">
                                 <div className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] border-small border-default-200 dark:border-default-100">
@@ -392,7 +407,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                             maxLength={5}
                                             className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 text-center rounded"} />
                                         <Spacer y={5} />
-                                        <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
+                                        <Button size={"sm"} onPress={fillTaskFields}>Fill in fields</Button>
                                     </div>
                                 </div>
                                 <div>
@@ -654,9 +669,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             return (
                 <>
                     <span className={"pb-5 text-lg"}>
-                        This configuration will apply to the following customer's assigned sales people.
+                        This configuration will apply to the following customer and its assigned sales people
                     </span>
-                    <div className={"mb-5 w-[65%]"}>
+                    <Spacer y={3}/>
+                    <div className={"mb-5"}>
                         <Table aria-label="Example static collection table">
                             <TableHeader>
                                 <TableColumn>AR Number</TableColumn>
@@ -697,7 +713,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 <ViewSelectedCustomer />
                 <div className={"pb-5"}>
                     <span className={"text-lg"}>
-                        Select the invoice department to view their associated task items
+                        Select the invoice department to view and configure their associated invoice task items
                     </span>
                 </div>
                 <div className="task-dept-container flex flex-col">
