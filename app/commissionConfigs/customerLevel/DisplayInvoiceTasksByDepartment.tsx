@@ -487,8 +487,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                             <Spacer x={1} />
                                             <FaRegMessage onClick={() => showNote("commRateTaskNote#" + object.id)}
                                                           color={clsx({
-                                                              ['#06b6d4']: taskNoteMap.get("commRateTaskId#" + object.id).length > 0 ,
-                                                              ['grey']: taskNoteMap.get("commRateTaskId#" + object.id).length < 1,
+                                                              ['#06b6d4']:taskNoteMap.get("commRateTaskId#" + object.id) !== undefined && taskNoteMap.get("commRateTaskId#" + object.id).length > 0
                                                           })}
                                                           className={"hover:cursor-pointer"}
                                             />
@@ -525,8 +524,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                 <Spacer x={1} />
                                                 <FaRegMessage
                                                     color={clsx({
-                                                        ['#06b6d4']: salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId).length > 0 ,
-                                                        ['grey']: salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId).length < 1,
+                                                        ['#06b6d4']:salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId) !== undefined && salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId).length > 0 ,
                                                     })}
                                                     className={"hover:cursor-pointer"}
                                                     onClick={()=>showSalesNote("salesNote#" + sales.salesPersonId + "#taskId#" + object.id )}/>
