@@ -31,6 +31,7 @@ import { Textarea } from "@nextui-org/input";
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
+    const [loggedIn, setLoggedIn] = useState(3667);
     const [startFetching, setStartFetching] = useState(false);
     const [startFetchingTaskItems, setStartFetchingTaskItems] = useState(false);
 
@@ -180,6 +181,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     taskId: undefined,
                     taskRate:undefined,
                     taskNote:undefined,
+                    lastEditBy: loggedIn,
                     salesAssignedRates:[]
                 };
 
@@ -187,9 +189,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                 const TASK_COMM_RATE_COLUMN_INDEX = 2;
                 for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length; i++) {
-
-
-
                     // @ts-ignore
                     const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
 
