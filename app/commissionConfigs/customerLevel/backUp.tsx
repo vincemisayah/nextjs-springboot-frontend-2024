@@ -29,6 +29,8 @@ import { Textarea } from "@nextui-org/input";
 import { IoClipboardSharp, IoPerson } from "react-icons/io5";
 import { useRouter } from 'next/navigation';
 import clsx from "clsx";
+import { FaToolbox } from "react-icons/fa";
+import { GoHorizontalRule, GoPlus } from "react-icons/go";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -159,7 +161,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 selectedTaskItems.push(rows[i].id);
             }
         }
-        // console.log("selectedTaskItems = ", selectedTaskItems);
         onOpen();
     };
 
@@ -290,90 +291,135 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
         const fillSelectedSalesPersonFields = ( ) =>{
             const liArray = Array.from(document.getElementsByClassName('salesPersonItemDeptId#' + deptID)) ;
-
             const salesIdArr: any[] = [];
             liArray.forEach((item: any) => {
                 if(item.ariaSelected === 'true'){
-                    // console.log('item = ', Array.from(item.getElementsByTagName('p'))[0] );
                     // @ts-ignore
                     salesIdArr.push(Array.from(item.getElementsByTagName('p'))[0].id)
                 }
             })
 
-            // console.log(salesIdArr);
-
             const table = document.getElementById('tableInvoiceTaskItemsDeptId#' + deptID);
             // @ts-ignore
             const tbody = Array.from(table.getElementsByTagName('tbody'))[0]
             const tRows =  Array.from(tbody.getElementsByTagName('tr'))
-            // console.log(tRows);
 
             tRows.forEach(row =>{
-                // console.log(row);
                 const taskId = (row.id).split('#').at((row.id).split('#').length - 1);
-
                 salesIdArr.forEach((salesId) => {
-                    // console.log('salesID = ', salesId ,' - taskID = ', taskId);
                     const inputField = document.getElementById('taskId#' + taskId + '#salesId#' + salesId);
-                    // console.log(inputField);
                     // @ts-ignore
                     inputField.value = document.getElementById('toFillValueInputDeptId#' + deptID).value;
                 })
-
-                // console.log("taskId = ", taskId);
-                // const input = document.getElementById('taskId#' + taskID + '#salesId#' + )
             })
         }
 
-        // @ts-ignore
-        // @ts-ignore
         return (
             <>
-                <div>
-                    <span className={"ml-1"}>Auto-populate Tools</span>
-                    <div className="flex flex-row gap-4">
-                        <div
-                            className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] rounded-small border-small border-default-200 dark:border-default-100">
-                            <div>
-                                <ListboxWrapper>
-                                    <Listbox
-                                        variant="flat"
-                                        selectionMode="multiple"
-                                    >
-                                        {salesPersonList.map((sales: any, index: any) => (
-                                            <ListboxItem key={sales.salesPersonId} className={'salesPersonItemDeptId#' + deptID}>
-                                                <p id={sales.salesPersonId}>{sales.lastNameFirstName}</p>
-                                            </ListboxItem>
-                                        ))}
-                                    </Listbox>
-                                </ListboxWrapper>
-                                <p className="text-small text-default-500">Selected value: {selectedValue}</p>
-                            </div>
-                            <div className={"p-4 align-middle"}>
-                                <input
-                                    id={'toFillValueInputDeptId#' + deptID}
-                                    type={"text"}
-                                    maxLength={5}
-                                    className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100"} />
-                                <Spacer y={5} />
-                                <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
-                            </div>
-                        </div>
-                        <div>
-                            <Button onPress={saveChanges}>Save Changes</Button>
-                        </div>
+                <Accordion       motionProps={{
+                    variants: {
+                        enter: {
+                            y: 0,
+                            opacity: 1,
+                            height: "auto",
+                            transition: {
+                                height: {
+                                    type: "spring",
+                                    stiffness: 500,
+                                    damping: 30,
+                                    duration: 1,
+                                },
+                                opacity: {
+                                    easings: "ease",
+                                    duration: 1,
+                                },
+                            },
+                        },
+                        exit: {
+                            y: -10,
+                            opacity: 0,
+                            height: 0,
+                            transition: {
+                                height: {
+                                    easings: "ease",
+                                    duration: 0.25,
+                                },
+                                opacity: {
+                                    easings: "ease",
+                                    duration: 0.3,
+                                },
+                            },
+                        },
+                    },
+                }}>
+                    <AccordionItem key="anchor" aria-label="Anchor"
+                                   indicator={<></>}
+                        // indicator={<FaToolbox />}
+                                   title={<div className={'flex gap-2 hover:text-cyan-500 text-[12pt]'}><FaToolbox /> Field Populator Tools</div>}>
+                        <div className={'p-2'}>
+                            <div className="flex flex-row gap-4">
+                                <div
+                                    className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] border-small border-default-200 dark:border-default-100">
+                                    <div>
+                                        <ListboxWrapper>
+                                            <Listbox
+                                                variant="flat"
+                                                selectionMode="multiple"
+                                            >
+                                                {salesPersonList.map((sales: any, index: any) => (
+                                                    <ListboxItem key={sales.salesPersonId}
+                                                                 className={"salesPersonItemDeptId#" + deptID}>
+                                                        <p id={sales.salesPersonId}>{sales.lastNameFirstName}</p>
+                                                    </ListboxItem>
+                                                ))}
+                                            </Listbox>
+                                        </ListboxWrapper>
+                                    </div>
+                                    <div className={"p-4 align-middle"}>
+                                        <input
+                                            id={"toFillValueInputDeptId#" + deptID}
+                                            type={"text"}
+                                            maxLength={5}
+                                            className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 rounded"} />
+                                        <Spacer y={5} />
+                                        <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
+                                    </div>
+                                </div>
+                                <div className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] rounded-small border-small border-default-200 dark:border-default-100 max-w-44">
+                                    <div className={"align-middle text-center p-1"}>
+                                        <span className={"mx-auto text-[10pt]"}>Task Commission Rate</span>
+                                        <br/>
+                                        <Spacer y={2} />
+                                        <input
+                                            id={"toFillValueInputTaskCommRateDeptId#" + deptID}
+                                            placeholder={'Rate %'}
+                                            type={"text"}
+                                            maxLength={5}
+                                            className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 text-center rounded"} />
+                                        <Spacer y={5} />
+                                        <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <Button onPress={saveChanges}>Save Changes</Button>
+                                </div>
 
-                        <div className={"m-auto"}>
-                            <div id={"spinnerDivDeptId#" + deptID} hidden={true} className={"ml-16"}>
-                                <Spinner color="default" />
-                            </div>
-                            <div>
-                                <span id={"spinnerDeptId#" + deptID} className={"text-[16pt] font-medium select-none text-[gray]"}></span>
+                                <div className={"m-auto"}>
+                                    <div id={"spinnerDivDeptId#" + deptID} hidden={true} className={"ml-16"}>
+                                        <Spinner color="default" />
+                                    </div>
+                                    <div>
+                                <span id={"spinnerDeptId#" + deptID}
+                                      className={"text-[16pt] font-medium select-none text-[gray]"}></span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
+                    </AccordionItem>
+                </Accordion>
 
-                    </div>
-                </div>
+
             </>
         );
     };
@@ -385,7 +431,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         );
 
         if (error) return <div>failed to load</div>;
-        if (!data) return <div><Spinner color={"default"}  size={'lg'}/></div>;
+        if (!data) return <div><Spinner color={"default"} size={"lg"} /></div>;
         if (!data[0]) return <div>not found</div>;
 
         // @ts-ignore
@@ -406,11 +452,11 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             );
 
             const salesNoteMap = new Map();
-            const taskRateMap = new Map( );
-            const taskNoteMap = new Map( );
-            const lastEditByMap = new Map( );
+            const taskRateMap = new Map();
+            const taskNoteMap = new Map();
+            const lastEditByMap = new Map();
 
-            if(empAssignedRates && !empAssignedRatesError) {
+            if (empAssignedRates && !empAssignedRatesError) {
                 empAssignedRates.forEach((elem: any) => {
                     salesNoteMap.set(elem.mapKey, elem.notes);
                 });
