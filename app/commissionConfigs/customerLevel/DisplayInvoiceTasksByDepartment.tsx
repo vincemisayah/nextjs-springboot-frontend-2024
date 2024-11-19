@@ -355,32 +355,27 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     <AccordionItem key="anchor" aria-label="Anchor"
                                    indicator={<></>}
                                    // indicator={<FaToolbox />}
-                                   title={<div className={'flex gap-2 hover:text-cyan-500 text-[12pt]'}><FaToolbox /> Field Populator Tools</div>}>
+                                   title={<div className={'flex gap-2 text-[#71717a] hover:text-cyan-500 text-[12pt]'}><FaToolbox className={'mt-1.5'} size={15}/> Field Populator Tools</div>}>
                         <div className={'p-2'}>
                             <div className="flex flex-row gap-4">
-                                <div
-                                    className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] border-small border-default-200 dark:border-default-100">
-                                    <div>
-                                        <ListboxWrapper>
-                                            <Listbox
-                                                variant="flat"
-                                                selectionMode="multiple"
-                                            >
-                                                {salesPersonList.map((sales: any, index: any) => (
-                                                    <ListboxItem key={sales.salesPersonId}
-                                                                 className={"salesPersonItemDeptId#" + deptID}>
-                                                        <p id={sales.salesPersonId}>{sales.lastNameFirstName}</p>
-                                                    </ListboxItem>
-                                                ))}
-                                            </Listbox>
-                                        </ListboxWrapper>
-                                    </div>
+                                <div className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] border-small border-default-200 dark:border-default-100">
+                                    <ListboxWrapper>
+                                        <Listbox variant={'flat'} selectionMode="multiple" className={'bg-gray-50 dark:bg-[#18181b] rounded-lg'}>
+                                            {salesPersonList.map((sales: any, index: any) => (
+                                                <ListboxItem key={sales.salesPersonId}
+                                                             className={"salesPersonItemDeptId#" + deptID}>
+                                                    <p id={sales.salesPersonId}>{sales.lastNameFirstName}</p>
+                                                </ListboxItem>
+                                            ))}
+                                        </Listbox>
+                                    </ListboxWrapper>
                                     <div className={"p-4 align-middle"}>
                                         <input
                                             id={"toFillValueInputDeptId#" + deptID}
                                             type={"text"}
                                             maxLength={5}
-                                            className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 rounded"} />
+                                            placeholder={'Rate %'}
+                                            className={"text-center w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 rounded"} />
                                         <Spacer y={5} />
                                         <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
                                     </div>
