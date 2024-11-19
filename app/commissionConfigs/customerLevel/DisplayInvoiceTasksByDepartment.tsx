@@ -161,7 +161,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 selectedTaskItems.push(rows[i].id);
             }
         }
-        onOpen();
+        onOpen( );
     };
 
 
@@ -170,6 +170,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const ToolsModule = ({ deptID }) => {
         const postData = async (data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
             while(true) {
+                const saveBtn = document.getElementById('saveBtn#' + deptID);
+                // @ts-ignore
+                saveBtn.hidden = true;
+
                 // setIsSaving(true);
                 const spinnerDiv = document.getElementById('spinnerDivDeptId#' + deptID);
                 // @ts-ignore
@@ -178,6 +182,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 // "spinnerDeptId#" + deptID
                 const spinner = document.getElementById('spinnerDeptId#' + deptID);
 
+                // @ts-ignore
                 spinner.textContent = 'Saving changes . . . '
                 const response = await fetch('http://localhost:1118/invoiceCommissionService/customerlevel/saveCustomerLevelConfig',{
                     method: 'POST',
@@ -188,6 +193,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 // "spinnerDeptId#" + deptID
                 if(200 <= response.status || response.status < 300){
                     // @ts-ignore
+                    saveBtn.hidden = false;
                     spinnerDiv.hidden = true;
                     spinner.style.color = '#19b9d4'
                     spinner.textContent = 'Success!'
@@ -200,6 +206,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     // router.refresh();
                     break;
                 }else{
+                    saveBtn.hidden = false;
                     // setIsSaving(false);
                     alert('Failed to save changes. Server response status: ' + response.status)
                     spinner.textContent = 'Save attempt failed'
@@ -331,7 +338,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
         return (
             <>
-                <Accordion       motionProps={{
+                <Accordion motionProps={{
                     variants: {
                         enter: {
                             y: 0,
@@ -411,18 +418,31 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                     </div>
                                 </div>
                                 <div>
-                                    <Button onPress={saveChanges}>Save Changes</Button>
+                                    <div id={'saveBtn#' + deptID} hidden={false}>
+                                        <Button onPress={saveChanges}>Save Changes</Button>
+                                    </div>
+
+
+                                    <div className={"text-center pt-4 ml-5"}>
+                                        <div id={"spinnerDivDeptId#" + deptID}
+                                             hidden={true}>
+                                            <Spinner color="default" />
+                                        </div>
+                                        {/*<br/>*/}
+                                        <span className={'text-[#71717a] text-[11pt]'} id={"spinnerDeptId#" + deptID}></span>
+                                    </div>
+
                                 </div>
 
-                                <div className={"m-auto"}>
-                                    <div id={"spinnerDivDeptId#" + deptID} hidden={true} className={"ml-16"}>
-                                        <Spinner color="default" />
-                                    </div>
-                                    <div>
-                                <span id={"spinnerDeptId#" + deptID}
-                                      className={"text-[16pt] font-medium select-none text-[gray]"}></span>
-                                    </div>
-                                </div>
+                                {/*<div className={"m-auto"}>*/}
+                                {/*    <div id={"spinnerDivDeptId#" + deptID} hidden={true}>*/}
+                                {/*    <Spinner color="default" />*/}
+                                {/*    </div>*/}
+                                {/*<div>*/}
+                                {/*<span id={"spinnerDeptId#" + deptID}*/}
+                                {/*      className={"text-[16pt] font-medium select-none text-[gray]"}></span>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
 
                             </div>
                         </div>
