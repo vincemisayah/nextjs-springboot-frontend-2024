@@ -31,6 +31,7 @@ import { Textarea } from "@nextui-org/input";
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
+    const [loggedIn, setLoggedIn] = useState(3667);
     const [startFetching, setStartFetching] = useState(false);
     const [startFetchingTaskItems, setStartFetchingTaskItems] = useState(false);
 
@@ -41,39 +42,14 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [selectedTaskItems] = useState([]);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [salesPersonList, setSalesPersonList] = useState([]);
-    const [taskCommRates] = useState([
-        {
-            taskID: 100,
-            commRate: 4.25,
-            assignedBy: 3667,
-            notes: "Test note"
-        }
-    ]);
-
-    const [assignedTaskCommissionRates, setAssignedTaskCommissionRates] = useState([]);
-
-    const [mapTaskCommRates] = useState(new Map());
-    const [jsonArray, setJsonArray] = useState([])
-
 
     const handleClick = (arNumber: string, customerId: number, customerName: string, salesPersonList: string[]) => {
-        console.log("handleClick . . . ");
-
         setStartFetchingTaskItems(true);
         setArNumber(arNumber);
         setCustomerId(customerId);
         setCustomerName(customerName);
         // @ts-ignore
         setSalesPersonList(salesPersonList);
-
-        // commRateTaskId#100
-
-
-        mapTaskCommRates.set("commRateTaskId#100", taskCommRates[0].commRate);
-
-        // assignedTaskCommissionRates.forEach(obj =>{
-        //    console.log("Object Rate = ", obj);
-        // });
     };
 
     const handleChange = (e: any) => {
@@ -204,8 +180,12 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 const rateInfo = {
                     taskId: undefined,
                     taskRate:undefined,
+                    taskNote:undefined,
+                    lastEditBy: loggedIn,
                     salesAssignedRates:[]
                 };
+
+
 
                 const TASK_COMM_RATE_COLUMN_INDEX = 2;
                 for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length; i++) {
@@ -220,12 +200,18 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                         // @ts-ignore
                         rateInfo.taskRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+
+                        const taskRateNote = document.getElementById("textAreaTaskNote#" + rateInfo.taskId);
+
+                        // @ts-ignore
+                        rateInfo.taskNote = taskRateNote.value;
                     }
 
                     if(i > TASK_COMM_RATE_COLUMN_INDEX){
                         const salesPerson = {
                             empId: undefined,
                             assignedRate: undefined,
+                            salesNote: undefined
                         }
 
                         // @ts-ignore
@@ -233,6 +219,11 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         salesPerson.empId = inputID.split('#').at(inputID.split('#').length - 1)
                         // @ts-ignore
                         salesPerson.assignedRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+
+                        const salesNote = document.getElementById("textAreaSalesNote#" + salesPerson.empId);
+                        // @ts-ignore
+                        salesPerson.salesNote = salesNote.value;
+
                         // @ts-ignore
                         rateInfo.salesAssignedRates.push(salesPerson)
                     }
@@ -247,7 +238,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 // @ts-ignore
                 // setJsonArray(arrayRateInfos);
 
-                postData(arrayRateInfos);
+                // postData(arrayRateInfos);
             }
 
             console.log("arrayRateInfos = ", arrayRateInfos);
@@ -383,8 +374,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             }
 
             const showNote = (key:string)=>{
-                console.log("key = ", key)
-
                 const textAreaDiv = document.getElementById(key);
                 // @ts-ignore
                 if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
@@ -448,8 +437,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                         </div>
                                         <Spacer y={1}/>
                                         <div id={"commRateTaskNote#" + object.id} className={'opacity-0 transition-opacity ease-in-out delay-80'}>
-                                                <textarea className={'text-[10pt] bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
-                                                    defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}>
+                                                <textarea id={'textAreaTaskNote#' + object.id}
+                                                    className={'text-[10pt] bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
+                                                    defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}
+                                                    maxLength={150}>
                                                 </textarea>
                                         </div>
                                     </TableCell>
@@ -468,9 +459,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                             </div>
                                             <Spacer y={1} />
                                             <div id={"salesNote#" + sales.salesPersonId + "#taskId#" + object.id } className={'opacity-0 transition-opacity delay-100'}>
-                                                    <textarea className={"text-[10pt] bg-cyan-50 dark:bg-[#1c2432] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}
+                                                    <textarea id={'textAreaSalesNote#' + sales.salesPersonId}
+                                                        className={"text-[10pt] bg-cyan-50 dark:bg-[#1c2432] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}
                                                         defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}
-                                                        rows={4}>
+                                                        rows={4} maxLength={150}>
                                                     </textarea>
                                             </div>
 
@@ -576,41 +568,41 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 <div>
                     {startFetchingTaskItems && <InvoiceTaskItems arNumber={arNumber} />}
                 </div>
-                <Spacer x={5} />
-                <StickyDisplaySelectedTaskItems />
+                {/*<Spacer x={5} />*/}
+                {/*<StickyDisplaySelectedTaskItems />*/}
                 {/*{selectedTaskItems &&  <StickyDisplaySelectedTaskItems/>}*/}
             </div>
 
-            <Modal
-                size={"5xl"}
-                backdrop="opaque"
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
-                classNames={{
-                    backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
-                }}
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
-                            <ModalBody>
-                                {selectedTaskItems?.map((object: any, index: React.Key | null | undefined) => (
-                                    <div key={index}>{object}</div>
-                                ))}
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="danger" variant="light" onPress={onClose}>
-                                    Close
-                                </Button>
-                                <Button color="primary" onPress={onClose}>
-                                    Action
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+            {/*<Modal*/}
+            {/*    size={"5xl"}*/}
+            {/*    backdrop="opaque"*/}
+            {/*    isOpen={isOpen}*/}
+            {/*    onOpenChange={onOpenChange}*/}
+            {/*    classNames={{*/}
+            {/*        backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"*/}
+            {/*    }}*/}
+            {/*>*/}
+            {/*    <ModalContent>*/}
+            {/*        {(onClose) => (*/}
+            {/*            <>*/}
+            {/*                <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>*/}
+            {/*                <ModalBody>*/}
+            {/*                    {selectedTaskItems?.map((object: any, index: React.Key | null | undefined) => (*/}
+            {/*                        <div key={index}>{object}</div>*/}
+            {/*                    ))}*/}
+            {/*                </ModalBody>*/}
+            {/*                <ModalFooter>*/}
+            {/*                    <Button color="danger" variant="light" onPress={onClose}>*/}
+            {/*                        Close*/}
+            {/*                    </Button>*/}
+            {/*                    <Button color="primary" onPress={onClose}>*/}
+            {/*                        Action*/}
+            {/*                    </Button>*/}
+            {/*                </ModalFooter>*/}
+            {/*            </>*/}
+            {/*        )}*/}
+            {/*    </ModalContent>*/}
+            {/*</Modal>*/}
         </>
     );
 };
