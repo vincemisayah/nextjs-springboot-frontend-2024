@@ -48,6 +48,12 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [salesPersonList, setSalesPersonList] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
 
+    const [selectedKeys, setSelectedKeys] = React.useState(new Set(["text"]));
+    const selectedValue = React.useMemo(
+        () => Array.from(selectedKeys).join(", "),
+        [selectedKeys]
+    );
+
     const handleClick = (arNumber: string, customerId: number, customerName: string, salesPersonList: string[]) => {
         setStartFetchingTaskItems(true);
         setArNumber(arNumber);
@@ -153,7 +159,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 selectedTaskItems.push(rows[i].id);
             }
         }
-        console.log("selectedTaskItems = ", selectedTaskItems);
         onOpen();
     };
 
@@ -282,7 +287,31 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             }
         }
 
-        // @ts-ignore
+        const fillSelectedSalesPersonFields = ( ) =>{
+            const liArray = Array.from(document.getElementsByClassName('salesPersonItemDeptId#' + deptID)) ;
+            const salesIdArr: any[] = [];
+            liArray.forEach((item: any) => {
+                if(item.ariaSelected === 'true'){
+                    // @ts-ignore
+                    salesIdArr.push(Array.from(item.getElementsByTagName('p'))[0].id)
+                }
+            })
+
+            const table = document.getElementById('tableInvoiceTaskItemsDeptId#' + deptID);
+            // @ts-ignore
+            const tbody = Array.from(table.getElementsByTagName('tbody'))[0]
+            const tRows =  Array.from(tbody.getElementsByTagName('tr'))
+
+            tRows.forEach(row =>{
+                const taskId = (row.id).split('#').at((row.id).split('#').length - 1);
+                salesIdArr.forEach((salesId) => {
+                    const inputField = document.getElementById('taskId#' + taskId + '#salesId#' + salesId);
+                    // @ts-ignore
+                    inputField.value = document.getElementById('toFillValueInputDeptId#' + deptID).value;
+                })
+            })
+        }
+
         return (
             <>
                 <div>
@@ -292,20 +321,27 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] rounded-small border-small border-default-200 dark:border-default-100">
                             <div>
                                 <ListboxWrapper>
-                                    <Listbox variant="flat" selectionMode="multiple">
+                                    <Listbox
+                                        variant="flat"
+                                        selectionMode="multiple"
+                                    >
                                         {salesPersonList.map((sales: any, index: any) => (
-                                            <ListboxItem key={index}>
-                                                {sales.lastNameFirstName}
+                                            <ListboxItem key={sales.salesPersonId} className={'salesPersonItemDeptId#' + deptID}>
+                                                <p id={sales.salesPersonId}>{sales.lastNameFirstName}</p>
                                             </ListboxItem>
                                         ))}
                                     </Listbox>
                                 </ListboxWrapper>
+                                <p className="text-small text-default-500">Selected value: {selectedValue}</p>
                             </div>
                             <div className={"p-4 align-middle"}>
-                                <input type={"text"} maxLength={5}
-                                       className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100"} />
+                                <input
+                                    id={'toFillValueInputDeptId#' + deptID}
+                                    type={"text"}
+                                    maxLength={5}
+                                    className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100"} />
                                 <Spacer y={5} />
-                                <Button size={"sm"}>Fill in fields</Button>
+                                <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
                             </div>
                         </div>
                         <div>
@@ -431,7 +467,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 <div className={"shadow-sm p-3"}>
                     <ToolsModule deptID={deptId} />
                     <Spacer y={5} />
-                    <Table removeWrapper selectionMode={"none"}>
+                    <Table removeWrapper selectionMode={"none"} id={'tableInvoiceTaskItemsDeptId#' + deptId}>
                         <TableHeader>
                             <TableColumn>Task Name</TableColumn>
                             <TableColumn>Description</TableColumn>
@@ -609,7 +645,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     </span>
                 </div>
                 <div className="task-dept-container flex flex-col">
-                    <Accordion selectionMode="multiple" isCompact className={"w-full"}>
+                    <Accordion selectionMode="multiple" isCompact className={"w-full bg-[#fefdff] dark:bg-[#18181b]"}>
                         {data?.map((object: any, index: React.Key | null | undefined) => (
                             <AccordionItem key={index} aria-label="Accordion 1"
                                            title={<span
