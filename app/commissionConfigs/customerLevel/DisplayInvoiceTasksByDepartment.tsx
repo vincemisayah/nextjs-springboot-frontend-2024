@@ -26,11 +26,15 @@ import { CompatClient, Stomp } from "@stomp/stompjs";
 import { FcComments } from "react-icons/fc";
 import { FaCircleInfo, FaRegMessage } from "react-icons/fa6";
 import { Textarea } from "@nextui-org/input";
+import { IoClipboardSharp, IoPerson } from "react-icons/io5";
+import { useRouter } from 'next/navigation';
+import clsx from "clsx";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
+    const router = useRouter();
     const [loggedIn, setLoggedIn] = useState(3667);
     const [startFetching, setStartFetching] = useState(false);
     const [startFetchingTaskItems, setStartFetchingTaskItems] = useState(false);
@@ -42,6 +46,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [selectedTaskItems] = useState([]);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [salesPersonList, setSalesPersonList] = useState([]);
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleClick = (arNumber: string, customerId: number, customerName: string, salesPersonList: string[]) => {
         setStartFetchingTaskItems(true);
@@ -157,16 +162,52 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     // @ts-ignore
     const ToolsModule = ({ deptID }) => {
         const postData = async (data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
-            console.log('postData . . . ');
+            while(true) {
+                // setIsSaving(true);
+                const spinnerDiv = document.getElementById('spinnerDivDeptId#' + deptID);
+                // @ts-ignore
+                spinnerDiv.hidden = false;
 
-            console.log('data to save = ', data);
-            const response = await fetch('http://localhost:1118/invoiceCommissionService/customerlevel/saveCustomerLevelConfig',{
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data),
-            })
+                // "spinnerDeptId#" + deptID
+                const spinner = document.getElementById('spinnerDeptId#' + deptID);
 
-            console.log('response.status = ', response.status);
+                spinner.textContent = 'Saving changes . . . '
+                const response = await fetch('http://localhost:1118/invoiceCommissionService/customerlevel/saveCustomerLevelConfig',{
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data),
+                })
+
+                // "spinnerDeptId#" + deptID
+                if(200 <= response.status || response.status < 300){
+                    // @ts-ignore
+                    spinnerDiv.hidden = true;
+                    spinner.style.color = '#19b9d4'
+                    spinner.textContent = 'Success!'
+
+                    setTimeout(() => {
+                        spinner.style.color = 'grey'
+                        spinner.textContent = ''
+                    }, "1500");
+
+                    // router.refresh();
+                    break;
+                }else{
+                    // setIsSaving(false);
+                    alert('Failed to save changes. Server response status: ' + response.status)
+                    spinner.textContent = 'Save attempt failed'
+                    // @ts-ignore
+                    setTimeout(() => {
+                        spinnerDiv.hidden = true;
+                    }, "1500");
+                    // router.refresh();
+                    break;
+                }
+            }
+
+            // 'spinnerDivDeptId#' + deptID
+
+            // router.refresh();
         }
 
         const saveChanges = () =>{
@@ -239,21 +280,16 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 // @ts-ignore
                 postData(arrayRateInfos);
             }
-
-            console.log("arrayRateInfos = ", arrayRateInfos);
-
-            // @ts-ignore
-            // setJsonArray(arrayRateInfos);
-            // console.log('JSON ARRAY = ', jsonArray);
         }
 
+        // @ts-ignore
         return (
             <>
                 <div>
                     <span className={"ml-1"}>Auto-populate Tools</span>
                     <div className="flex flex-row gap-4">
                         <div
-                            className="flex flex-row gap-4 p-2 border-1 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a]">
+                            className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] rounded-small border-small border-default-200 dark:border-default-100">
                             <div>
                                 <ListboxWrapper>
                                     <Listbox variant="flat" selectionMode="multiple">
@@ -275,6 +311,16 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         <div>
                             <Button onPress={saveChanges}>Save Changes</Button>
                         </div>
+
+                        <div className={"m-auto"}>
+                            <div id={"spinnerDivDeptId#" + deptID} hidden={true} className={"ml-16"}>
+                                <Spinner color="default" />
+                            </div>
+                            <div>
+                                <span id={"spinnerDeptId#" + deptID} className={"text-[16pt] font-medium select-none text-[gray]"}></span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </>
@@ -288,7 +334,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         );
 
         if (error) return <div>failed to load</div>;
-        if (!data) return <div><Spinner color={"default"} /></div>;
+        if (!data) return <div><Spinner color={"default"}  size={'lg'}/></div>;
         if (!data[0]) return <div>not found</div>;
 
         // @ts-ignore
@@ -340,16 +386,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
             const showSalesNote = (key:string)=>{
                 const textAreaDiv = document.getElementById(key);
-                // // @ts-ignore
-                // if(textAreaDiv.hidden) { // @ts-ignore
-                //     textAreaDiv.hidden = false
-                // }else{
-                //     // @ts-ignore
-                //     textAreaDiv.hidden = true
-                // }
-
-
                 if(salesPersonList.length > 1){
+                    // @ts-ignore
                     if(textAreaDiv.hidden) { // @ts-ignore
                         textAreaDiv.hidden = false
                     }else{
@@ -367,8 +405,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             targetDiv.hidden = true
                         }
                     })
-
                 }else{
+                    // @ts-ignore
                     if(textAreaDiv.hidden) { // @ts-ignore
                         textAreaDiv.hidden = false
                     }else{
@@ -376,38 +414,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         textAreaDiv.hidden = true
                     }
                 }
-
-                // if(salesPersonList.length > 1){
-                //     const textAreaDiv = document.getElementById(key);
-                //     // @ts-ignore
-                //     if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
-                //         textAreaDiv.style.opacity = String(1)
-                //     }else{
-                //         // @ts-ignore
-                //         textAreaDiv.style.opacity = String(0)
-                //     }
-                //
-                //     const empID = key.split('#')[1];
-                //     const taskID = key.split('#')[key.split('#').length - 1];
-                //
-                //     salesPersonList.forEach((elem: any) => {
-                //         if(elem.salesPersonId !== Number(empID)){
-                //             const targetDiv = document.getElementById('salesNote#' + elem.salesPersonId + '#taskId#' + taskID);
-                //             // @ts-ignore
-                //             targetDiv.style.opacity = String(0)
-                //         }
-                //     })
-                //
-                // }else{
-                //     const textAreaDiv = document.getElementById(key);
-                //     // @ts-ignore
-                //     if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
-                //         textAreaDiv.style.opacity = String(1)
-                //     }else{
-                //         // @ts-ignore
-                //         textAreaDiv.style.opacity = String(0)
-                //     }
-                // }
             }
 
             const showNote = (key:string)=>{
@@ -422,7 +428,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             }
 
             return (
-                <div className={"border-1 p-3 rounded-lg"}>
+                <div className={"shadow-sm p-3"}>
                     <ToolsModule deptID={deptId} />
                     <Spacer y={5} />
                     <Table removeWrapper selectionMode={"none"}>
@@ -448,13 +454,22 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                     </div>
                                                 </PopoverTrigger>
                                                 <PopoverContent>
-                                                    <div className="px-1 py-2">
-                                                        <div className="text-small font-bold pb-2">Last Edited By</div>
-                                                        <div className="text-tiny">{lastEditByMap.get("commRateTaskId#" + object.id)}</div>
-                                                    </div>
+                                                    {lastEditByMap.get("commRateTaskId#" + object.id)? (
+                                                        <div className="px-1 py-2">
+                                                            <div className="text-small font-bold pb-2">Last Edited By</div>
+                                                            <div className="text-tiny">{lastEditByMap.get("commRateTaskId#" + object.id)}</div>
+                                                        </div>
+                                                    ): (
+                                                        <div className="px-1 py-2">
+                                                            <div className="text-small">
+                                                                Not yet entered nor edited.
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                 </PopoverContent>
                                             </Popover>
-                                            <Spacer x={1}/>
+                                            <Spacer x={1} />
                                             {object.taskName}
                                         </div>
 
@@ -471,22 +486,34 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                             <PiPercentLight className={"ml-1"} size={17} />
                                             <Spacer x={1} />
                                             <FaRegMessage onClick={() => showNote("commRateTaskNote#" + object.id)}
-                                                          color={"#a8a8a8"} className={"hover:cursor-pointer"} />
+                                                          color={clsx({
+                                                              ['#06b6d4']: taskNoteMap.get("commRateTaskId#" + object.id).length > 0 ,
+                                                              ['grey']: taskNoteMap.get("commRateTaskId#" + object.id).length < 1,
+                                                          })}
+                                                          className={"hover:cursor-pointer"}
+                                            />
                                         </div>
                                         <Spacer y={1}/>
                                         <div id={"commRateTaskNote#" + object.id} hidden>
+                                            <div className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
+                                                <div className={"flex"}>
+                                                    <IoClipboardSharp color={"#a8a8a8"} className={'mt-[2px]'} size={14} />
+                                                    <Spacer x={1} />
+                                                    <span className={"text-[#71717a] dark:text-[#9e9ea7] font-medium text-sm"}>{object.taskName}</span>
+                                                </div>
 
-                                            <textarea id={'textAreaTaskNote#' + object.id}
-                                                className={'text-[10pt] bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
-                                                defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}
-                                                maxLength={150}>
-                                            </textarea>
+                                                <textarea id={"textAreaTaskNote#" + object.id}
+                                                          className={"text-[10pt] dark:bg-[#27272a] rounded border-small border-default-200 dark:border-default-100 p-2"}
+                                                          defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}
+                                                          maxLength={150}>
+                                                </textarea>
+                                            </div>
                                         </div>
                                     </TableCell>
                                     {/*@ts-ignore*/}
                                     {salesPersonList.map((sales: any, index: any) => (
                                         <TableCell
-                                            className={'select-none'}
+                                            className={"select-none"}
                                             key={index + "taskId#" + object.id + "#salesId#" + sales.salesPersonId}>
                                             <div className={"flex"}>
                                                 <input id={"taskId#" + object.id + "#salesId#" + sales.salesPersonId}
@@ -496,15 +523,26 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                        defaultValue={empAssignedRatesMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)} />
                                                 <PiPercentLight className={"ml-1"} size={17} />
                                                 <Spacer x={1} />
-                                                <FaRegMessage color={"#a8a8a8"} className={"hover:cursor-pointer"} onClick={()=>showSalesNote("salesNote#" + sales.salesPersonId + "#taskId#" + object.id )}/>
+                                                <FaRegMessage
+                                                    color={clsx({
+                                                        ['#06b6d4']: salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId).length > 0 ,
+                                                        ['grey']: salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId).length < 1,
+                                                    })}
+                                                    className={"hover:cursor-pointer"}
+                                                    onClick={()=>showSalesNote("salesNote#" + sales.salesPersonId + "#taskId#" + object.id )}/>
                                             </div>
                                             <Spacer y={1}/>
                                             <div id={"salesNote#" + sales.salesPersonId + "#taskId#" + object.id} hidden={true}>
-                                                <div className={"bg-[#ffffff] dark:bg-[#4a4a50] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
-                                                    <span className={'font-bold'}>Assigned Rate Comments for <span className={'italic'}>{sales.lastNameFirstName}</span> </span>
+                                                <div className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
+                                                    <div className={"flex"}>
+                                                        <IoPerson color={"#a8a8a8"} className={'mt-[2px]'} size={14} />
+                                                        <Spacer x={1} />
+                                                        <span className={"text-[#71717a] dark:text-[#9e9ea7] font-medium text-sm"}>{sales.lastNameFirstName}</span>
+                                                    </div>
+
                                                     <textarea
                                                         id={"textAreaSalesNote#" + sales.salesPersonId + "#taskId#" + object.id}
-                                                        className={"text-[10pt] bg-cyan-50 dark:bg-[#1c2432] "}
+                                                        className={"text-[10pt] dark:bg-[#27272a] rounded border-small border-default-200 dark:border-default-100 p-2"}
                                                         defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}
                                                         rows={4} maxLength={150}>
                                                     </textarea>
@@ -524,40 +562,43 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         const ViewSelectedCustomer = () => {
 
             return (
-                <div className={"mb-5 w-[65%]"}>
-                    <h1 className={"pb-5"}>This configuration will apply to the following customer's assigned sales
-                        people.</h1>
-                    <Table aria-label="Example static collection table">
-                    <TableHeader>
-                            <TableColumn>AR Number</TableColumn>
-                            <TableColumn>Customer ID</TableColumn>
-                            <TableColumn>Customer Name</TableColumn>
-                            <TableColumn className={"min-w-[20ch]"}>
-                                <div className={"flex"}>
-                                    <HiMiniUsers size={"19"} />
-                                    <Spacer x={1} />
-                                    Sales
-                                </div>
-                            </TableColumn>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow key="1">
-                                <TableCell>{arNumber}</TableCell>
-                                <TableCell>{customerId}</TableCell>
-                                <TableCell>{customerName}</TableCell>
-                                <TableCell>
-                                    {salesPersonList.length > 0 ?
-                                        <ul>
-                                            {salesPersonList.map((person: any, index: any) => (
-                                                <li key={index}>&#8226;{" " + person.lastNameFirstName}</li>
-                                            ))}
-                                        </ul> : <span className={"text-red-500"}>N/A</span>}
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                    <Spacer y={5} />
-                </div>
+                <>
+                    <span className={"pb-5 text-lg"}>
+                        This configuration will apply to the following customer's assigned sales people.
+                    </span>
+                    <div className={"mb-5 w-[65%]"}>
+                        <Table aria-label="Example static collection table">
+                            <TableHeader>
+                                <TableColumn>AR Number</TableColumn>
+                                <TableColumn>Customer ID</TableColumn>
+                                <TableColumn>Customer Name</TableColumn>
+                                <TableColumn className={"min-w-[20ch]"}>
+                                    <div className={"flex"}>
+                                        <HiMiniUsers size={"19"} />
+                                        <Spacer x={1} />
+                                        Sales
+                                    </div>
+                                </TableColumn>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow key="1">
+                                    <TableCell>{arNumber}</TableCell>
+                                    <TableCell>{customerId}</TableCell>
+                                    <TableCell>{customerName}</TableCell>
+                                    <TableCell>
+                                        {salesPersonList.length > 0 ?
+                                            <ul>
+                                                {salesPersonList.map((person: any, index: any) => (
+                                                    <li key={index}>&#8226;{" " + person.lastNameFirstName}</li>
+                                                ))}
+                                            </ul> : <span className={"text-red-500"}>N/A</span>}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                        <Spacer y={5} />
+                    </div>
+                </>
             );
         };
 
@@ -565,8 +606,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             <>
                 <ViewSelectedCustomer />
                 <div className={"pb-5"}>
-                    <span className={"text-1xl text-slate-700"}>
-                        Select the invoice department to view their associated task items</span>
+                    <span className={"text-lg"}>
+                        Select the invoice department to view their associated task items
+                    </span>
                 </div>
                 <div className="task-dept-container flex flex-col">
                     <Accordion selectionMode="multiple" isCompact className={"w-full"}>
@@ -599,55 +641,25 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     // @ts-ignore
     return (
         <>
-            <div className="flex">
-                <div className={"space-y-4"}>
-                    <input className={"border-1 border-slate-600 w-full max-w-64"}
-                           type="text"
-                           value={searchTerm}
-                           onChange={handleChange}
-                           id="series" />{" "}
+            <div className="flex mx-auto">
+                <div className={"space-y-4 p-5 shadow-md h-fit rounded-small border-small border-default-200 dark:border-default-100"}>
+                    <span>Search the customer by their AR number and click the customer you want to configure</span>
+                    <Spacer y={1} />
+                    <input
+                        className={"w-full max-w-64 rounded-small border-small border-default-200 dark:border-default-100 bg-[#f4f4f5] text-center dark:bg-[#18181b]"}
+                        placeholder={"Search by AR Number"}
+                        type="text"
+                        value={searchTerm}
+                        onChange={handleChange}
+                        id="series" />{" "}
                     <br />
                     {startFetching && <SearchResults keyword={searchTerm} url={props.url} />}
                 </div>
                 <Spacer x={14} />
-                <div>
+                <div className={"rounded-small border-small border-default-200 dark:border-default-100 p-5 shadow-md"}>
                     {startFetchingTaskItems && <InvoiceTaskItems arNumber={arNumber} />}
                 </div>
-                {/*<Spacer x={5} />*/}
-                {/*<StickyDisplaySelectedTaskItems />*/}
-                {/*{selectedTaskItems &&  <StickyDisplaySelectedTaskItems/>}*/}
             </div>
-
-            {/*<Modal*/}
-            {/*    size={"5xl"}*/}
-            {/*    backdrop="opaque"*/}
-            {/*    isOpen={isOpen}*/}
-            {/*    onOpenChange={onOpenChange}*/}
-            {/*    classNames={{*/}
-            {/*        backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"*/}
-            {/*    }}*/}
-            {/*>*/}
-            {/*    <ModalContent>*/}
-            {/*        {(onClose) => (*/}
-            {/*            <>*/}
-            {/*                <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>*/}
-            {/*                <ModalBody>*/}
-            {/*                    {selectedTaskItems?.map((object: any, index: React.Key | null | undefined) => (*/}
-            {/*                        <div key={index}>{object}</div>*/}
-            {/*                    ))}*/}
-            {/*                </ModalBody>*/}
-            {/*                <ModalFooter>*/}
-            {/*                    <Button color="danger" variant="light" onPress={onClose}>*/}
-            {/*                        Close*/}
-            {/*                    </Button>*/}
-            {/*                    <Button color="primary" onPress={onClose}>*/}
-            {/*                        Action*/}
-            {/*                    </Button>*/}
-            {/*                </ModalFooter>*/}
-            {/*            </>*/}
-            {/*        )}*/}
-            {/*    </ModalContent>*/}
-            {/*</Modal>*/}
         </>
     );
 };

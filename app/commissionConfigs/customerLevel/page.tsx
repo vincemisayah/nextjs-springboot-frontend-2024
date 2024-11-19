@@ -7,7 +7,6 @@ import CustomerContent from "@/app/commissionConfigs/customerLevel/CustomerConte
 export default function CustomerLevelPage(){
     return(
         <main>
-            <h1>Customer Level Configuration</h1>
             <CustomerContent/>
         </main>
     );
