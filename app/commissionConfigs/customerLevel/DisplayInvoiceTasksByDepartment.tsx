@@ -319,16 +319,17 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             );
 
             const salesNoteMap = new Map();
+            const taskRateMap = new Map( );
+            const taskNoteMap = new Map( );
+            const lastEditByMap = new Map( );
+
             if(empAssignedRates && !empAssignedRatesError) {
                 empAssignedRates.forEach((elem: any) => {
                     salesNoteMap.set(elem.mapKey, elem.notes);
                 });
             }
 
-            const taskRateMap = new Map( );
-            const taskNoteMap = new Map( );
-            const lastEditByMap = new Map( );
-            if (taskRates) {
+            if (taskRates && !taskRatesError) {
                 taskRates.forEach((elem: any) => {
                     taskRateMap.set(elem.mapKey, elem.rate);
                     taskNoteMap.set(elem.mapKey, elem.notes);
@@ -337,7 +338,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             }
 
             const empAssignedRatesMap = new Map();
-            if (empAssignedRates) {
+            if (empAssignedRates && !empAssignedRatesError) {
                 empAssignedRates.forEach((elem: any) => {
                     empAssignedRatesMap.set(elem.mapKey, elem.assignedRate);
                 });
@@ -347,7 +348,43 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             if (!data) return <div>loading...</div>;
             if (!data[0]) return <div>not found</div>;
 
+            const showSalesNote = (key:string)=>{
+                if(salesPersonList.length > 1){
+                    const textAreaDiv = document.getElementById(key);
+                    // @ts-ignore
+                    if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
+                        textAreaDiv.style.opacity = String(1)
+                    }else{
+                        // @ts-ignore
+                        textAreaDiv.style.opacity = String(0)
+                    }
+
+                    const empID = key.split('#')[1];
+                    const taskID = key.split('#')[key.split('#').length - 1];
+
+                    salesPersonList.forEach((elem: any) => {
+                        if(elem.salesPersonId !== Number(empID)){
+                            const targetDiv = document.getElementById('salesNote#' + elem.salesPersonId + '#taskId#' + taskID);
+                            // @ts-ignore
+                            targetDiv.style.opacity = String(0)
+                        }
+                    })
+
+                }else{
+                    const textAreaDiv = document.getElementById(key);
+                    // @ts-ignore
+                    if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
+                        textAreaDiv.style.opacity = String(1)
+                    }else{
+                        // @ts-ignore
+                        textAreaDiv.style.opacity = String(0)
+                    }
+                }
+            }
+
             const showNote = (key:string)=>{
+                console.log("key = ", key)
+
                 const textAreaDiv = document.getElementById(key);
                 // @ts-ignore
                 if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
@@ -411,7 +448,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                         </div>
                                         <Spacer y={1}/>
                                         <div id={"commRateTaskNote#" + object.id} className={'opacity-0 transition-opacity ease-in-out delay-80'}>
-                                                <textarea className={'bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
+                                                <textarea className={'text-[10pt] bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
                                                     defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}>
                                                 </textarea>
                                         </div>
@@ -427,12 +464,13 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                        defaultValue={empAssignedRatesMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)} />
                                                 <PiPercentLight className={"ml-1"} size={17} />
                                                 <Spacer x={1} />
-                                                <FaRegMessage color={"#a8a8a8"} className={"hover:cursor-pointer"} onClick={()=>showNote("salesNote#" + sales.salesPersonId + "taskId#" + object.id )}/>
+                                                <FaRegMessage color={"#a8a8a8"} className={"hover:cursor-pointer"} onClick={()=>showSalesNote("salesNote#" + sales.salesPersonId + "#taskId#" + object.id )}/>
                                             </div>
                                             <Spacer y={1} />
-                                            <div id={"salesNote#" + sales.salesPersonId + "taskId#" + object.id } className={'opacity-0 transition-opacity delay-100'}>
-                                                    <textarea className={"bg-cyan-50 dark:bg-[#1c2432] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}
-                                                        defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}>
+                                            <div id={"salesNote#" + sales.salesPersonId + "#taskId#" + object.id } className={'opacity-0 transition-opacity delay-100'}>
+                                                    <textarea className={"text-[10pt] bg-cyan-50 dark:bg-[#1c2432] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}
+                                                        defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}
+                                                        rows={4}>
                                                     </textarea>
                                             </div>
 
