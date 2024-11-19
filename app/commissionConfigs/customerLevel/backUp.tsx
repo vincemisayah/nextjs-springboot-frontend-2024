@@ -1,27 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useSWR from "swr";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
-import { Skeleton, Spacer, Spinner } from "@nextui-org/react";
-import {Card} from "@nextui-org/react";
-import {Accordion, AccordionItem} from "@nextui-org/accordion";
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, useDisclosure} from "@nextui-org/react";
+import {
+    Card, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Popover, PopoverContent, PopoverTrigger,
+    Skeleton,
+    Spacer,
+    Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow,
+    useDisclosure
+} from "@nextui-org/react";
+import { Accordion, AccordionItem } from "@nextui-org/accordion";
 import { Button } from "@nextui-org/button";
-import {
-    Modal,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter
-} from "@nextui-org/modal";
-import {
-    Listbox,
-    ListboxItem
-} from "@nextui-org/listbox";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/modal";
+import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { HiMiniUsers } from "react-icons/hi2";
 import { ListboxWrapper } from "../util/ListboxWrapper";
-import { RiPercentFill } from "react-icons/ri";
-import { TbPercentage } from "react-icons/tb";
-import { PiPercentLight, PiPercentThin } from "react-icons/pi";
+import { PiPercentLight } from "react-icons/pi";
+import SendAndSaveData from "@/app/commissionConfigs/customerLevel/SendAndSaveData";
+import { CompatClient, Stomp } from "@stomp/stompjs";
+import { FcComments } from "react-icons/fc";
+import { FaCircleInfo, FaRegMessage } from "react-icons/fa6";
+import { Textarea } from "@nextui-org/input";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -35,23 +39,25 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [customerId, setCustomerId] = useState(-1);
     const [customerName, setCustomerName] = useState("");
     const [selectedTaskItems] = useState([]);
-    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [salesPersonList, setSalesPersonList] = useState([]);
     const [taskCommRates] = useState([
-        {taskID:100,
-            commRate:4.25,
-            assignedBy:3667,
-            notes:"Test note"}
+        {
+            taskID: 100,
+            commRate: 4.25,
+            assignedBy: 3667,
+            notes: "Test note"
+        }
     ]);
 
     const [assignedTaskCommissionRates, setAssignedTaskCommissionRates] = useState([]);
 
-    const [mapTaskCommRates] = useState(new Map( ));
+    const [mapTaskCommRates] = useState(new Map());
+    const [jsonArray, setJsonArray] = useState([])
 
 
-
-    const handleClick = (arNumber: string, customerId:number, customerName:string, salesPersonList:string[]) => {
-        console.log("handleClick . . . ")
+    const handleClick = (arNumber: string, customerId: number, customerName: string, salesPersonList: string[]) => {
+        console.log("handleClick . . . ");
 
         setStartFetchingTaskItems(true);
         setArNumber(arNumber);
@@ -63,7 +69,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         // commRateTaskId#100
 
 
-        mapTaskCommRates.set('commRateTaskId#100', taskCommRates[0].commRate);
+        mapTaskCommRates.set("commRateTaskId#100", taskCommRates[0].commRate);
 
         // assignedTaskCommissionRates.forEach(obj =>{
         //    console.log("Object Rate = ", obj);
@@ -85,7 +91,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
         if (error) return <div>failed to load</div>;
         if (!data) return (
-            <div className={'mx-2 pt-5'} >
+            <div className={"mx-2 pt-5"}>
                 <Card className="w-[200px] space-y-5 p-4" radius="lg">
                     <div className="space-y-3">
                         <Skeleton className="w-3/5 rounded-lg">
@@ -114,34 +120,35 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         if (!data[0]) return <div>not found</div>;
 
         return (
-            <div className={'overflow-auto'}>
+            <div className={"overflow-auto"}>
                 <ScrollShadow className={"h-[50vh]"} hideScrollBar={true}>
-                    <Table selectionMode={'single'}>
+                    <Table selectionMode={"single"}>
                         <TableHeader>
                             <TableColumn>AR</TableColumn>
                             <TableColumn>Customer ID</TableColumn>
                             <TableColumn>Customer Name</TableColumn>
-                            <TableColumn className={'min-w-[20ch]'}>
-                                <div className={'flex'}>
-                                    <HiMiniUsers  size={'19'}/>
-                                    <Spacer x={1}/>
+                            <TableColumn className={"min-w-[20ch]"}>
+                                <div className={"flex"}>
+                                    <HiMiniUsers size={"19"} />
+                                    <Spacer x={1} />
                                     Sales
                                 </div>
                             </TableColumn>
                         </TableHeader>
                         <TableBody>
                             {data?.map((object: any, index: React.Key | null | undefined) => (
-                                <TableRow className={'cursor-pointer'} key={index} onClick={() => handleClick(object.arNumber, object.id, object.name, object.salesPersonList)}>
+                                <TableRow className={"cursor-pointer"} key={index}
+                                          onClick={() => handleClick(object.arNumber, object.id, object.name, object.salesPersonList)}>
                                     <TableCell>{object.arNumber}</TableCell>
                                     <TableCell>{object.id}</TableCell>
                                     <TableCell>{object.name}</TableCell>
                                     <TableCell>
-                                        {object.salesPersonList.length > 0?
+                                        {object.salesPersonList.length > 0 ?
                                             <ul>
-                                                {object.salesPersonList.map((name:any, index:any) =>(
-                                                    <li key={index}>&#8226;{' ' + name.lastNameFirstName}</li>
+                                                {object.salesPersonList.map((name: any, index: any) => (
+                                                    <li key={index}>&#8226;{" " + name.lastNameFirstName}</li>
                                                 ))}
-                                            </ul>: <span className={'text-red-500'}>N/A</span>}
+                                            </ul> : <span className={"text-red-500"}>N/A</span>}
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -152,30 +159,111 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         );
     };
 
-    const CollectSelectedTaskItems = ( ) =>{
-        console.log('CollectSelectedTaskItems . . . ')
+    const CollectSelectedTaskItems = () => {
+        console.log("CollectSelectedTaskItems . . . ");
         const rows = document.getElementsByClassName("taskRow");
 
-        if(selectedTaskItems.length > 0){
-            selectedTaskItems.splice(0, selectedTaskItems.length)
+        if (selectedTaskItems.length > 0) {
+            selectedTaskItems.splice(0, selectedTaskItems.length);
         }
-        for(let i = 0; i < rows.length; i++){
-            if(rows[i].getAttribute("aria-selected") === 'true'){
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].getAttribute("aria-selected") === "true") {
                 // @ts-ignore
                 selectedTaskItems.push(rows[i].id);
             }
         }
-        console.log("selectedTaskItems = ", selectedTaskItems)
-        onOpen( );
-    }
+        console.log("selectedTaskItems = ", selectedTaskItems);
+        onOpen();
+    };
 
-    const ToolsModule = ( ) =>{
-        return(
+
+
+    // @ts-ignore
+    const ToolsModule = ({ deptID }) => {
+        const postData = async (data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
+            console.log('postData . . . ');
+
+            console.log('data to save = ', data);
+            const response = await fetch('http://localhost:1118/invoiceCommissionService/customerlevel/saveCustomerLevelConfig',{
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            })
+
+            console.log('response.status = ', response.status);
+        }
+
+        const saveChanges = () =>{
+            let arrayRateInfos: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[] = [];
+
+            const collectionOfRows = document.getElementsByClassName("taskRowDeptId#" + deptID);
+            const rows = Array.from(collectionOfRows);
+            rows.forEach((row: any, index: any) => {
+                const tdChildren = Array.from(row.children);
+
+                const rateInfo = {
+                    taskId: undefined,
+                    taskRate:undefined,
+                    salesAssignedRates:[]
+                };
+
+                const TASK_COMM_RATE_COLUMN_INDEX = 2;
+                for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length; i++) {
+                    // @ts-ignore
+                    const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+
+                    if(i === TASK_COMM_RATE_COLUMN_INDEX){
+                        // @ts-ignore
+                        const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
+                        // @ts-ignore
+                        rateInfo.taskId = inputID.split('#').at(inputID.split('#').length - 1);
+
+                        // @ts-ignore
+                        rateInfo.taskRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+                    }
+
+                    if(i > TASK_COMM_RATE_COLUMN_INDEX){
+                        const salesPerson = {
+                            empId: undefined,
+                            assignedRate: undefined,
+                        }
+
+                        // @ts-ignore
+                        const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
+                        salesPerson.empId = inputID.split('#').at(inputID.split('#').length - 1)
+                        // @ts-ignore
+                        salesPerson.assignedRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+                        // @ts-ignore
+                        rateInfo.salesAssignedRates.push(salesPerson)
+                    }
+                }
+                // console.log("RATE INFO = ", rateInfo);
+
+                // postData( )
+                arrayRateInfos.push(rateInfo);
+            })
+
+            if(arrayRateInfos.length > 0){
+                // @ts-ignore
+                // setJsonArray(arrayRateInfos);
+
+                postData(arrayRateInfos);
+            }
+
+            console.log("arrayRateInfos = ", arrayRateInfos);
+
+            // @ts-ignore
+            // setJsonArray(arrayRateInfos);
+            // console.log('JSON ARRAY = ', jsonArray);
+        }
+
+        return (
             <>
                 <div>
                     <span className={"ml-1"}>Auto-populate Tools</span>
                     <div className="flex flex-row gap-4">
-                        <div className="flex flex-row gap-4 p-2 border-1 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a]">
+                        <div
+                            className="flex flex-row gap-4 p-2 border-1 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a]">
                             <div>
                                 <ListboxWrapper>
                                     <Listbox variant="flat" selectionMode="multiple">
@@ -188,19 +276,20 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                 </ListboxWrapper>
                             </div>
                             <div className={"p-4 align-middle"}>
-                                <input type={"text"} maxLength={5} className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100"} />
+                                <input type={"text"} maxLength={5}
+                                       className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100"} />
                                 <Spacer y={5} />
                                 <Button size={"sm"}>Fill in fields</Button>
                             </div>
                         </div>
                         <div>
-                            <Button>Save Changes</Button>
+                            <Button onPress={saveChanges}>Save Changes</Button>
                         </div>
                     </div>
                 </div>
             </>
         );
-    }
+    };
 
     const InvoiceTaskItems = (arg: { arNumber: string }) => {
         const { data, error } = useSWR(
@@ -224,32 +313,81 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 fetcher
             );
 
-            const { data:empAssignedRates, error:empAssignedRatesError } = useSWR(
+            const { data: empAssignedRates, error: empAssignedRatesError } = useSWR(
                 "http://localhost:1118/invoiceCommissionService/customerlevel/customerEmployeeAssignedRates?customerID=" + customerId,
                 fetcher
             );
 
+            const salesNoteMap = new Map();
+            if(empAssignedRates && !empAssignedRatesError) {
+                empAssignedRates.forEach((elem: any) => {
+                    // console.log("elem = ", elem)
+                    salesNoteMap.set(elem.mapKey, elem.notes);
+                });
+            }
+
+            console.log('taskRates = ', taskRates)
+
             const taskRateMap = new Map();
-            if(taskRates){
-                taskRates.forEach((elem: any)=>{
+            const taskNoteMap = new Map();
+            const lastEditByMap = new Map();
+            if (taskRates) {
+                taskRates.forEach((elem: any) => {
+                    // console.log("mapKey = ", elem.mapKey)
                     taskRateMap.set(elem.mapKey, elem.rate);
-                })
+                    taskNoteMap.set(elem.mapKey, elem.notes);
+                    lastEditByMap.set(elem.mapKey, elem.assignedBy);
+                });
             }
 
             const empAssignedRatesMap = new Map();
-            if(empAssignedRates){
-                empAssignedRates.forEach((elem: any)=>{
+            if (empAssignedRates) {
+                empAssignedRates.forEach((elem: any) => {
                     empAssignedRatesMap.set(elem.mapKey, elem.assignedRate);
-                })
+                });
             }
 
             if (error) return <div>failed to load</div>;
             if (!data) return <div>loading...</div>;
             if (!data[0]) return <div>not found</div>;
 
+            const foo = (key1: string, key2:string)=>{
+                // console.log("Fooooooo key1 = ", key1)
+                // console.log("Fooooooo key2 = ", key2)
+                //
+                // const textArea = document.getElementById(key2);
+                // console.log('textArea value = ', textArea.value);
+
+                console.log("Fooooooo key1 = ", key1)
+                console.log("Fooooooo key2 = ", key2)
+
+                const textArea = document.getElementById(key2);
+                // @ts-ignore
+                console.log('textArea value = ', textArea.value);
+
+                console.log('map value= ', taskNoteMap.get(key1));
+                // @ts-ignore
+                taskNoteMap.set(key1, textArea.value);
+
+            }
+
+            const showNote = (key:string)=>{
+                const textAreaDiv = document.getElementById(key);
+                // @ts-ignore
+                if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
+                    textAreaDiv.style.opacity = String(1)
+                }else{
+                    // @ts-ignore
+                    textAreaDiv.style.opacity = String(0)
+                }
+            }
+
+
+            // @ts-ignore
+            // @ts-ignore
             return (
                 <div className={"border-1 p-3 rounded-lg"}>
-                    <ToolsModule/>
+                    <ToolsModule deptID={deptId} />
                     <Spacer y={5} />
                     <Table removeWrapper selectionMode={"none"}>
                         <TableHeader>
@@ -263,28 +401,66 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         </TableHeader>
                         <TableBody>
                             {data?.map((object: any, index: React.Key | null) => (
-                                <TableRow key={"taskId#" + object.id} id={"taskId#" + object.id} className={"taskRow"}>
-                                    <TableCell>{object.taskName}</TableCell>
-                                    <TableCell>{object.description}</TableCell>
+                                <TableRow className={"taskRowDeptId#" + deptId} key={"taskId#" + object.id}
+                                          id={"taskId#" + object.id}>
                                     <TableCell>
+                                        <div className={'flex'}>
+                                            <Popover placement="bottom" showArrow={true}>
+                                                <PopoverTrigger>
+                                                    <div>
+                                                        <FaCircleInfo style={{ color: '#71717a'}} className={'hover:cursor-pointer'} />
+                                                    </div>
+                                                </PopoverTrigger>
+                                                <PopoverContent>
+                                                    <div className="px-1 py-2">
+                                                        <div className="text-small font-bold pb-2">Last Edited By</div>
+                                                        <div className="text-tiny">{lastEditByMap.get("commRateTaskId#" + object.id)}</div>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+                                            <Spacer x={1}/>
+                                            {object.taskName}
+                                        </div>
+
+                                    </TableCell>
+                                    <TableCell>{object.description}</TableCell>
+                                    <TableCell className={"tableCellCommRate"}>
                                         <div className={"flex"}>
                                             <input id={"commRateTaskId#" + object.id}
                                                    type={"text"}
                                                    maxLength={5}
                                                    className={"commRateInput w-[7ch] rounded pr-2 pl-2 text-center border-small border-default-200 dark:border-default-100"}
                                                    defaultValue={taskRateMap.get("commRateTaskId#" + object.id)} />
-                                            <PiPercentLight className={'ml-1'} size={17}/>
+                                            <PiPercentLight className={"ml-1"} size={17} />
+                                            <Spacer x={1} />
+                                            <FaRegMessage onClick={() => showNote("commRateTaskNote#" + object.id)}
+                                                          color={"#a8a8a8"} className={"hover:cursor-pointer"} />
+                                        </div>
+                                        <Spacer y={1}/>
+                                        <div id={"commRateTaskNote#" + object.id} className={'opacity-0 transition-opacity ease-in-out delay-80'}>
+                                                <textarea className={'bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
+                                                          defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}>
+                                                </textarea>
                                         </div>
                                     </TableCell>
                                     {/*@ts-ignore*/}
                                     {salesPersonList.map((sales: any, index: any) => (
-                                        <TableCell key={index + "taskId#" + object.id + "#salesId#" + sales.salesPersonId}>
+                                        <TableCell
+                                            key={index + "taskId#" + object.id + "#salesId#" + sales.salesPersonId}>
                                             <div className={"flex"}>
                                                 <input id={"taskId#" + object.id + "#salesId#" + sales.salesPersonId}
                                                        type={"text"} maxLength={5}
-                                                       className={"w-[7ch] pr-2 pl-2 text-center border-small border-default-200 dark:border-default-100"}
-                                                       defaultValue={empAssignedRatesMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}/>
-                                                <PiPercentLight className={'ml-1'} size={17}/>
+                                                       className={"w-[7ch] pr-2 pl-2 rounded text-center border-small border-default-200 dark:border-default-100"}
+                                                       defaultValue={empAssignedRatesMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)} />
+                                                <PiPercentLight className={"ml-1"} size={17} />
+                                                <Spacer x={1} />
+                                                <FaRegMessage color={"#a8a8a8"} className={"hover:cursor-pointer"} onClick={()=>showNote("salesNote#" + sales.salesPersonId + "taskId#" + object.id )}/>
+                                            </div>
+                                            <Spacer y={1} />
+                                            <div id={"salesNote#" + sales.salesPersonId + "taskId#" + object.id } className={'opacity-0 transition-opacity delay-100'}>
+                                                    <textarea className={"bg-cyan-50 dark:bg-[#1c2432] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}
+                                                              defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}>
+                                                    </textarea>
                                             </div>
 
                                         </TableCell>
@@ -295,7 +471,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     </Table>
                 </div>
             );
-        }
+        };
 
         const ViewSelectedCustomer = () => {
 
@@ -310,8 +486,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             <TableColumn>Customer Name</TableColumn>
                             <TableColumn className={"min-w-[20ch]"}>
                                 <div className={"flex"}>
-                                    <HiMiniUsers  size={'19'}/>
-                                    <Spacer x={1}/>
+                                    <HiMiniUsers size={"19"} />
+                                    <Spacer x={1} />
                                     Sales
                                 </div>
                             </TableColumn>
@@ -322,20 +498,20 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                 <TableCell>{customerId}</TableCell>
                                 <TableCell>{customerName}</TableCell>
                                 <TableCell>
-                                    {salesPersonList.length > 0?
+                                    {salesPersonList.length > 0 ?
                                         <ul>
-                                            {salesPersonList.map((person:any, index:any) =>(
-                                                <li key={index}>&#8226;{' ' + person.lastNameFirstName}</li>
+                                            {salesPersonList.map((person: any, index: any) => (
+                                                <li key={index}>&#8226;{" " + person.lastNameFirstName}</li>
                                             ))}
-                                        </ul>: <span className={'text-red-500'}>N/A</span>}
+                                        </ul> : <span className={"text-red-500"}>N/A</span>}
                                 </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
-                    <Spacer y={5}/>
+                    <Spacer y={5} />
                 </div>
             );
-        }
+        };
 
         return (
             <>
@@ -345,7 +521,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         Select the invoice department to view their associated task items</span>
                 </div>
                 <div className="task-dept-container flex flex-col">
-                    <Accordion selectionMode="multiple" isCompact className={'w-full'}>
+                    <Accordion selectionMode="multiple" isCompact className={"w-full"}>
                         {data?.map((object: any, index: React.Key | null | undefined) => (
                             <AccordionItem key={index} aria-label="Accordion 1"
                                            title={<span
@@ -360,13 +536,14 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
     function StickyDisplaySelectedTaskItems() {
         return (
-            <div className="w-full min-w-fit max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 h-fit sticky top-40">
-                <Listbox className={'w-[100px]'}>
-                    {selectedTaskItems.map((object,index)=>(
+            <div
+                className="w-full min-w-fit max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 h-fit sticky top-40">
+                <Listbox className={"w-[100px]"}>
+                    {selectedTaskItems.map((object, index) => (
                         <ListboxItem key={index}>{object}</ListboxItem>
                     ))}
                 </Listbox>
-                <Button onClick={CollectSelectedTaskItems} >Assign Commission Rates</Button>
+                <Button onClick={CollectSelectedTaskItems}>Assign Commission Rates</Button>
             </div>
         );
     }
@@ -389,12 +566,12 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     {startFetchingTaskItems && <InvoiceTaskItems arNumber={arNumber} />}
                 </div>
                 <Spacer x={5} />
-                <StickyDisplaySelectedTaskItems/>
+                <StickyDisplaySelectedTaskItems />
                 {/*{selectedTaskItems &&  <StickyDisplaySelectedTaskItems/>}*/}
             </div>
 
             <Modal
-                size={'5xl'}
+                size={"5xl"}
                 backdrop="opaque"
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}

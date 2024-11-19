@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import useSWR from "swr";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
 import {
-    Card,
+    Card, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Popover, PopoverContent, PopoverTrigger,
     Skeleton,
     Spacer,
     Spinner,
@@ -23,6 +23,9 @@ import { ListboxWrapper } from "../util/ListboxWrapper";
 import { PiPercentLight } from "react-icons/pi";
 import SendAndSaveData from "@/app/commissionConfigs/customerLevel/SendAndSaveData";
 import { CompatClient, Stomp } from "@stomp/stompjs";
+import { FcComments } from "react-icons/fc";
+import { FaCircleInfo, FaRegMessage } from "react-icons/fa6";
+import { Textarea } from "@nextui-org/input";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -315,10 +318,21 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 fetcher
             );
 
-            const taskRateMap = new Map();
+            const salesNoteMap = new Map();
+            if(empAssignedRates && !empAssignedRatesError) {
+                empAssignedRates.forEach((elem: any) => {
+                    salesNoteMap.set(elem.mapKey, elem.notes);
+                });
+            }
+
+            const taskRateMap = new Map( );
+            const taskNoteMap = new Map( );
+            const lastEditByMap = new Map( );
             if (taskRates) {
                 taskRates.forEach((elem: any) => {
                     taskRateMap.set(elem.mapKey, elem.rate);
+                    taskNoteMap.set(elem.mapKey, elem.notes);
+                    lastEditByMap.set(elem.mapKey, elem.assignedBy);
                 });
             }
 
@@ -332,6 +346,17 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             if (error) return <div>failed to load</div>;
             if (!data) return <div>loading...</div>;
             if (!data[0]) return <div>not found</div>;
+
+            const showNote = (key:string)=>{
+                const textAreaDiv = document.getElementById(key);
+                // @ts-ignore
+                if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
+                    textAreaDiv.style.opacity = String(1)
+                }else{
+                    // @ts-ignore
+                    textAreaDiv.style.opacity = String(0)
+                }
+            }
 
             return (
                 <div className={"border-1 p-3 rounded-lg"}>
@@ -351,9 +376,28 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             {data?.map((object: any, index: React.Key | null) => (
                                 <TableRow className={"taskRowDeptId#" + deptId} key={"taskId#" + object.id}
                                           id={"taskId#" + object.id}>
-                                    <TableCell>{object.taskName}</TableCell>
+                                    <TableCell>
+                                        <div className={'flex'}>
+                                            <Popover placement="bottom" showArrow={true}>
+                                                <PopoverTrigger>
+                                                    <div>
+                                                        <FaCircleInfo style={{ color: '#71717a'}} className={'hover:cursor-pointer'} />
+                                                    </div>
+                                                </PopoverTrigger>
+                                                <PopoverContent>
+                                                    <div className="px-1 py-2">
+                                                        <div className="text-small font-bold pb-2">Last Edited By</div>
+                                                        <div className="text-tiny">{lastEditByMap.get("commRateTaskId#" + object.id)}</div>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+                                            <Spacer x={1}/>
+                                            {object.taskName}
+                                        </div>
+
+                                    </TableCell>
                                     <TableCell>{object.description}</TableCell>
-                                    <TableCell className={'tableCellCommRate'}>
+                                    <TableCell className={"tableCellCommRate"}>
                                         <div className={"flex"}>
                                             <input id={"commRateTaskId#" + object.id}
                                                    type={"text"}
@@ -361,6 +405,15 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                    className={"commRateInput w-[7ch] rounded pr-2 pl-2 text-center border-small border-default-200 dark:border-default-100"}
                                                    defaultValue={taskRateMap.get("commRateTaskId#" + object.id)} />
                                             <PiPercentLight className={"ml-1"} size={17} />
+                                            <Spacer x={1} />
+                                            <FaRegMessage onClick={() => showNote("commRateTaskNote#" + object.id)}
+                                                          color={"#a8a8a8"} className={"hover:cursor-pointer"} />
+                                        </div>
+                                        <Spacer y={1}/>
+                                        <div id={"commRateTaskNote#" + object.id} className={'opacity-0 transition-opacity ease-in-out delay-80'}>
+                                                <textarea className={'bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
+                                                    defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}>
+                                                </textarea>
                                         </div>
                                     </TableCell>
                                     {/*@ts-ignore*/}
@@ -370,9 +423,17 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                             <div className={"flex"}>
                                                 <input id={"taskId#" + object.id + "#salesId#" + sales.salesPersonId}
                                                        type={"text"} maxLength={5}
-                                                       className={"w-[7ch] pr-2 pl-2 text-center border-small border-default-200 dark:border-default-100"}
+                                                       className={"w-[7ch] pr-2 pl-2 rounded text-center border-small border-default-200 dark:border-default-100"}
                                                        defaultValue={empAssignedRatesMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)} />
                                                 <PiPercentLight className={"ml-1"} size={17} />
+                                                <Spacer x={1} />
+                                                <FaRegMessage color={"#a8a8a8"} className={"hover:cursor-pointer"} onClick={()=>showNote("salesNote#" + sales.salesPersonId + "taskId#" + object.id )}/>
+                                            </div>
+                                            <Spacer y={1} />
+                                            <div id={"salesNote#" + sales.salesPersonId + "taskId#" + object.id } className={'opacity-0 transition-opacity delay-100'}>
+                                                    <textarea className={"bg-cyan-50 dark:bg-[#1c2432] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}
+                                                        defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}>
+                                                    </textarea>
                                             </div>
 
                                         </TableCell>
