@@ -178,6 +178,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 const tdChildren = Array.from(row.children);
 
                 const rateInfo = {
+                    customerID: customerId,
                     taskId: undefined,
                     taskRate:undefined,
                     taskNote:undefined,
@@ -220,7 +221,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         // @ts-ignore
                         salesPerson.assignedRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
 
-                        const salesNote = document.getElementById("textAreaSalesNote#" + salesPerson.empId);
+                        const salesNote = document.getElementById("textAreaSalesNote#" + salesPerson.empId + "#taskId#" + rateInfo.taskId);
                         // @ts-ignore
                         salesPerson.salesNote = salesNote.value;
 
@@ -228,17 +229,15 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         rateInfo.salesAssignedRates.push(salesPerson)
                     }
                 }
-                // console.log("RATE INFO = ", rateInfo);
 
-                // postData( )
-                arrayRateInfos.push(rateInfo);
+                if(rateInfo.taskRate !== undefined && rateInfo.taskRate !== ''){
+                    arrayRateInfos.push(rateInfo);
+                }
             })
 
             if(arrayRateInfos.length > 0){
                 // @ts-ignore
-                // setJsonArray(arrayRateInfos);
-
-                // postData(arrayRateInfos);
+                postData(arrayRateInfos);
             }
 
             console.log("arrayRateInfos = ", arrayRateInfos);
@@ -340,14 +339,22 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             if (!data[0]) return <div>not found</div>;
 
             const showSalesNote = (key:string)=>{
+                const textAreaDiv = document.getElementById(key);
+                // // @ts-ignore
+                // if(textAreaDiv.hidden) { // @ts-ignore
+                //     textAreaDiv.hidden = false
+                // }else{
+                //     // @ts-ignore
+                //     textAreaDiv.hidden = true
+                // }
+
+
                 if(salesPersonList.length > 1){
-                    const textAreaDiv = document.getElementById(key);
-                    // @ts-ignore
-                    if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
-                        textAreaDiv.style.opacity = String(1)
+                    if(textAreaDiv.hidden) { // @ts-ignore
+                        textAreaDiv.hidden = false
                     }else{
                         // @ts-ignore
-                        textAreaDiv.style.opacity = String(0)
+                        textAreaDiv.hidden = true
                     }
 
                     const empID = key.split('#')[1];
@@ -357,30 +364,60 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         if(elem.salesPersonId !== Number(empID)){
                             const targetDiv = document.getElementById('salesNote#' + elem.salesPersonId + '#taskId#' + taskID);
                             // @ts-ignore
-                            targetDiv.style.opacity = String(0)
+                            targetDiv.hidden = true
                         }
                     })
 
                 }else{
-                    const textAreaDiv = document.getElementById(key);
-                    // @ts-ignore
-                    if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
-                        textAreaDiv.style.opacity = String(1)
+                    if(textAreaDiv.hidden) { // @ts-ignore
+                        textAreaDiv.hidden = false
                     }else{
                         // @ts-ignore
-                        textAreaDiv.style.opacity = String(0)
+                        textAreaDiv.hidden = true
                     }
                 }
+
+                // if(salesPersonList.length > 1){
+                //     const textAreaDiv = document.getElementById(key);
+                //     // @ts-ignore
+                //     if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
+                //         textAreaDiv.style.opacity = String(1)
+                //     }else{
+                //         // @ts-ignore
+                //         textAreaDiv.style.opacity = String(0)
+                //     }
+                //
+                //     const empID = key.split('#')[1];
+                //     const taskID = key.split('#')[key.split('#').length - 1];
+                //
+                //     salesPersonList.forEach((elem: any) => {
+                //         if(elem.salesPersonId !== Number(empID)){
+                //             const targetDiv = document.getElementById('salesNote#' + elem.salesPersonId + '#taskId#' + taskID);
+                //             // @ts-ignore
+                //             targetDiv.style.opacity = String(0)
+                //         }
+                //     })
+                //
+                // }else{
+                //     const textAreaDiv = document.getElementById(key);
+                //     // @ts-ignore
+                //     if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
+                //         textAreaDiv.style.opacity = String(1)
+                //     }else{
+                //         // @ts-ignore
+                //         textAreaDiv.style.opacity = String(0)
+                //     }
+                // }
             }
 
             const showNote = (key:string)=>{
                 const textAreaDiv = document.getElementById(key);
                 // @ts-ignore
-                if(Number(textAreaDiv.style.opacity)  < 1) { // @ts-ignore
-                    textAreaDiv.style.opacity = String(1)
+                if(textAreaDiv.hidden) { // @ts-ignore
+                    textAreaDiv.hidden = false
                 }else{
                     // @ts-ignore
-                    textAreaDiv.style.opacity = String(0)
+                    textAreaDiv.hidden = true
                 }
             }
 
@@ -426,6 +463,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                     <TableCell className={"tableCellCommRate"}>
                                         <div className={"flex"}>
                                             <input id={"commRateTaskId#" + object.id}
+                                                   autoComplete="off"
                                                    type={"text"}
                                                    maxLength={5}
                                                    className={"commRateInput w-[7ch] rounded pr-2 pl-2 text-center border-small border-default-200 dark:border-default-100"}
@@ -436,20 +474,23 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                           color={"#a8a8a8"} className={"hover:cursor-pointer"} />
                                         </div>
                                         <Spacer y={1}/>
-                                        <div id={"commRateTaskNote#" + object.id} className={'opacity-0 transition-opacity ease-in-out delay-80'}>
-                                                <textarea id={'textAreaTaskNote#' + object.id}
-                                                          className={'text-[10pt] bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
-                                                          defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}
-                                                          maxLength={150}>
-                                                </textarea>
+                                        <div id={"commRateTaskNote#" + object.id} hidden>
+
+                                            <textarea id={'textAreaTaskNote#' + object.id}
+                                                      className={'text-[10pt] bg-amber-50 dark:bg-[#27272a] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl'}
+                                                      defaultValue={taskNoteMap.get("commRateTaskId#" + object.id)}
+                                                      maxLength={150}>
+                                            </textarea>
                                         </div>
                                     </TableCell>
                                     {/*@ts-ignore*/}
                                     {salesPersonList.map((sales: any, index: any) => (
                                         <TableCell
+                                            className={'select-none'}
                                             key={index + "taskId#" + object.id + "#salesId#" + sales.salesPersonId}>
                                             <div className={"flex"}>
                                                 <input id={"taskId#" + object.id + "#salesId#" + sales.salesPersonId}
+                                                       autoComplete="off"
                                                        type={"text"} maxLength={5}
                                                        className={"w-[7ch] pr-2 pl-2 rounded text-center border-small border-default-200 dark:border-default-100"}
                                                        defaultValue={empAssignedRatesMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)} />
@@ -457,13 +498,17 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                 <Spacer x={1} />
                                                 <FaRegMessage color={"#a8a8a8"} className={"hover:cursor-pointer"} onClick={()=>showSalesNote("salesNote#" + sales.salesPersonId + "#taskId#" + object.id )}/>
                                             </div>
-                                            <Spacer y={1} />
-                                            <div id={"salesNote#" + sales.salesPersonId + "#taskId#" + object.id } className={'opacity-0 transition-opacity delay-100'}>
-                                                    <textarea id={'textAreaSalesNote#' + sales.salesPersonId}
-                                                              className={"text-[10pt] bg-cyan-50 dark:bg-[#1c2432] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}
-                                                              defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}
-                                                              rows={4} maxLength={150}>
+                                            <Spacer y={1}/>
+                                            <div id={"salesNote#" + sales.salesPersonId + "#taskId#" + object.id} hidden={true}>
+                                                <div className={"bg-[#ffffff] dark:bg-[#4a4a50] absolute z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
+                                                    <span className={'font-bold'}>Assigned Rate Comments for <span className={'italic'}>{sales.lastNameFirstName}</span> </span>
+                                                    <textarea
+                                                        id={"textAreaSalesNote#" + sales.salesPersonId + "#taskId#" + object.id}
+                                                        className={"text-[10pt] bg-cyan-50 dark:bg-[#1c2432] "}
+                                                        defaultValue={salesNoteMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)}
+                                                        rows={4} maxLength={150}>
                                                     </textarea>
+                                                </div>
                                             </div>
 
                                         </TableCell>
