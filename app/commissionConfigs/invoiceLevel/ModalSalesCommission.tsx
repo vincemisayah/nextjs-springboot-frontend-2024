@@ -2,24 +2,31 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Space
 import React from "react";
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { BlockingData } from "swr/_internal";
+import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
+import { IoPersonSharp } from "react-icons/io5";
+import useSWR from "swr";
+import SalesPersonCalculatedCommission from "@/app/commissionConfigs/invoiceLevel/SalesPersonCalculatedCommission";
 
+// http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=208072
 
 // @ts-ignore
-const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, customerJobInfo, order }) => {
-    // console.log("IN MODAL = ", customerJobInfo);
+const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
+
+// @ts-ignore
+const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, customerJobInfo, order, taskId}) => {
+    const { data: customerInfo, error: customerInfoError } = useSWR(invoiceId > 0?
+            "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + invoiceId:null,
+        fetcher
+    );
+
+    // @ts-ignore
     return (
         <>
-            {/*{customerJobInfo !== null? (*/}
-            {/*    <>*/}
-            {/*        <h1>{customerJobInfo.customerName}</h1>*/}
-            {/*    </>*/}
-            {/*):null}*/}
-            {/*<Button size={"sm"} variant={"light"} onPress={onOpen}>View Salespeople Commission</Button>*/}
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop={"blur"} size={"5xl"}>
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop={"blur"} size={"5xl"} className={'rounded-md'}>
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className="flex flex-col gap-1">
+                            <ModalHeader className={"flex flex-col gap-1 bg-[#fafafa] dark:bg-[#3c3c3c]"}>
                                 <span>Salespeople Calculated Commission</span>
                                 <ul>
                                     <li className={"ml-5 text-[9pt]"}>
@@ -33,46 +40,63 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
                                     <li className={"ml-5 text-[9pt]"}>
                                         <strong>INVOICE ID: </strong>{invoiceId}</li>
                                     <li className={"ml-5 text-[9pt]"}>
-                                        <strong>TASK ORDER: </strong>{order}</li>
+                                        <strong>TASK ID: </strong>{taskId}</li>
+                                    <li className={"ml-5 text-[9pt]"}>
+                                        <strong>ORDER: </strong>{order}</li>
                                 </ul>
-                                {/*<span className={"text-sm"}>Invoice ID:*/}
-                                {/*<span className={"ml-2 font-mono"}>{customerJobInfo.customerName}</span>*/}
-                                {/*<span className={"ml-2 font-mono"}>{customerJobInfo.jobName}</span>*/}
-                                {/*<span className={"ml-2 font-mono"}>{invoiceId}</span>*/}
-                                {/*</span>*/}
                             </ModalHeader>
-                            <ModalBody>
-                                <Table aria-label="Example static collection table">
-                                    <TableHeader>
-                                        <TableColumn>NAME</TableColumn>
-                                        <TableColumn>ROLE</TableColumn>
-                                        <TableColumn>STATUS</TableColumn>
-                                    </TableHeader>
-                                    <TableBody>
-                                        <TableRow key="1">
-                                            <TableCell>Tony Reichert</TableCell>
-                                            <TableCell>CEO</TableCell>
-                                            <TableCell>Active</TableCell>
-                                        </TableRow>
-                                        <TableRow key="2">
-                                            <TableCell>Zoey Lang</TableCell>
-                                            <TableCell>Technical Lead</TableCell>
-                                            <TableCell>Paused</TableCell>
-                                        </TableRow>
-                                        <TableRow key="3">
-                                            <TableCell>Jane Fisher</TableCell>
-                                            <TableCell>Senior Developer</TableCell>
-                                            <TableCell>Active</TableCell>
-                                        </TableRow>
-                                        <TableRow key="4">
-                                            <TableCell>William Howard</TableCell>
-                                            <TableCell>Community Manager</TableCell>
-                                            <TableCell>Vacation</TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
+                            <ModalBody className={"dark:bg-[#222222]"}>
+                                <div className="flex w-full flex-col">
+                                    <Tabs aria-label="Options">
+                                        {/*@ts-ignore*/}
+                                        {(customerInfo.salesPersonList)?.map((item, index)=>(
+                                            <Tab key={index} title={
+                                                <div className={'flex'}>
+                                                    <IoPersonSharp className={'mt-[5px] mr-0.5'} size={11}/>
+                                                    <p className={'text-[9pt]'}>{item.lastNameFirstName}</p>
+                                                </div>
+                                            }>
+                                                <Card className="shadow-sm rounded-small border-small border-default-200 dark:border-default-100">
+                                                    <CardBody >
+                                                        <SalesPersonCalculatedCommission customerID={customerJobInfo.customerID} invoiceID={invoiceId} taskID={taskId} orderNumber={order} employeeID={item.salesPersonId}/>
+                                                    </CardBody>
+                                                </Card>
+                                            </Tab>
+                                        ))}
+                                    </Tabs>
+                                </div>
+
+                                {/*<Table aria-label="Example static collection table">*/}
+                                {/*    <TableHeader>*/}
+                                {/*        <TableColumn>NAME</TableColumn>*/}
+                                {/*        <TableColumn>ROLE</TableColumn>*/}
+                                {/*        <TableColumn>STATUS</TableColumn>*/}
+                                {/*    </TableHeader>*/}
+                                {/*    <TableBody>*/}
+                                {/*        <TableRow key="1">*/}
+                                {/*            <TableCell>Tony Reichert</TableCell>*/}
+                                {/*            <TableCell>CEO</TableCell>*/}
+                                {/*            <TableCell>Active</TableCell>*/}
+                                {/*        </TableRow>*/}
+                                {/*        <TableRow key="2">*/}
+                                {/*            <TableCell>Zoey Lang</TableCell>*/}
+                                {/*            <TableCell>Technical Lead</TableCell>*/}
+                                {/*            <TableCell>Paused</TableCell>*/}
+                                {/*        </TableRow>*/}
+                                {/*        <TableRow key="3">*/}
+                                {/*            <TableCell>Jane Fisher</TableCell>*/}
+                                {/*            <TableCell>Senior Developer</TableCell>*/}
+                                {/*            <TableCell>Active</TableCell>*/}
+                                {/*        </TableRow>*/}
+                                {/*        <TableRow key="4">*/}
+                                {/*            <TableCell>William Howard</TableCell>*/}
+                                {/*            <TableCell>Community Manager</TableCell>*/}
+                                {/*            <TableCell>Vacation</TableCell>*/}
+                                {/*        </TableRow>*/}
+                                {/*    </TableBody>*/}
+                                {/*</Table>*/}
                             </ModalBody>
-                            <ModalFooter>
+                            <ModalFooter className={'dark:bg-[#222222]'}>
                                 <Button color="danger" variant="light" onPress={onClose}>
                                     Close
                                 </Button>

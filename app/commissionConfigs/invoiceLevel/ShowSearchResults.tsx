@@ -4,7 +4,6 @@ import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from 
 // @ts-ignore
 const ShowSearchResults = ({onInvoiceIdChange}) => {
     const clickHandler = (invoiceID: number) => {
-        console.log('INVOICE ID = ', invoiceID);
         onInvoiceIdChange(invoiceID)
     }
 
