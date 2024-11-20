@@ -253,12 +253,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
                         // @ts-ignore
                         rateInfo.taskId = inputID.split('#').at(inputID.split('#').length - 1);
-
                         // @ts-ignore
                         rateInfo.taskRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
-
                         const taskRateNote = document.getElementById("textAreaTaskNote#" + rateInfo.taskId);
-
                         // @ts-ignore
                         rateInfo.taskNote = taskRateNote.value;
                     }

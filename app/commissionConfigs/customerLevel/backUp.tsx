@@ -161,7 +161,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 selectedTaskItems.push(rows[i].id);
             }
         }
-        onOpen();
+        onOpen( );
     };
 
 
@@ -170,6 +170,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const ToolsModule = ({ deptID }) => {
         const postData = async (data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
             while(true) {
+                const saveBtn = document.getElementById('saveBtn#' + deptID);
+                // @ts-ignore
+                saveBtn.hidden = true;
+
                 // setIsSaving(true);
                 const spinnerDiv = document.getElementById('spinnerDivDeptId#' + deptID);
                 // @ts-ignore
@@ -178,6 +182,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 // "spinnerDeptId#" + deptID
                 const spinner = document.getElementById('spinnerDeptId#' + deptID);
 
+                // @ts-ignore
                 spinner.textContent = 'Saving changes . . . '
                 const response = await fetch('http://localhost:1118/invoiceCommissionService/customerlevel/saveCustomerLevelConfig',{
                     method: 'POST',
@@ -188,6 +193,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 // "spinnerDeptId#" + deptID
                 if(200 <= response.status || response.status < 300){
                     // @ts-ignore
+                    saveBtn.hidden = false;
                     spinnerDiv.hidden = true;
                     spinner.style.color = '#19b9d4'
                     spinner.textContent = 'Success!'
@@ -200,6 +206,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     // router.refresh();
                     break;
                 }else{
+                    saveBtn.hidden = false;
                     // setIsSaving(false);
                     alert('Failed to save changes. Server response status: ' + response.status)
                     spinner.textContent = 'Save attempt failed'
@@ -246,12 +253,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
                         // @ts-ignore
                         rateInfo.taskId = inputID.split('#').at(inputID.split('#').length - 1);
-
                         // @ts-ignore
                         rateInfo.taskRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
-
                         const taskRateNote = document.getElementById("textAreaTaskNote#" + rateInfo.taskId);
-
                         // @ts-ignore
                         rateInfo.taskNote = taskRateNote.value;
                     }
@@ -314,9 +318,24 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             })
         }
 
+        const fillTaskFields = ( ) =>{
+            // @ts-ignore
+            const valueInput = document.getElementById('toFillValueInputTaskCommRateDeptId#' + deptID).value;
+            const table = document.getElementById('tableInvoiceTaskItemsDeptId#' + deptID);
+            // @ts-ignore
+            const tbody = Array.from(table.getElementsByTagName('tbody'))[0]
+            const tRows =  Array.from(tbody.getElementsByTagName('tr'))
+            tRows.forEach(row =>{
+                const taskId = (row.id).split('#').at((row.id).split('#').length - 1);
+                const inputTask = document.getElementById('commRateTaskId#' + taskId);
+                // @ts-ignore
+                inputTask.value = valueInput;
+            })
+        }
+
         return (
             <>
-                <Accordion       motionProps={{
+                <Accordion motionProps={{
                     variants: {
                         enter: {
                             y: 0,
@@ -355,32 +374,27 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     <AccordionItem key="anchor" aria-label="Anchor"
                                    indicator={<></>}
                         // indicator={<FaToolbox />}
-                                   title={<div className={'flex gap-2 hover:text-cyan-500 text-[12pt]'}><FaToolbox /> Field Populator Tools</div>}>
+                                   title={<div className={'flex gap-2 text-[#71717a] hover:text-cyan-500 text-[12pt]'}><FaToolbox className={'mt-1.5'} size={15}/>Tools</div>}>
                         <div className={'p-2'}>
                             <div className="flex flex-row gap-4">
-                                <div
-                                    className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] border-small border-default-200 dark:border-default-100">
-                                    <div>
-                                        <ListboxWrapper>
-                                            <Listbox
-                                                variant="flat"
-                                                selectionMode="multiple"
-                                            >
-                                                {salesPersonList.map((sales: any, index: any) => (
-                                                    <ListboxItem key={sales.salesPersonId}
-                                                                 className={"salesPersonItemDeptId#" + deptID}>
-                                                        <p id={sales.salesPersonId}>{sales.lastNameFirstName}</p>
-                                                    </ListboxItem>
-                                                ))}
-                                            </Listbox>
-                                        </ListboxWrapper>
-                                    </div>
+                                <div className="flex flex-row gap-4 p-2 rounded-lg shadow-sm bg-[#f4f4f5] dark:bg-[#27272a] border-small border-default-200 dark:border-default-100">
+                                    <ListboxWrapper>
+                                        <Listbox variant={'flat'} selectionMode="multiple" className={'bg-gray-50 dark:bg-[#18181b] rounded-lg'}>
+                                            {salesPersonList.map((sales: any, index: any) => (
+                                                <ListboxItem key={sales.salesPersonId}
+                                                             className={"salesPersonItemDeptId#" + deptID}>
+                                                    <p id={sales.salesPersonId}>{sales.lastNameFirstName}</p>
+                                                </ListboxItem>
+                                            ))}
+                                        </Listbox>
+                                    </ListboxWrapper>
                                     <div className={"p-4 align-middle"}>
                                         <input
                                             id={"toFillValueInputDeptId#" + deptID}
                                             type={"text"}
                                             maxLength={5}
-                                            className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 rounded"} />
+                                            placeholder={'Rate %'}
+                                            className={"text-center w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 rounded"} />
                                         <Spacer y={5} />
                                         <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
                                     </div>
@@ -397,22 +411,35 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                             maxLength={5}
                                             className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 text-center rounded"} />
                                         <Spacer y={5} />
-                                        <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
+                                        <Button size={"sm"} onPress={fillTaskFields}>Fill in fields</Button>
                                     </div>
                                 </div>
                                 <div>
-                                    <Button onPress={saveChanges}>Save Changes</Button>
+                                    <div id={'saveBtn#' + deptID} hidden={false}>
+                                        <Button onPress={saveChanges}>Save Changes</Button>
+                                    </div>
+
+
+                                    <div className={"text-center pt-4 ml-5"}>
+                                        <div id={"spinnerDivDeptId#" + deptID}
+                                             hidden={true}>
+                                            <Spinner color="default" />
+                                        </div>
+                                        {/*<br/>*/}
+                                        <span className={'text-[#71717a] text-[11pt]'} id={"spinnerDeptId#" + deptID}></span>
+                                    </div>
+
                                 </div>
 
-                                <div className={"m-auto"}>
-                                    <div id={"spinnerDivDeptId#" + deptID} hidden={true} className={"ml-16"}>
-                                        <Spinner color="default" />
-                                    </div>
-                                    <div>
-                                <span id={"spinnerDeptId#" + deptID}
-                                      className={"text-[16pt] font-medium select-none text-[gray]"}></span>
-                                    </div>
-                                </div>
+                                {/*<div className={"m-auto"}>*/}
+                                {/*    <div id={"spinnerDivDeptId#" + deptID} hidden={true}>*/}
+                                {/*    <Spinner color="default" />*/}
+                                {/*    </div>*/}
+                                {/*<div>*/}
+                                {/*<span id={"spinnerDeptId#" + deptID}*/}
+                                {/*      className={"text-[16pt] font-medium select-none text-[gray]"}></span>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
 
                             </div>
                         </div>
@@ -659,9 +686,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             return (
                 <>
                     <span className={"pb-5 text-lg"}>
-                        This configuration will apply to the following customer's assigned sales people.
+                        This configuration will apply to the following customer and its assigned sales people
                     </span>
-                    <div className={"mb-5 w-[65%]"}>
+                    <Spacer y={3}/>
+                    <div className={"mb-5"}>
                         <Table aria-label="Example static collection table">
                             <TableHeader>
                                 <TableColumn>AR Number</TableColumn>
@@ -702,7 +730,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 <ViewSelectedCustomer />
                 <div className={"pb-5"}>
                     <span className={"text-lg"}>
-                        Select the invoice department to view their associated task items
+                        Select the invoice department to view and configure their associated invoice task items
                     </span>
                 </div>
                 <div className="task-dept-container flex flex-col">
