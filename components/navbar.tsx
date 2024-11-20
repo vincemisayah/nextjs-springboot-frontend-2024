@@ -29,7 +29,9 @@ export const Navbar = () => {
         JOB     : {title:"Job Level",
                    description:"All invoices belonging to a selected job will follow this configuration, overriding the customer level config."},
         INVOICE : {title:"Invoice Level",
-                   description:"Set the commission at the invoice-task level."},
+                   description:"Set the commission at the invoice-task level.",
+                   linkPath:"/commissionConfigs/invoiceLevel"},
+
     };
 
 
@@ -74,6 +76,7 @@ export const Navbar = () => {
                                 {menuItems.JOB.title}</span>
                       </DropdownItem>
                       <DropdownItem
+                          href={menuItems.INVOICE.linkPath}
                           startContent={<FcDataConfiguration size={23} />}
                           description={menuItems.INVOICE.description}>
                           <span className={"font-bold text-cyan-500"}>

@@ -765,7 +765,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     return (
         <>
             <div className="flex mx-auto">
-                <div className={"space-y-4 p-5 shadow-md h-fit rounded-small border-small border-default-200 dark:border-default-100"}>
+                <div className={"space-y-4 p-5 shadow-md h-fit rounded-small border-small border-default-200 dark:border-default-100 h-fit sticky top-24"}>
                     <span>Search the customer by their AR number and click the customer you want to configure</span>
                     <Spacer y={1} />
                     <input
@@ -775,7 +775,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         value={searchTerm}
                         onChange={handleChange}
                         id="series" />{" "}
-                    <br />
+                    <br/>
                     {startFetching && <SearchResults keyword={searchTerm} url={props.url} />}
                 </div>
                 <Spacer x={14} />
