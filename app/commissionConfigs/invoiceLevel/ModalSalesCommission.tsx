@@ -19,6 +19,33 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
         fetcher
     );
 
+    const saveChanges = ()=>{
+        console.log("Saving . . . ");
+        console.log('CUSTOMER ID = ', customerInfo.id);
+        console.log("AR NUMBER = ", customerInfo.arNumber);
+        console.log("INVOICE ID = ", invoiceId);
+        console.log('TASK ID = ', taskId);
+
+        // @ts-ignore
+        const taskRateInput = document.getElementById("taskRateForTaskID#"+taskId).value;
+        // @ts-ignore
+        const salesRateInput = document.getElementById("salesAssignedRateForTaskID#"+taskId).value;
+
+        // console.log("Task Rate = ", taskRateInput);
+        // console.log('Sales Rate = ', salesRateInput);
+
+        const TO_SAVE = {
+            customerID: customerInfo.id,
+            arNumber:customerInfo.arNumber,
+            invoiceID: invoiceId,
+            taskID: taskId,
+            taskRate: Number(taskRateInput),
+            salesRate: Number(salesRateInput),
+        }
+
+        console.log(TO_SAVE);
+    }
+
 
     // @ts-ignore
     return (
@@ -70,17 +97,6 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
                                                         employeeID={item.salesPersonId}
                                                     />
                                                 </div>
-                                                {/*<Card className="shadow-none">*/}
-                                                {/*    <CardBody >*/}
-                                                {/*        <SalesPersonCalculatedCommission */}
-                                                {/*            customerID={customerJobInfo.customerID} */}
-                                                {/*            invoiceID={invoiceId} */}
-                                                {/*            taskID={taskId} */}
-                                                {/*            orderNumber={order} */}
-                                                {/*            employeeID={item.salesPersonId}*/}
-                                                {/*        />*/}
-                                                {/*    </CardBody>*/}
-                                                {/*</Card>*/}
                                             </Tab>
                                         ))}
                                     </Tabs>
@@ -90,7 +106,7 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
                                 <Button color="danger" variant="light" onPress={onClose}>
                                     Close
                                 </Button>
-                                <Button color="primary" onPress={onClose}>
+                                <Button color="primary" onPress={saveChanges}>
                                     Save changes
                                 </Button>
                             </ModalFooter>

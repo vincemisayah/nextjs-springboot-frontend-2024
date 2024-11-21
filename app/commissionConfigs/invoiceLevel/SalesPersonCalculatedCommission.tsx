@@ -122,9 +122,10 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                             {/*<TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{calculatedCommissionInfo.taskRate}</TableCell>*/}
                             <TableCell className={'text-[10pt] dark:text-[#dedfe1]'}>
                                 <div className={"flex"}>
-                                    <input type={"number"}
-                                           defaultValue={calculatedCommissionInfo.taskRate}
-                                           className={"dark:bg-[#18181b] remove-arrow border-1 text-center w-full sm:w-16 rounded"}
+                                    <input id={'taskRateForTaskID#' + taskID}
+                                         type={"number"}
+                                         defaultValue={calculatedCommissionInfo.taskRate}
+                                         className={"dark:bg-[#18181b] remove-arrow border-1 text-center w-full sm:w-16 rounded"}
                                     />
                                     <PiPercentLight className={"ml-1"} size={15} />
                                     <div ref={messageIconDivRef}>
@@ -154,7 +155,8 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                             </TableCell>
                             <TableCell className={"text-[10pt] dark:text-[#dedfe1]"}>
                                 <div className={"flex"}>
-                                    <input type={"number"}
+                                    <input id={'salesAssignedRateForTaskID#' + taskID}
+                                           type={"number"}
                                            defaultValue={calculatedCommissionInfo.salesPersonAssignedRate}
                                            className={"dark:bg-[#18181b] remove-arrow border-1 text-center w-full sm:w-16 rounded"}
                                     />
