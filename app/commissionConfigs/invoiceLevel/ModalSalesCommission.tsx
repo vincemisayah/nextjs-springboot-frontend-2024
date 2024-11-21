@@ -23,23 +23,24 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
     // @ts-ignore
     return (
         <>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop={"blur"} size={"5xl"} className={'rounded-md'}>
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop={"blur"} size={'5xl'} className={'rounded-md'}>
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className={"flex flex-col gap-1 bg-[#fafafa] dark:bg-[#3c3c3c]"}>
-                                <span>Salespeople Calculated Commission</span>
+                            <ModalHeader className={"flex flex-col gap-1"}>
+                                <span className={'dark:text-[#9898a1]'}>Salespeople Calculated Commission</span>
                                 <ul>
-                                    <li className={"ml-5 text-[9pt]"}>
-                                        <strong>CUSTOMER NAME: </strong>{customerJobInfo.customerName}
-                                        <span className={"ml-1 text-[#71717a]"}>(AR#: {customerJobInfo.arNumber})</span>
+                                    <li className={"ml-5 text-[9pt] dark:text-[#9898a1]"}>
+                                        CUSTOMER NAME: {customerJobInfo.customerName}
+                                        <span className={"ml-1 dark:text-[#9898a1]"}>(AR#: {customerJobInfo.arNumber})</span>
                                     </li>
-                                    <li className={"ml-5 text-[9pt]"}>
-                                        <strong>JOB INFO: </strong>{customerJobInfo.jobName}
-                                        <span className={"ml-1 text-[#71717a]"}>(JOB#: {customerJobInfo.jobID}))</span>
+                                    <li className={"ml-5 text-[9pt] dark:text-[#9898a1]"}>
+                                        JOB INFO: {customerJobInfo.jobName}
+                                        <span className={"ml-1 dark:text-[#9898a1]"}>(JOB#: {customerJobInfo.jobID}))</span>
                                     </li>
-                                    <li className={"ml-5 text-[9pt]"}>
-                                        <strong>INVOICE ID: </strong>{invoiceId}</li>
+                                    <li className={"ml-5 text-[9pt] dark:text-[#9898a1]"}>
+                                        INVOICE ID: {invoiceId}
+                                    </li>
                                     {/*<li className={"ml-5 text-[9pt]"}>*/}
                                     {/*    <strong>TASK ID: </strong>{taskId}</li>*/}
                                     {/*<li className={"ml-5 text-[9pt]"}>*/}
@@ -60,11 +61,26 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
                                                     <p className={'text-[9pt]'}>{item.lastNameFirstName}</p>
                                                 </div>
                                             }>
-                                                <Card className="shadow-none">
-                                                    <CardBody >
-                                                        <SalesPersonCalculatedCommission customerID={customerJobInfo.customerID} invoiceID={invoiceId} taskID={taskId} orderNumber={order} employeeID={item.salesPersonId}/>
-                                                    </CardBody>
-                                                </Card>
+                                                <div className={'h-fit'}>
+                                                    <SalesPersonCalculatedCommission
+                                                        customerID={customerJobInfo.customerID}
+                                                        invoiceID={invoiceId}
+                                                        taskID={taskId}
+                                                        orderNumber={order}
+                                                        employeeID={item.salesPersonId}
+                                                    />
+                                                </div>
+                                                {/*<Card className="shadow-none">*/}
+                                                {/*    <CardBody >*/}
+                                                {/*        <SalesPersonCalculatedCommission */}
+                                                {/*            customerID={customerJobInfo.customerID} */}
+                                                {/*            invoiceID={invoiceId} */}
+                                                {/*            taskID={taskId} */}
+                                                {/*            orderNumber={order} */}
+                                                {/*            employeeID={item.salesPersonId}*/}
+                                                {/*        />*/}
+                                                {/*    </CardBody>*/}
+                                                {/*</Card>*/}
                                             </Tab>
                                         ))}
                                     </Tabs>

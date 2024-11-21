@@ -1,11 +1,22 @@
 import useSWR from "swr";
-import { Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@nextui-org/react";
+import {
+    Dropdown, DropdownItem, DropdownMenu, DropdownTrigger,
+    Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow,
+    Tooltip
+} from "@nextui-org/react";
 import React, { useEffect } from "react";
 import { PiPercentLight } from "react-icons/pi";
 import { DeleteIcon, EditIcon, EyeIcon } from "@nextui-org/shared-icons";
 import { RxReset } from "react-icons/rx";
 import { FaRegMessage } from "react-icons/fa6";
 import clsx from "clsx";
+import { Button } from "@nextui-org/button";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -45,6 +56,17 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
         currency: 'USD'
     });
 
+    const showNote = (key:string)=>{
+        const textAreaDiv = document.getElementById(key);
+        // @ts-ignore
+        if(textAreaDiv.hidden) { // @ts-ignore
+            textAreaDiv.hidden = false
+        }else{
+            // @ts-ignore
+            textAreaDiv.hidden = true
+        }
+    }
+
     return(
         <div id={'tableId#' + employeeID} className={'opacity-0 transition-opacity ease-linear delay-150'}>
             {calculatedCommissionInfo != undefined ? (
@@ -72,15 +94,54 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                            className={"remove-arrow border-1 text-center w-full sm:w-16 rounded"}
                                     />
                                     <PiPercentLight className={"ml-1"} size={15} />
-                                    <FaRegMessage
-                                        // color={clsx({
-                                        //     ['#06b6d4']:taskNoteMap.get("commRateTaskId#" + object.id) !== undefined && taskNoteMap.get("commRateTaskId#" + object.id).length > 0
-                                        // })}
-                                        className={"ml-1 hover:cursor-pointer"}
-                                    />
+                                    <div>
+                                        <FaRegMessage
+                                            color={clsx({
+                                                ["#06b6d4"]: (calculatedCommissionInfo.taskRateNote).length > 0
+                                            })}
+                                            className={"ml-1 hover:cursor-pointer"}
+                                            onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}
+                                        />
+                                    </div>
+                                    <div id={"taskNote#" + employeeID + "#taskId#" + taskID} hidden={true}>
+                                        <div className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
+                                            <textarea
+                                                id={"textAreaTaskNote#" + employeeID + "#taskId#" + taskID}
+                                                className={"text-[10pt] dark:bg-[#27272a] rounded border-small border-default-200 dark:border-default-100 p-2"}
+                                                defaultValue={calculatedCommissionInfo.taskRateNote}
+                                                rows={4} maxLength={150}>
+                                            </textarea>
+                                        </div>
+                                    </div>
+
+
+                                    {/*<Dropdown>*/}
+                                    {/*    <DropdownTrigger>*/}
+                                    {/*        <div>*/}
+                                    {/*            <FaRegMessage*/}
+                                    {/*                color={clsx({*/}
+                                    {/*                    ["#06b6d4"]: (calculatedCommissionInfo.taskRateNote).length > 0*/}
+                                    {/*                })}*/}
+                                    {/*                className={"ml-1 hover:cursor-pointer"}*/}
+                                    {/*            />*/}
+                                    {/*        </div>*/}
+
+
+                                    {/*    </DropdownTrigger>*/}
+                                    {/*    <DropdownMenu disabledKeys={["99"]} variant={"faded"}>*/}
+                                    {/*        <DropdownItem key={"99"} className={"ml-[25%]"}>*/}
+
+                                    {/*            <span*/}
+                                    {/*                className={"text-[11pt] text-black dark:text-[white] select-none"}>*/}
+                                    {/*                {calculatedCommissionInfo.taskRateNote}*/}
+                                    {/*            </span>*/}
+                                    {/*        </DropdownItem>*/}
+                                    {/*    </DropdownMenu>*/}
+                                    {/*</Dropdown>*/}
+
                                 </div>
                             </TableCell>
-                            <TableCell className={"text-[9pt] dark:text-[#dedfe1]"}>
+                            <TableCell className={"text-[pt] dark:text-[#dedfe1]"}>
                                 {formatter.format(calculatedCommissionInfo.taskCommissionDollarValue)}
                             </TableCell>
                             <TableCell className={"text-[9pt] dark:text-[#dedfe1]"}>
@@ -90,12 +151,26 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                            className={"remove-arrow border-1 text-center w-full sm:w-16 rounded"}
                                     />
                                     <PiPercentLight className={"ml-1"} size={15} />
-                                    <FaRegMessage
-                                        // color={clsx({
-                                        //     ['#06b6d4']:taskNoteMap.get("commRateTaskId#" + object.id) !== undefined && taskNoteMap.get("commRateTaskId#" + object.id).length > 0
-                                        // })}
-                                        className={"ml-1 hover:cursor-pointer"}
-                                    />
+                                    <div>
+                                        <FaRegMessage
+                                            color={clsx({
+                                                ["#06b6d4"]: (calculatedCommissionInfo.taskRateNote).length > 0
+                                            })}
+                                            className={"ml-1 hover:cursor-pointer"}
+                                            onClick={() => showNote("salesNote#" + employeeID + "#taskId#" + taskID)}
+                                        />
+                                    </div>
+                                    <div id={"salesNote#" + employeeID + "#taskId#" + taskID} hidden={true}>
+                                        <div
+                                            className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
+                                            <textarea
+                                                id={"textAreaSalesNote#" + employeeID + "#taskId#" + taskID}
+                                                className={"text-[10pt] dark:bg-[#27272a] rounded border-small border-default-200 dark:border-default-100 p-2"}
+                                                defaultValue={calculatedCommissionInfo.salesPersonAssignedRateNote}
+                                                rows={4} maxLength={150}>
+                                            </textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </TableCell>
                             <TableCell className={"text-[9pt] dark:text-[#dedfe1]"}>
