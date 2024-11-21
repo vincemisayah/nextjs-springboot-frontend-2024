@@ -391,10 +391,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                     <div className={"p-4 align-middle"}>
                                         <input
                                             id={"toFillValueInputDeptId#" + deptID}
-                                            type={"text"}
+                                            type={"number"}
                                             maxLength={5}
                                             placeholder={'Rate %'}
-                                            className={"text-center w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 rounded"} />
+                                            className={"remove-arrow text-center w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 rounded"} />
                                         <Spacer y={5} />
                                         <Button size={"sm"} onPress={fillSelectedSalesPersonFields}>Fill in fields</Button>
                                     </div>
@@ -407,9 +407,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                         <input
                                             id={"toFillValueInputTaskCommRateDeptId#" + deptID}
                                             placeholder={'Rate %'}
-                                            type={"text"}
+                                            type={"number"}
                                             maxLength={5}
-                                            className={"w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 text-center rounded"} />
+                                            className={"remove-arrow w-[8ch] pr-2 pl-2 border-small border-default-200 dark:border-default-100 text-center rounded"} />
                                         <Spacer y={5} />
                                         <Button size={"sm"} onPress={fillTaskFields}>Fill in fields</Button>
                                     </div>
@@ -603,9 +603,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                         <div className={"flex"}>
                                             <input id={"commRateTaskId#" + object.id}
                                                    autoComplete="off"
-                                                   type={"text"}
+                                                   type={"number"}
                                                    maxLength={5}
-                                                   className={"commRateInput w-[7ch] rounded pr-2 pl-2 text-center border-small border-default-200 dark:border-default-100"}
+                                                   className={"remove-arrow commRateInput w-[7ch] rounded pr-2 pl-2 text-center border-small border-default-200 dark:border-default-100"}
                                                    defaultValue={taskRateMap.get("commRateTaskId#" + object.id)} />
                                             <PiPercentLight className={"ml-1"} size={17} />
                                             <Spacer x={1} />
@@ -641,8 +641,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                             <div className={"flex"}>
                                                 <input id={"taskId#" + object.id + "#salesId#" + sales.salesPersonId}
                                                        autoComplete="off"
-                                                       type={"text"} maxLength={5}
-                                                       className={"w-[7ch] pr-2 pl-2 rounded text-center border-small border-default-200 dark:border-default-100"}
+                                                       type={"number"} maxLength={5}
+                                                       className={"remove-arrow w-[7ch] pr-2 pl-2 rounded text-center border-small border-default-200 dark:border-default-100"}
                                                        defaultValue={empAssignedRatesMap.get("taskId#" + object.id + "#salesId#" + sales.salesPersonId)} />
                                                 <PiPercentLight className={"ml-1"} size={17} />
                                                 <Spacer x={1} />
@@ -769,9 +769,9 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     <span>Search the customer by their AR number and click the customer you want to configure</span>
                     <Spacer y={1} />
                     <input
-                        className={"w-full max-w-64 rounded-small border-small border-default-200 dark:border-default-100 bg-[#f4f4f5] text-center dark:bg-[#18181b]"}
+                        className={"remove-arrow w-full max-w-64 rounded-small border-small border-default-200 dark:border-default-100 bg-[#f4f4f5] text-center dark:bg-[#18181b]"}
                         placeholder={"Search by AR Number"}
-                        type="text"
+                        type="number"
                         value={searchTerm}
                         onChange={handleChange}
                         id="series" />{" "}

@@ -34,6 +34,11 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
         onOpen();
     }
 
+    const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    });
+
 
     return(
         <div className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
@@ -83,8 +88,8 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                                 <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.taskName}</TableCell>
                                 <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.description}</TableCell>
                                 <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.qty}</TableCell>
-                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.cost}</TableCell>
-                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.amount}</TableCell>
+                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{formatter.format(invoiceChargedItem.cost)}</TableCell>
+                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{formatter.format(invoiceChargedItem.amount)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

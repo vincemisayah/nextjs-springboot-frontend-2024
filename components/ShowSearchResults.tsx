@@ -62,8 +62,8 @@ const ShowSearchResults = (props: { divWidth: string; url: any; }) => {
     return (
         <>
             <div className={"space-y-4 " + props.divWidth}>
-                <input className={'border-1 border-slate-600 w-full max-w-64'}
-                       type="text"
+                <input className={'remove-arrow border-1 border-slate-600 w-full max-w-64'}
+                       type="number"
                        value={searchTerm}
                        onChange={handleChange}
                        id="series" />{' '}

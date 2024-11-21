@@ -5,7 +5,7 @@ import { BlockingData } from "swr/_internal";
 import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
 import { IoPersonSharp } from "react-icons/io5";
 import useSWR from "swr";
-import SalesPersonCalculatedCommission from "@/app/commissionConfigs/invoiceLevel/SalesPersonCalculatedCommission";
+import SalesPersonCalculatedCommission, { tabChange } from "@/app/commissionConfigs/invoiceLevel/SalesPersonCalculatedCommission";
 
 // http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=208072
 
@@ -18,6 +18,7 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
             "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + invoiceId:null,
         fetcher
     );
+
 
     // @ts-ignore
     return (
@@ -39,15 +40,18 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
                                     </li>
                                     <li className={"ml-5 text-[9pt]"}>
                                         <strong>INVOICE ID: </strong>{invoiceId}</li>
-                                    <li className={"ml-5 text-[9pt]"}>
-                                        <strong>TASK ID: </strong>{taskId}</li>
-                                    <li className={"ml-5 text-[9pt]"}>
-                                        <strong>ORDER: </strong>{order}</li>
+                                    {/*<li className={"ml-5 text-[9pt]"}>*/}
+                                    {/*    <strong>TASK ID: </strong>{taskId}</li>*/}
+                                    {/*<li className={"ml-5 text-[9pt]"}>*/}
+                                    {/*    <strong>ORDER: </strong>{order}</li>*/}
                                 </ul>
                             </ModalHeader>
                             <ModalBody className={"dark:bg-[#222222]"}>
                                 <div className="flex w-full flex-col">
-                                    <Tabs aria-label="Options">
+                                    <Tabs aria-label="Options"
+                                          variant={'underlined'}
+                                          color={'primary'}
+                                          isVertical={true}>
                                         {/*@ts-ignore*/}
                                         {(customerInfo.salesPersonList)?.map((item, index)=>(
                                             <Tab key={index} title={
@@ -56,7 +60,7 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
                                                     <p className={'text-[9pt]'}>{item.lastNameFirstName}</p>
                                                 </div>
                                             }>
-                                                <Card className="shadow-sm rounded-small border-small border-default-200 dark:border-default-100">
+                                                <Card className="shadow-none">
                                                     <CardBody >
                                                         <SalesPersonCalculatedCommission customerID={customerJobInfo.customerID} invoiceID={invoiceId} taskID={taskId} orderNumber={order} employeeID={item.salesPersonId}/>
                                                     </CardBody>
@@ -65,36 +69,6 @@ const ModalSalesCommission = ({ onOpen, onOpenChange, isOpen, invoiceId, custome
                                         ))}
                                     </Tabs>
                                 </div>
-
-                                {/*<Table aria-label="Example static collection table">*/}
-                                {/*    <TableHeader>*/}
-                                {/*        <TableColumn>NAME</TableColumn>*/}
-                                {/*        <TableColumn>ROLE</TableColumn>*/}
-                                {/*        <TableColumn>STATUS</TableColumn>*/}
-                                {/*    </TableHeader>*/}
-                                {/*    <TableBody>*/}
-                                {/*        <TableRow key="1">*/}
-                                {/*            <TableCell>Tony Reichert</TableCell>*/}
-                                {/*            <TableCell>CEO</TableCell>*/}
-                                {/*            <TableCell>Active</TableCell>*/}
-                                {/*        </TableRow>*/}
-                                {/*        <TableRow key="2">*/}
-                                {/*            <TableCell>Zoey Lang</TableCell>*/}
-                                {/*            <TableCell>Technical Lead</TableCell>*/}
-                                {/*            <TableCell>Paused</TableCell>*/}
-                                {/*        </TableRow>*/}
-                                {/*        <TableRow key="3">*/}
-                                {/*            <TableCell>Jane Fisher</TableCell>*/}
-                                {/*            <TableCell>Senior Developer</TableCell>*/}
-                                {/*            <TableCell>Active</TableCell>*/}
-                                {/*        </TableRow>*/}
-                                {/*        <TableRow key="4">*/}
-                                {/*            <TableCell>William Howard</TableCell>*/}
-                                {/*            <TableCell>Community Manager</TableCell>*/}
-                                {/*            <TableCell>Vacation</TableCell>*/}
-                                {/*        </TableRow>*/}
-                                {/*    </TableBody>*/}
-                                {/*</Table>*/}
                             </ModalBody>
                             <ModalFooter className={'dark:bg-[#222222]'}>
                                 <Button color="danger" variant="light" onPress={onClose}>

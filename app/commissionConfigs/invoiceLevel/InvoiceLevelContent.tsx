@@ -25,8 +25,8 @@ const InvoiceLevelContent = () => {
                     {/*@ts-ignore*/}
                     <input id={'invoiceInputField'}
                         size={12}
-                        type={'text'}
-                        className={'text-center border-small bg-gray-100 dark:bg-[#27272a] rounded'}
+                        type={'number'}
+                        className={'remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded'}
                         placeholder={'Invoice Number'}
                         onKeyDown={(e) => {
                            if (e.key === "Enter"){/*@ts-ignore*/}

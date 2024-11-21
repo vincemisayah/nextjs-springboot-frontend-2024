@@ -1,52 +1,84 @@
-import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import React from "react";
+import { PiPercentLight } from "react-icons/pi";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
-const DisplayInvoice = (props: { invoiceNumber: number }) =>{
-    const [currentInvoiceId, setCurrentInvoiceId] = useState(props.invoiceNumber);
-    const [chargedItems, setChargedItems] = useState<Object>([]);
-
-    const { data: invoiceChargedItems, error: invoiceChargedItemsError } = useSWR(props.invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/invoiceChargedTaskItems?invoiceId=" + props.invoiceNumber:null,
+// @ts-ignore
+const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNumber, employeeID}) =>{
+    const { data: calculatedCommissionInfo, error: calculatedCommissionInfoError } = useSWR(invoiceID > 0?
+            "http://localhost:1118/invoiceCommissionService/customerlevel/calculatedInvoiceTaskCommission?" +
+            "customerID=" + customerID +
+            "&invoiceID=" + invoiceID +
+            "&taskID=" + taskID +
+            "&orderNumber=" + orderNumber +
+            "&employeeID=" + employeeID : null,
         fetcher
     );
 
-    console.log('invoiceChargedItems', invoiceChargedItems);
+    console.log('SalesPersonCalculatedCommission calculatedCommissionInfo = ', calculatedCommissionInfo);
+    if(calculatedCommissionInfoError){
+        return(
+            <>
+                Error - failed to load data.
+            </>
+        )
+    }
+
+    const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    });
 
     return(
-        <div className={'rounded-small border-small border-default-200 dark:border-default-100'}>
-            <div className={'min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100'}>
-                <h1>Display Invoice for Invoice ID</h1>
-                <span>{props.invoiceNumber}</span>
-            </div>
-
-            <div className={'p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100'}>
-                <Table aria-label="Example static collection table" removeWrapper={true} isCompact>
+        <>
+            {calculatedCommissionInfo ? (
+                <Table removeWrapper={true} isCompact>
                     <TableHeader>
-                        <TableColumn>Task</TableColumn>
-                        <TableColumn>Description</TableColumn>
-                        <TableColumn>Qty</TableColumn>
-                        <TableColumn>Cost</TableColumn>
-                        <TableColumn>Amount</TableColumn>
+                        <TableColumn className={'dark:bg-[#222222]'}>Amount</TableColumn>
+                        <TableColumn className={'dark:bg-[#222222]'}>Task Rate Percent</TableColumn>
+                        <TableColumn className={'dark:bg-[#222222]'}>Task Commission Value</TableColumn>
+                        <TableColumn className={'dark:bg-[#222222]'}>Assigned Rate Percent</TableColumn>
+                        <TableColumn className={'dark:bg-[#222222]'}>Sales Commission</TableColumn>
                     </TableHeader>
                     <TableBody>
-                        {/*@ts-ignore*/}
-                        {invoiceChargedItems?.map((invoiceChargedItem) => (
-                            <TableRow key={invoiceChargedItem.order}>
-                                <TableCell>{invoiceChargedItem.taskName}</TableCell>
-                                <TableCell>{invoiceChargedItem.description}</TableCell>
-                                <TableCell>{invoiceChargedItem.qty}</TableCell>
-                                <TableCell>{invoiceChargedItem.cost} Customer</TableCell>
-                                <TableCell>{invoiceChargedItem.amount}</TableCell>
-                            </TableRow>
-                        ))}
+                        <TableRow
+                            className={'border-b-small'}>
+                            <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>
+                                {formatter.format(calculatedCommissionInfo.amount)}
+                            </TableCell>
+                            {/*<TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{calculatedCommissionInfo.taskRate}</TableCell>*/}
+                            <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>
+                                <div className={"flex"}>
+                                    <input type={"number"}
+                                           defaultValue={calculatedCommissionInfo.taskRate}
+                                           className={"remove-arrow border-1 text-center w-full sm:w-16 rounded"}
+                                    />
+                                    <PiPercentLight className={"ml-1"} size={15} />
+                                </div>
+                            </TableCell>
+                            <TableCell className={"text-[9pt] dark:text-[#dedfe1]"}>
+                                {formatter.format(calculatedCommissionInfo.taskCommissionDollarValue)}
+                            </TableCell>
+                            <TableCell className={"text-[9pt] dark:text-[#dedfe1]"}>
+                                <div className={"flex"}>
+                                    <input type={"number"}
+                                           defaultValue={calculatedCommissionInfo.salesPersonAssignedRate}
+                                           className={"remove-arrow border-1 text-center w-full sm:w-16 rounded"}
+                                    />
+                                    <PiPercentLight className={"ml-1"} size={15} />
+                                </div>
+                            </TableCell>
+                            <TableCell className={"text-[9pt] dark:text-[#dedfe1]"}>
+                                {formatter.format(calculatedCommissionInfo.salesDollarValue)}
+                            </TableCell>
+                        </TableRow>
                     </TableBody>
                 </Table>
-            </div>
-        </div>
-    )
+            ) : <Spinner color={'default'} label={'Loading...'} />}
+        </>
+    );
 }
-export default DisplayInvoice;
+export default SalesPersonCalculatedCommission;
