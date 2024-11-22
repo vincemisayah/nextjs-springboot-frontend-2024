@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { Accordion, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { Accordion, Divider, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { AccordionItem } from "@nextui-org/accordion";
 import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
 import ModalSalesCommission from "@/app/commissionConfigs/invoiceLevel/ModalSalesCommission";
+import { FaGear } from "react-icons/fa6";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -31,7 +32,11 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
         fetcher
     );
 
-    // console.log('customerJobInfo', customerJobInfo);
+    // http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceDistinctTaskItems?invoiceID=208072
+    const { data: distinctInvoiceTaskItems, error: distinctInvoiceTaskItemsError } = useSWR(props.invoiceNumber > 0?
+            "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceDistinctTaskItems?invoiceID=" + props.invoiceNumber:null,
+        fetcher
+    );
 
     const openModal = (taskId: React.SetStateAction<number>, order: React.SetStateAction<number>) => {
         console.log("openModal = ",customerInfoWithSalesEmployeeList.salesPersonList);
@@ -83,19 +88,72 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                                       customerInfo={customerInfo}
                 />
             </div>
-            <div className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
-                <div className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
-                    TEST
+            <div
+                className={"rounded-small dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]"}>
+                <div
+                    className={"min-w-[50vw] p-4 m-3 shadow-md rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
+                    <div className="space-y-1 mb-5">
+                        <h4 className="text-medium font-medium">Configurable Invoice Task Items for Invoice ID: {props.invoiceNumber}</h4>
+                        <p className="text-small text-default-400">
+                            Edit the task items associated commission rates.
+                        </p>
+                    </div>
+                    <table className={"min-w-full divide-y divide-gray-200 dark:divide-neutral-700"}>
+                        <thead>
+                        <tr>
+                            <th scope="col"
+                                className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Task Name
+                            </th>
+                            <th scope="col"
+                                className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Description
+                            </th>
+                            <th scope="col"
+                                className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Customer-level Task Rate
+                            </th>
+                            <th scope="col"
+                                className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Action
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody className={"divide-y divide-gray-200 dark:divide-neutral-700"}>
+                        {distinctInvoiceTaskItems?.map((taskItem: { taskID: React.Key | null | undefined; }) => (
+                            <tr key={taskItem.taskID}
+                                className={"border-b-small border-t-small"}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">{taskItem.taskName}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">{taskItem.description}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
+                                    <input type={"number"}
+                                           className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded"} />
+                                </td>
+
+                                {/*<div className="max-w-md">*/}
+                                {/*    <div className="flex mt-2 mb-5 h-5 items-center space-x-4 text-small">*/}
+                                {/*        <div className={'flex'}>*/}
+                                {/*            <FaGear className={'mr-1 mt-0.5'}/>*/}
+                                {/*            {taskItem.taskName}*/}
+                                {/*        </div>*/}
+                                {/*        <Divider orientation="vertical" />*/}
+                                {/*        <div>{taskItem.description}</div>*/}
+                                {/*        <Divider orientation="vertical" />*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+
                 </div>
+
+
             </div>
             <div
-                className={'p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]'}>
+                className={"p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
                 <Table aria-label="Example static collection table" removeWrapper={true} isCompact>
                     <TableHeader>
-                        <TableColumn className={'dark:bg-[#222222]'}>Task</TableColumn>
-                        <TableColumn className={'dark:bg-[#222222]'}>Description</TableColumn>
-                        <TableColumn className={'dark:bg-[#222222]'}>Qty</TableColumn>
-                        <TableColumn className={'dark:bg-[#222222]'}>Cost</TableColumn>
+                        <TableColumn className={"dark:bg-[#222222]"}>Task</TableColumn>
+                        <TableColumn className={"dark:bg-[#222222]"}>Description</TableColumn>
+                        <TableColumn className={"dark:bg-[#222222]"}>Qty</TableColumn>
+                        <TableColumn className={"dark:bg-[#222222]"}>Cost</TableColumn>
                         <TableColumn className={'dark:bg-[#222222]'}>Amount</TableColumn>
                     </TableHeader>
                     <TableBody>
