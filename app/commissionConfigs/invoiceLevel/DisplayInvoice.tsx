@@ -16,7 +16,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
     const [customerInfo, setCustomerInfo] = useState([]);
 
     const { data: invoiceChargedItems, error: invoiceChargedItemsError } = useSWR(props.invoiceNumber > 0?
-        "http://localhost:1118/invoiceCommissionService/customerlevel/invoiceChargedTaskItems?invoiceId=" + props.invoiceNumber:null,
+        "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceChargedTaskItems?invoiceId=" + props.invoiceNumber:null,
         fetcher
     );
 
@@ -50,26 +50,29 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
 
 
     return(
-        <div className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
+        <div
+            className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
             <div
                 className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
                 <h1>Display Invoice for Invoice ID</h1>
-                {(customerJobInfo !== undefined)?(
+                {(customerJobInfo !== undefined) ? (
                     <>
                         <ul className={'mt-1'}>
                             <li className={"ml-5 text-[9pt] dark:text-[#dedfe1]"}>
                                 <strong>CUSTOMER NAME: </strong>{customerJobInfo.customerName}
-                                <span className={"ml-1 text-[9pt] dark:text-[#dedfe1]"}>(AR#: {customerJobInfo.arNumber})</span>
+                                <span
+                                    className={"ml-1 text-[9pt] dark:text-[#dedfe1]"}>(AR#: {customerJobInfo.arNumber})</span>
                             </li>
                             <li className={"ml-5 text-[9pt] dark:text-[#dedfe1]"}>
                                 <strong>JOB INFO: </strong>{customerJobInfo.jobName}
-                                <span className={"ml-1 text-[9pt] dark:text-[#dedfe1]"}>(JOB#: {customerJobInfo.jobID}))</span>
+                                <span
+                                    className={"ml-1 text-[9pt] dark:text-[#dedfe1]"}>(JOB#: {customerJobInfo.jobID}))</span>
                             </li>
                             <li className={"ml-5 text-[9pt] dark:text-[#dedfe1]"}>
                                 <strong>INVOICE ID: </strong>{customerJobInfo.invoiceID}</li>
                         </ul>
                     </>
-                ):null}
+                ) : null}
                 <ModalSalesCommission invoiceId={props.invoiceNumber}
                                       customerJobInfo={customerJobInfo}
                                       taskId={selectedTaskId}
@@ -80,7 +83,13 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                                       customerInfo={customerInfo}
                 />
             </div>
-            <div className={'p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]'}>
+            <div className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
+                <div className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
+                    TEST
+                </div>
+            </div>
+            <div
+                className={'p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]'}>
                 <Table aria-label="Example static collection table" removeWrapper={true} isCompact>
                     <TableHeader>
                         <TableColumn className={'dark:bg-[#222222]'}>Task</TableColumn>
@@ -93,13 +102,18 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                         {/*@ts-ignore*/}
                         {invoiceChargedItems?.map((invoiceChargedItem) => (
                             <TableRow key={invoiceChargedItem.order}
-                                      onClick={()=>openModal(invoiceChargedItem.taskId, invoiceChargedItem.order)}
+                                      onClick={() => openModal(invoiceChargedItem.taskId, invoiceChargedItem.order)}
                                       className={'border-b-small hover:bg-gray-50 dark:hover:bg-[#4f4f4f] hover:cursor-pointer transition-background ease-linear delay-75'}>
-                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.taskName}</TableCell>
-                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.description}</TableCell>
-                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.qty}</TableCell>
-                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{formatter.format(invoiceChargedItem.cost)}</TableCell>
-                                <TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{formatter.format(invoiceChargedItem.amount)}</TableCell>
+                                <TableCell
+                                    className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.taskName}</TableCell>
+                                <TableCell
+                                    className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.description}</TableCell>
+                                <TableCell
+                                    className={'text-[9pt] dark:text-[#dedfe1]'}>{invoiceChargedItem.qty}</TableCell>
+                                <TableCell
+                                    className={'text-[9pt] dark:text-[#dedfe1]'}>{formatter.format(invoiceChargedItem.cost)}</TableCell>
+                                <TableCell
+                                    className={'text-[9pt] dark:text-[#dedfe1]'}>{formatter.format(invoiceChargedItem.amount)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

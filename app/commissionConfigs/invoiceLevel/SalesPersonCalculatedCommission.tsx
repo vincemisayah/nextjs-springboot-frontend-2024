@@ -64,7 +64,7 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
     }, []);
 
     const { data: calculatedCommissionInfo, error: calculatedCommissionInfoError } = useSWR(invoiceID > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/calculatedInvoiceTaskCommission?" +
+            "http://localhost:1118/invoiceCommissionService/invoiceLevel/calculatedInvoiceTaskCommission?" +
             "customerID=" + customerID +
             "&invoiceID=" + invoiceID +
             "&taskID=" + taskID +
