@@ -474,7 +474,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             );
 
             const { data: empAssignedRates, error: empAssignedRatesError } = useSWR(
-                "http://localhost:1118/invoiceCommissionService/customerlevel/customerEmployeeAssignedRates?customerID=" + customerId,
+                "http://localhost:1118/invoiceCommissionService/customerlevel/employeeAssignedRates?customerID=" + customerId,
                 fetcher
             );
 

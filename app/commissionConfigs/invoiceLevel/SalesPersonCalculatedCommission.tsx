@@ -21,7 +21,6 @@ import { Button } from "@nextui-org/button";
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
-
 // @ts-ignore
 const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNumber, employeeID}) =>{
     const divRef = useRef(null);
@@ -30,13 +29,13 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
     const divRef2 = useRef(null);
     const messageIconDivRef2 = useRef(null);
 
-    useEffect(() => {
+    useEffect(( ) => {
         const table = document.getElementById("tableId#" + employeeID);
         // @ts-ignore
         table.style.opacity = "1";
     }, [employeeID]);
 
-    useEffect(() => {
+    useEffect(( ) => {
         const handleClickOutside = (event: { target: any; }) => {
             // @ts-ignore
             if (divRef.current && !divRef.current.contains(event.target) // @ts-ignore
@@ -48,6 +47,7 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                 }
             }
 
+            // @ts-ignore
             if (divRef2.current && !divRef2.current.contains(event.target) // @ts-ignore
                 && (messageIconDivRef2.current && !messageIconDivRef2.current.contains(event.target))) {
                 const textAreaDiv = document.getElementById('salesNote#' + employeeID + '#taskId#' + taskID);
