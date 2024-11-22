@@ -11,7 +11,7 @@ import {
     Tooltip
 } from "@nextui-org/react";
 import React, { useEffect, useRef } from "react";
-import { PiPercentLight } from "react-icons/pi";
+import { PiNoteBlank, PiNoteBlankLight, PiNoteFill, PiPercentLight } from "react-icons/pi";
 import { DeleteIcon, EditIcon, EyeIcon } from "@nextui-org/shared-icons";
 import { RxReset } from "react-icons/rx";
 import { FaRegMessage } from "react-icons/fa6";
@@ -129,20 +129,33 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                     />
                                     <PiPercentLight className={"ml-1"} size={15} />
                                     <div ref={messageIconDivRef}>
-                                        <FaRegMessage
-                                            color={clsx({
-                                                ["#06b6d4"]: (calculatedCommissionInfo.taskRateNote).length > 0
-                                            })}
-                                            className={"ml-1 hover:cursor-pointer"}
-                                            onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}
-                                        />
+                                        {/*<PiNoteFill*/}
+                                        {/*    color={clsx({*/}
+                                        {/*        ["#06b6d4"]: (calculatedCommissionInfo.taskRateNote).length > 0*/}
+                                        {/*    })}*/}
+                                        {/*    className={"ml-1 hover:cursor-pointer"}*/}
+                                        {/*    onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}*/}
+                                        {/*/>*/}
+                                        {calculatedCommissionInfo.taskRateNote.length > 0?
+                                            (
+                                                <>
+                                                    <PiNoteFill size={16} className={"ml-1 hover:cursor-pointer"}
+                                                        onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                </>
+
+                                            ):(
+                                                <>
+                                                    <PiNoteBlank  size={16} className={"ml-1 hover:cursor-pointer"}
+                                                        onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                </>
+                                            )}
                                     </div>
                                     <div ref={divRef} id={"taskNote#" + employeeID + "#taskId#" + taskID} hidden={true}>
                                         <div
-                                            className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
+                                            className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded-lg border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
                                             <textarea
                                                 id={"textAreaTaskNote#" + employeeID + "#taskId#" + taskID}
-                                                className={"max-h-[120px] text-[10pt] dark:bg-[#27272a] rounded border-small border-default-200 dark:border-default-100 p-2"}
+                                                className={"max-h-[120px] text-[10pt] dark:bg-[#27272a] rounded-lg border-small border-default-200 dark:border-default-100 p-2"}
                                                 defaultValue={calculatedCommissionInfo.taskRateNote}
                                                 rows={4} maxLength={150}>
                                             </textarea>
@@ -162,17 +175,31 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                     />
                                     <PiPercentLight className={"ml-1"} size={15} />
                                     <div ref={messageIconDivRef2}>
-                                        <FaRegMessage
-                                            color={clsx({
-                                                ["#06b6d4"]: (calculatedCommissionInfo.taskRateNote).length > 0
-                                            })}
-                                            className={"ml-1 hover:cursor-pointer"}
-                                            onClick={() => showNote("salesNote#" + employeeID + "#taskId#" + taskID)}
-                                        />
+                                        {/*<FaRegMessage*/}
+                                        {/*    color={clsx({*/}
+                                        {/*        ["#06b6d4"]: (calculatedCommissionInfo.salesPersonAssignedRateNote).length > 0*/}
+                                        {/*    })}*/}
+                                        {/*    className={"ml-1 hover:cursor-pointer"}*/}
+                                        {/*    onClick={() => showNote("salesNote#" + employeeID + "#taskId#" + taskID)}*/}
+                                        {/*/>*/}
+
+                                        {calculatedCommissionInfo.salesPersonAssignedRateNote.length > 0?
+                                            (
+                                                <>
+                                                    <PiNoteFill size={16} className={"ml-1 hover:cursor-pointer"} color={"#06b6d4"}
+                                                                onClick={()=>showNote("salesNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                </>
+
+                                            ):(
+                                                <>
+                                                    <PiNoteBlank  size={16} className={"ml-1 hover:cursor-pointer"}
+                                                                  onClick={()=>showNote("salesNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                </>
+                                            )}
                                     </div>
                                     <div ref={divRef2} id={"salesNote#" + employeeID + "#taskId#" + taskID} hidden={true}>
                                         <div
-                                            className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
+                                            className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded-lg border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
                                             <textarea
                                                 id={"textAreaSalesNote#" + employeeID + "#taskId#" + taskID}
                                                 className={"max-h-[120px] text-[10pt] dark:bg-[#27272a] rounded border-small border-default-200 dark:border-default-100 p-2"}

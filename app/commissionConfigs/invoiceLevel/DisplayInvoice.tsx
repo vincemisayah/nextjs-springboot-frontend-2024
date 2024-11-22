@@ -13,6 +13,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [selectedOrder, setSelectedOrder] = useState(-1);
     const [selectedTaskId, setSelectedTaskId] = useState(-1);
+    const [customerInfo, setCustomerInfo] = useState([]);
 
     const { data: invoiceChargedItems, error: invoiceChargedItemsError } = useSWR(props.invoiceNumber > 0?
         "http://localhost:1118/invoiceCommissionService/customerlevel/invoiceChargedTaskItems?invoiceId=" + props.invoiceNumber:null,
@@ -25,13 +26,21 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
         fetcher
     );
 
+    const { data: customerInfoWithSalesEmployeeList, error: customerInfoWithSalesEmployeeListError } = useSWR(props.invoiceNumber > 0?
+            "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + props.invoiceNumber:null,
+        fetcher
+    );
+
     // console.log('customerJobInfo', customerJobInfo);
 
     const openModal = (taskId: React.SetStateAction<number>, order: React.SetStateAction<number>) => {
-        console.log("openModal = ",taskId);
+        console.log("openModal = ",customerInfoWithSalesEmployeeList.salesPersonList);
+        console.log('taskId = ', taskId)
         setSelectedOrder(order);
         setSelectedTaskId(taskId);
-        onOpen();
+        // salesPersonList
+        setCustomerInfo(customerInfoWithSalesEmployeeList);
+        onOpen( );
     }
 
     const formatter = new Intl.NumberFormat('en-US', {
@@ -68,6 +77,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                                       isOpen={isOpen}
                                       onOpen={onOpen}
                                       onOpenChange={onOpenChange}
+                                      customerInfo={customerInfo}
                 />
             </div>
             <div className={'p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]'}>
