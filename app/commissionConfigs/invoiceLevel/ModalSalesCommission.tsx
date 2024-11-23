@@ -143,20 +143,20 @@ const ModalSalesCommission = ({
                                                  }
                                             >
                                                 <div className={"h-[20vh] w-[43vw] border-2 border-amber-200"}>
-                                                    <AssignTaskAndEmployeeRates
-                                                        customerID={customerJobInfo.customerID}
-                                                        invoiceID={invoiceId}
-                                                        taskID={taskId}
-                                                        orderNumber={order}
-                                                        employeeID={item.salesPersonId}
-                                                    />
-                                                    {/*<SalesPersonCalculatedCommission*/}
+                                                    {/*<AssignTaskAndEmployeeRates*/}
                                                     {/*    customerID={customerJobInfo.customerID}*/}
                                                     {/*    invoiceID={invoiceId}*/}
                                                     {/*    taskID={taskId}*/}
                                                     {/*    orderNumber={order}*/}
                                                     {/*    employeeID={item.salesPersonId}*/}
                                                     {/*/>*/}
+                                                    <SalesPersonCalculatedCommission
+                                                        customerID={customerJobInfo.customerID}
+                                                        invoiceID={invoiceId}
+                                                        taskID={taskId}
+                                                        orderNumber={order}
+                                                        employeeID={item.salesPersonId}
+                                                    />
                                                 </div>
                                             </Tab>
                                         ))}

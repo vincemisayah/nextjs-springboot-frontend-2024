@@ -129,13 +129,6 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                     />
                                     <PiPercentLight className={"ml-1"} size={15} />
                                     <div ref={messageIconDivRef}>
-                                        {/*<PiNoteFill*/}
-                                        {/*    color={clsx({*/}
-                                        {/*        ["#06b6d4"]: (calculatedCommissionInfo.taskRateNote).length > 0*/}
-                                        {/*    })}*/}
-                                        {/*    className={"ml-1 hover:cursor-pointer"}*/}
-                                        {/*    onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}*/}
-                                        {/*/>*/}
                                         {calculatedCommissionInfo.taskRateNote.length > 0?
                                             (
                                                 <>
