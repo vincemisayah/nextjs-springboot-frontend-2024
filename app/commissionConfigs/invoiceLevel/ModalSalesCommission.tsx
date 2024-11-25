@@ -74,8 +74,6 @@ const ModalSalesCommission = ({
             salesEmployeeNote: textAreaSalesNote,
         };
 
-        console.log("TO SAVE = ", TO_SAVE);
-
         setIsSaving(true);
         const response = await fetch("http://localhost:1118/invoiceCommissionService/invoiceLevel/saveInvoiceLevelConfig", {
             method: "POST",

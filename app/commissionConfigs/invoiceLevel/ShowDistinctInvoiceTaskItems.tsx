@@ -18,6 +18,8 @@ import { PiNoteBlank, PiNoteFill } from "react-icons/pi";
 import ShowCustomerLevelConfig from "@/app/commissionConfigs/invoiceLevel/ShowCustomerLevelConfig";
 import { TbEyeCog } from "react-icons/tb";
 import { RxInfoCircled } from "react-icons/rx";
+import EnableDisableConfig from "@/app/commissionConfigs/invoiceLevel/EnableDisableConfig";
+import { PiPercentLight } from "react-icons/pi";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -33,8 +35,6 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
             "http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=" + invoiceNumber:null,
         fetcher
     );
-
-    console.log('ShowDistinctInvoiceTaskItems, customerInfoWithSalesEmployeeList = ', customerInfoWithSalesEmployeeList);
 
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
@@ -113,6 +113,83 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
 
     };
 
+    // invoiceTaskRateInfo
+    const DisplayTaskCommRate = ({taskItem}) =>{
+
+        // const taskID = taskItem.taskID.taskID;
+
+        // @ts-ignore
+        const { data: invoiceTaskRateInfo, data:invoiceTaskRateInfoError } = useSWR(invoiceNumber > 0?
+                "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceTaskRateInfo?invoiceID=" + invoiceNumber +
+                "&taskID="+taskItem.taskID:null,
+            fetcher
+        );
+
+        if(invoiceTaskRateInfo){
+            // console.log("employeeCommRateInfo = ", employeeCommRateInfo)
+            return (
+                <div className={'flex'}>
+                    {/*<Switch size={'sm'}*/}
+                    {/*        color={'default'}*/}
+                    {/*        isSelected={invoiceTaskRateInfo.active} />*/}
+                    <input id={"invoiceLevelCommRateInput#" + taskItem.taskID}
+                           defaultValue={invoiceTaskRateInfo.commRate}
+                           type={"number"}
+                           className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
+                    <PiPercentLight className={'ml-1.5'}  size={19}/>
+                </div>
+            );
+        }
+
+        return (
+            <div className={'flex'}>
+                {/*<Switch size={'sm'}*/}
+                {/*        color={'default'}*/}
+                {/*        isSelected={invoiceTaskRateInfo.active} />*/}
+                <input id={"invoiceLevelCommRateInput#" + taskItem.taskID}
+                       type={"number"}
+                       className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
+                <PiPercentLight className={'ml-1.5'}  size={19}/>
+            </div>
+        );
+    }
+
+    // @ts-ignore
+    const DisplayAssignedEmployeeCommRate = ({ taskItem, employeeId }) => {
+        // @ts-ignore
+        const { data: employeeCommRateInfo, data: employeeCommRateInfoError } = useSWR(invoiceNumber > 0 ?
+                "http://localhost:1118/invoiceCommissionService/invoiceLevel/employeeAssignedRate?invoiceID=" + invoiceNumber +
+                "&empID=" + employeeId +
+                "&taskID="+taskItem.taskID:null,
+            fetcher
+        );
+
+        if(employeeCommRateInfo){
+            return (
+                <div className={"flex"}>
+                    <input id={"empCommRateEmpId#" + employeeId}
+                           defaultValue={employeeCommRateInfo.commRate}
+                           type={"number"}
+                           className={"empCommRateInputTaskId#"+taskItem.taskID+ " max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
+                    <PiPercentLight className={'ml-1.5'}  size={19}/>
+                </div>
+
+            );
+        }
+
+        return (
+            <div className={'flex'}>
+                <input id={"empCommRateEmpId#" + employeeId}
+                       type={"number"}
+                       className={"empCommRateInputTaskId#"+taskItem.taskID+ " max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
+                <PiPercentLight className={'ml-1.5'}  size={19}/>
+            </div>
+
+        );
+    }
+
+
+    // @ts-ignore
     return (
         <>
             <div
@@ -157,9 +234,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                     </tr>
                     </thead>
                     <tbody className={"divide-y divide-gray-200 dark:divide-neutral-700"}>
-                    {distinctInvoiceTaskItems?.map((taskItem: {
-                        taskID: React.Key | null | undefined;
-                    }, index: string) => (
+                    {distinctInvoiceTaskItems?.map((taskItem: {taskID: React.Key | null | undefined;}, index: string) => (
                         <tr key={index}
                             // onClick={onOpen}
                             className={"border-b-small border-t-small dark:hover:bg-[#4f4f4f]"}>
@@ -175,25 +250,31 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                                             <GetCustomerLevelTaskRate taskID={taskItem.taskID} />
                                         </PopoverContent>
                                     </Popover>
+                                    {/*@ts-ignore*/}
                                     {taskItem.taskName}
                                 </div>
                             </td>
+                            {/*@ts-ignore*/}
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">{taskItem.description}</td>
                             {/*<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">*/}
                             {/*    <GetCustomerLevelTaskRate taskID={taskItem.taskID} />*/}
                             {/*</td>*/}
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
-                                <input id={"invoiceLevelCommRateInput#" + taskItem.taskID}
-                                       type={"number"}
-                                       className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
+                                <DisplayTaskCommRate taskItem={taskItem}/>
+                                {/*<input id={"invoiceLevelCommRateInput#" + taskItem.taskID}*/}
+                                {/*       type={"number"}*/}
+                                {/*       className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />*/}
                             </td>
-
+                            {/*@ts-ignore*/}
                             {(customerInfoWithSalesEmployeeList !== undefined) ? customerInfoWithSalesEmployeeList.salesPersonList.map((item, index) => (
                                 <td key={index}
                                     className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
-                                    <input id={"invoiceLevelCommRateInput#" + taskItem.taskID}
-                                           type={"number"}
-                                           className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
+                                    {/*{item.salesPersonId }*/}
+                                    <DisplayAssignedEmployeeCommRate taskItem={taskItem} employeeId={item.salesPersonId}/>
+                                    {/*<input id={"invoiceLevelCommRateInput#" + taskItem.taskID + '#salesEmpId#'+item.salesPersonId}*/}
+                                    {/*       defaultValue={item.salesPersonId}*/}
+                                    {/*       type={"number"}*/}
+                                    {/*       className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />*/}
 
                                 </td>
                             )) : null}
@@ -215,7 +296,10 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                                             </div>
                                         </PopoverContent>
                                     </Popover>
-                                    <Switch  size={'sm'} color={'default'} />
+                                    <EnableDisableConfig invoiceNumber={invoiceNumber} taskItem={taskItem}/>
+                                    {/*<Switch id={'switchTaskId#'+taskItem.taskID} onChange={(e)=>enableDisableConfig(taskItem, e)}*/}
+                                    {/*    size={'sm'}*/}
+                                    {/*    color={'default'} />*/}
                                 </div>
                             </td>
                         </tr>

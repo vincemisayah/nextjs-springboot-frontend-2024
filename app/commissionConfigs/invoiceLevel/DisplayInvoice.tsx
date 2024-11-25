@@ -28,8 +28,6 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
         fetcher
     );
 
-    console.log("Customer Job Info = ", customerJobInfo);
-
     const { data: customerInfoWithSalesEmployeeList, error: customerInfoWithSalesEmployeeListError } = useSWR(props.invoiceNumber > 0?
             "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + props.invoiceNumber:null,
         fetcher
