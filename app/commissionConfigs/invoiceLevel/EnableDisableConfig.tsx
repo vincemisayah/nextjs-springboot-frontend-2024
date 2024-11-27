@@ -4,10 +4,11 @@ import { Switch } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 
+// @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 // @ts-ignore
-const EnableDisableConfig = ({invoiceNumber, taskItem})=>{
+const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
     const [loggedIn, setLoggedIn] = useState(3667);
     const [isSelected, setIsSelected] = React.useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -25,26 +26,30 @@ const EnableDisableConfig = ({invoiceNumber, taskItem})=>{
         // console.log('invoiceTaskRateInfo = ', invoiceTaskRateInfo);
         // setIsSelected(invoiceTaskRateInfo.active)
         updateInvoiceLevelConfigStatus();
-    }, [isSelected]);
+    }, []);
 
 
     const updateInvoiceLevelConfigStatus = async () => {
-        // console.log("updateInvoiceLevelConfigStatus isSelected . . . ");
+        console.log("updateInvoiceLevelConfigStatus isSelected . . . ");
         // console.log('isSelected = ', isSelected);
         // console.log('taskItem = ', taskItem);
 
         const OBJ_TO_SAVE = {
-            assignedBy: loggedIn,
-            active: isSelected,
+            lastEditedBy: loggedIn,
+            customerID: customerId,
+            invoiceID: invoiceNumber,
             taskID: taskItem.taskID,
             taskRate: undefined,
-            empRates: [],
+            active: isSelected,
+            notes: '',
+            empRates: []
         }
 
         // @ts-ignore
         const taskRate = document.getElementById("invoiceLevelCommRateInput#" + taskItem.taskID).value;
         console.log("taskRate = ", taskRate);
-        OBJ_TO_SAVE.taskRate = taskRate;
+        // @ts-ignore
+        OBJ_TO_SAVE.taskRate = Number(taskRate);
 
 
         const empCommRates = Array.from(document.getElementsByClassName("empCommRateInputTaskId#" + taskItem.taskID));

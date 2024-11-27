@@ -296,7 +296,9 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                                             </div>
                                         </PopoverContent>
                                     </Popover>
-                                    <EnableDisableConfig invoiceNumber={invoiceNumber} taskItem={taskItem}/>
+                                    <EnableDisableConfig customerId={customerJobInfo.customerID}
+                                        invoiceNumber={invoiceNumber}
+                                        taskItem={taskItem}/>
                                     {/*<Switch id={'switchTaskId#'+taskItem.taskID} onChange={(e)=>enableDisableConfig(taskItem, e)}*/}
                                     {/*    size={'sm'}*/}
                                     {/*    color={'default'} />*/}
