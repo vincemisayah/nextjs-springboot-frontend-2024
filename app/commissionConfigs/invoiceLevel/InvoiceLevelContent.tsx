@@ -21,7 +21,7 @@ const InvoiceLevelContent = () => {
     return (
         <>
             <div className={'flex flex-row gap-4'}>
-                <div className={'border-1 rounded shadow-md text-center p-3 w-[20vw] min-w-fit'}>
+                <div id={'searchInvoiceContainer'}  className={'border-1 rounded shadow-md text-center p-3 w-[20vw] min-w-fit'}>
                     {/*@ts-ignore*/}
                     <input id={'invoiceInputField'}
                         size={12}

@@ -1,8 +1,9 @@
 'use client'
 
-import { Switch } from "@nextui-org/react";
+import { Spinner, Switch } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
+import { Button } from "@nextui-org/button";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -20,20 +21,8 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
     );
 
 
-
-    useEffect(() => {
-        // console.log("USE EFFECT . . . selected = ", isSelected);
-        // console.log('invoiceTaskRateInfo = ', invoiceTaskRateInfo);
-        // setIsSelected(invoiceTaskRateInfo.active)
-        updateInvoiceLevelConfigStatus();
-    }, []);
-
-
     const updateInvoiceLevelConfigStatus = async () => {
-        console.log("updateInvoiceLevelConfigStatus isSelected . . . ");
-        // console.log('isSelected = ', isSelected);
-        // console.log('taskItem = ', taskItem);
-
+        setIsSaving(true);
         const OBJ_TO_SAVE = {
             lastEditedBy: loggedIn,
             customerID: customerId,
@@ -85,40 +74,30 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
     }
 
     if(invoiceTaskRateInfo){
-        // console.log("invoiceTaskRateInfo = ", invoiceTaskRateInfo)
-        // console.log("ACTIVE = ", invoiceTaskRateInfo.active)
-        // if(invoiceTaskRateInfo.active){
-            return(
-                <div>
-                    <Switch
-                        size={'sm'}
-                        color={'default'}
-                        defaultSelected={invoiceTaskRateInfo.active}
-                        onValueChange={setIsSelected}/>
-                </div>
-            )
-        // }
-        // else{
-        //     return (
-        //         <div>
-        //             <Switch onChange={foo2}
-        //                 size={"sm"}
-        //                 color={"default"}
-        //                 defaultSelected={false} onValueChange={setIsSelected} />
-        //         </div>
-        //     )
-        // }
-    }
+        return(
+            <div className={'flex'}>
+                <Switch
+                    size={'sm'}
+                    color={'default'}
+                    defaultSelected={invoiceTaskRateInfo.active}
+                    onValueChange={setIsSelected}
 
-    // return (
-    //     <>
-    //         <Switch onChange={enableDisableConfig}
-    //                 size={"sm"}
-    //                 color={"default"}
-    //                 isSelected={isSelected} onValueChange={setIsSelected} />
-    //         {/*<p className="text-small text-default-500">Config: {isSelected ? "Enabled" : "Disabled"}</p>*/}
-    //     </>
-    // );
+                    // onChange={(isSelected)=>{
+                    //     console.log("val = ", isSelected.target.checked);
+                    //     updateInvoiceLevelConfigStatus(isSelected.target.checked);
+                    // }}
+                />
+                <Button onPress={updateInvoiceLevelConfigStatus}
+                    size={'sm'}>
+                    <span id={'saveBtnTaskId#'+taskItem.taskID}>
+                        {isSaving?
+                            <Spinner color={'primary'} size={'sm'}/>
+                            : (<p>Save</p>)}
+                    </span>
+                </Button>
+            </div>
+        )
+    }
 
     return (
         <div>Failed to load invoice level config status</div>
