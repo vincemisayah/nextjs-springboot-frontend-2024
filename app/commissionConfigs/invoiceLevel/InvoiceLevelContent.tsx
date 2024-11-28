@@ -10,18 +10,23 @@ import ShowSearchResults from "@/app/commissionConfigs/invoiceLevel/ShowSearchRe
 const InvoiceLevelContent = () => {
     const [targetInvoiceNumber, setTargetInvoiceNumber] = useState(0);
 
-    // useEffect(() => {
-    //     console.log("Invoice Number: ", targetInvoiceNumber);
-    // }, [targetInvoiceNumber]);
+
 
     const handleNameChange = (newInvoiceID: SetStateAction<number>) => {
+        const changeInvoiceBtn = document.getElementById('changeInvoiceBtn');
+        // @ts-ignore
+        if(changeInvoiceBtn.hidden){
+            changeInvoiceBtn.hidden = false;
+        }
+
         setTargetInvoiceNumber(newInvoiceID);
     };
 
     return (
         <>
             <div className={'flex flex-row gap-4'}>
-                <div id={'searchInvoiceContainer'}  className={'border-1 rounded shadow-md text-center p-3 w-[20vw] min-w-fit'}>
+                {/*<div id={'searchInvoiceContainer'}  className={'border-1 rounded shadow-md text-center p-3 w-[20vw] min-w-fit'}>*/}
+                <div id={'searchInvoiceContainer'}  className={'border-1 rounded shadow-md text-center p-3 w-[100%]'}>
                     {/*@ts-ignore*/}
                     <input id={'invoiceInputField'}
                         size={12}

@@ -50,7 +50,8 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
             console.log(empId + ' -> ' + empRate);
             const empRateInfo = {
                 empID: empId,
-                salesRate: empRate
+                salesRate: empRate,
+                note:'test note for employee'
             }
             // @ts-ignore
             OBJ_TO_SAVE.empRates.push(empRateInfo);

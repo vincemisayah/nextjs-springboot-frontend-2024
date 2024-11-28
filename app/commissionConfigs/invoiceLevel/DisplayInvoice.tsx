@@ -54,9 +54,18 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
         currency: 'USD'
     });
 
+    const expandInvoiceSelector = ( ) => {
+        const searchInvoiceContainer = document.getElementById('searchInvoiceContainer');
+        // @ts-ignore
+        searchInvoiceContainer.hidden = false;
+
+        const changeInvoiceBtn = document.getElementById('changeInvoiceBtn');
+        // @ts-ignore
+        changeInvoiceBtn.hidden = true;
+    }
 
     return(
-        <div
+        <div id={'mainConfigContent'}
             className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
             <div
                 className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
@@ -79,6 +88,14 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                         </ul>
                     </>
                 ) : null}
+                <div  id={'changeInvoiceBtn'} hidden={true}>
+                    <Button
+                        onPress={expandInvoiceSelector}
+                        className={'mt-2'} size={'sm'}>
+                        Select different invoice
+                    </Button>
+                </div>
+
                 <ModalSalesCommission invoiceId={props.invoiceNumber}
                                       customerJobInfo={customerJobInfo}
                                       taskId={selectedTaskId}
