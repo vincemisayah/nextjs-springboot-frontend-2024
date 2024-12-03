@@ -8,7 +8,7 @@ import {
     ModalFooter,
     ModalHeader, Popover, PopoverContent, PopoverTrigger,
     Spinner, Switch,
-    Tab,
+    Tab, TableCell, TableRow,
     Tabs,
     useDisclosure
 } from "@nextui-org/react";
@@ -25,7 +25,7 @@ import { PiPercentLight } from "react-icons/pi";
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 // @ts-ignore
-const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoiceTaskItems }) => {
+const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoiceTaskItems}) => {
     const { data: customerInfoWithSalesEmployeeList, error: customerInfoWithSalesEmployeeListError } = useSWR(invoiceNumber > 0?
             "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + invoiceNumber:null,
         fetcher
@@ -36,13 +36,51 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
         fetcher
     );
 
+    // http://localhost:1118/invoiceCommissionService/customerlevel/employeeAssignedRate?customerID=4346&empID=291&taskID=150
+
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
-    const openModal = ( ) => {
-        onOpen( );
+    const GetSalespersonAssignedTaskRate = ({empID, taskID}) => {
+        console.log("TASK ID = ", taskID)
+
+        const { data: assignedRateInfo, error: assignedRateInfoError } = useSWR(invoiceNumber > 0 ?
+                "http://localhost:1118/invoiceCommissionService/customerlevel/employeeAssignedRate?customerID="+customerId
+                +"&empID=" +empID
+                +"&taskID=" + taskID: null,
+            fetcher
+        );
+
+        if(assignedRateInfoError){
+            return (
+                <span className={'text-red-500 dark:text-red-400'}>
+                    Error: Failed to load data.
+                </span>
+            )
+        }
+
+        if(!assignedRateInfo){
+            return (
+                <span><Spinner color={'default'}/></span>
+            )
+        }
+
+        return(
+            <>
+                <span>{assignedRateInfo.commRate}%</span>
+            </>
+        );
+
+        // {
+        //     "commRate": 1.00,
+        //     "assignedBy": "Michael_DEV Misayah_DEV",
+        //     "notes": "B"
+        // }
     }
 
     const GetCustomerLevelTaskRate = (taskObj: any) => {
+        const url = "http://localhost:1118/invoiceCommissionService/customerlevel/taskRateInfo?customerID="+customerId
+            +"&taskID=" +taskObj.taskID;
+        console.log("URL = ", url);
         const { data: customerLevelTaskRate, error: customerLevelTaskRateError } = useSWR(invoiceNumber > 0 ?
                 "http://localhost:1118/invoiceCommissionService/customerlevel/taskRateInfo?customerID="+customerId
                 +"&taskID=" +taskObj.taskID : null,
@@ -54,7 +92,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
         if(customerLevelTaskRateError){
             return (
                 <span className={'text-red-500 dark:text-red-400'}>
-                    Error: Failed to load data.
+                    Customer-level config not found.
                 </span>
             )
         }
@@ -95,14 +133,27 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                                         </>
                                     ) : (
                                         <>
-                                            <PiNoteBlank size={16} className={"ml-1 hover:cursor-pointer"} />
+                                            <span
+                                                className={"text-tiny hover:cursor-pointer"}>
+                                                Task Rate:{" "}{customerLevelTaskRate.commRate}%
+                                            </span>
                                         </>
                                     )}
                             </div>
                         </li>
-                        <li className="text-tiny">Fisher, Chris: 24%</li>
-                        <li className="text-tiny">Hand, Donald: 34%</li>
-                        <li className="text-tiny">House, Fisher: 21%</li>
+
+                        {customerInfoWithSalesEmployeeList.salesPersonList !== undefined ? customerInfoWithSalesEmployeeList.salesPersonList.map((elem, index) => (
+                            // console.log("customerInfoWithSalesEmployeeList.salesPersonList = ", customerInfoWithSalesEmployeeList.salesPersonList)
+                            <li key={index} className="text-tiny">
+                                {elem.lastNameFirstName}: {' '}
+                                <GetSalespersonAssignedTaskRate empID={elem.salesPersonId} taskID={taskObj.taskID}/>
+                            </li>
+                        )):null}
+
+
+                        {/*<li className="text-tiny">Fisher, Chris: 24%</li>*/}
+                        {/*<li className="text-tiny">Hand, Donald: 34%</li>*/}
+                        {/*<li className="text-tiny">House, Fisher: 21%</li>*/}
                     </ul>
                     {/*<div className="text-tiny">This is the popover content</div>*/}
                 </div>
@@ -167,7 +218,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
         if(employeeCommRateInfo){
             return (
                 <div className={"flex"}>
-                    <input id={"empCommRateEmpId#" + employeeId}
+                    <input id={"empCommRateEmpId#" + employeeId + '#taskId#' + taskItem.taskID}
                            defaultValue={employeeCommRateInfo.commRate}
                            type={"number"}
                            className={"empCommRateInputTaskId#"+taskItem.taskID+ " max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
@@ -179,7 +230,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
 
         return (
             <div className={'flex'}>
-                <input id={"empCommRateEmpId#" + employeeId}
+                <input id={"empCommRateEmpId#" + employeeId + '#taskId#' + taskItem.taskID}
                        type={"number"}
                        className={"empCommRateInputTaskId#"+taskItem.taskID+ " max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
                 <PiPercentLight className={'ml-1.5'}  size={19}/>
@@ -280,22 +331,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                             )) : null}
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
                                 <div className={'flex'}>
-                                    <Popover placement="bottom" showArrow={true}>
-                                        <PopoverTrigger>
-                                            <div>
-                                                <IoInformationCircleSharp size={17} className={'hover:cursor-pointer mr-0.5'}/>
-                                            </div>
-                                        </PopoverTrigger>
-                                        <PopoverContent>
-                                            <div className="px-1 py-2">
-                                                <div className="text-tiny">
-                                                    If disabled, the program will resort to
-                                                    <br/>using the customer-level configuration
-                                                    <br/>assigned to this invoice task item.
-                                                </div>
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
+
                                     <EnableDisableConfig customerId={customerJobInfo.customerID}
                                         invoiceNumber={invoiceNumber}
                                         taskItem={taskItem}/>

@@ -108,7 +108,11 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
             </div>
             <div className={"rounded-small dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]"}>
                 {(customerJobInfo !== undefined) ? (
-                    <ShowDistinctInvoiceTaskItems customerId={customerJobInfo.customerID}  invoiceNumber={props.invoiceNumber} distinctInvoiceTaskItems={distinctInvoiceTaskItems}/>
+                    <ShowDistinctInvoiceTaskItems
+                        customerId={customerJobInfo.customerID}
+                        invoiceNumber={props.invoiceNumber}
+                        distinctInvoiceTaskItems={distinctInvoiceTaskItems}
+                    />
                 ): null}
 
             </div>
