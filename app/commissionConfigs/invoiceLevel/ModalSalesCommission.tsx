@@ -140,7 +140,7 @@ const ModalSalesCommission = ({
                                                      </div>
                                                  }
                                             >
-                                                <div className={"h-[20vh] w-[43vw] border-2 border-amber-200"}>
+                                                <div className={"h-[20vh] w-[43vw]"}>
                                                     {/*<AssignTaskAndEmployeeRates*/}
                                                     {/*    customerID={customerJobInfo.customerID}*/}
                                                     {/*    invoiceID={invoiceId}*/}
