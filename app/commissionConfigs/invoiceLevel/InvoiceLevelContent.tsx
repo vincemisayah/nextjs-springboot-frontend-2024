@@ -28,6 +28,7 @@ const InvoiceLevelContent = () => {
                 {/*<div id={'searchInvoiceContainer'}  className={'border-1 rounded shadow-md text-center p-3 w-[20vw] min-w-fit'}>*/}
                 <div id={'searchInvoiceContainer'}  className={'border-1 rounded shadow-md text-center p-3 w-[100%]'}>
                     {/*@ts-ignore*/}
+                    208072
                     <input id={'invoiceInputField'}
                         size={12}
                         type={'number'}
@@ -47,7 +48,9 @@ const InvoiceLevelContent = () => {
                         Search
                     </Button>
                     <Spacer y={2}/>
-                    <ShowSearchResults onInvoiceIdChange={handleNameChange}/>
+                    <ShowSearchResults
+                        onInvoiceIdChange={handleNameChange}
+                        searchInputValue={targetInvoiceNumber}/>
                 </div>
 
                 <div>
