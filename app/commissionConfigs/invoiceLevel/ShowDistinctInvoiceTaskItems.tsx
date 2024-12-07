@@ -1,23 +1,8 @@
 import React from "react";
 import useSWR from "swr";
-import {
-    Button,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader, Popover, PopoverContent, PopoverTrigger,
-    Spinner, Switch,
-    Tab, TableCell, TableRow,
-    Tabs,
-    useDisclosure
-} from "@nextui-org/react";
-import { IoInformationCircleSharp, IoPersonSharp } from "react-icons/io5";
-import AssignTaskAndEmployeeRates from "@/app/commissionConfigs/invoiceLevel/AssignTaskAndEmployeeRates";
-import { PiNoteBlank, PiNoteFill } from "react-icons/pi";
+import {Popover, PopoverContent, PopoverTrigger,Spinner, useDisclosure} from "@nextui-org/react";
 import ShowCustomerLevelConfig from "@/app/commissionConfigs/invoiceLevel/ShowCustomerLevelConfig";
 import { TbEyeCog } from "react-icons/tb";
-import { RxInfoCircled } from "react-icons/rx";
 import EnableDisableConfig from "@/app/commissionConfigs/invoiceLevel/EnableDisableConfig";
 import { PiPercentLight } from "react-icons/pi";
 
@@ -35,11 +20,9 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
             "http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=" + invoiceNumber:null,
         fetcher
     );
-
-    // http://localhost:1118/invoiceCommissionService/customerlevel/employeeAssignedRate?customerID=4346&empID=291&taskID=150
-
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
+    // @ts-ignore
     const GetSalespersonAssignedTaskRate = ({empID, taskID}) => {
         console.log("TASK ID = ", taskID)
 
@@ -69,12 +52,6 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                 <span>{assignedRateInfo.commRate}%</span>
             </>
         );
-
-        // {
-        //     "commRate": 1.00,
-        //     "assignedBy": "Michael_DEV Misayah_DEV",
-        //     "notes": "B"
-        // }
     }
 
     const GetCustomerLevelTaskRate = (taskObj: any) => {
@@ -109,23 +86,18 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                     <ul>
                         <li className="text-tiny">
                             <p className={"text-md font-bold pb-1"}>Customer-level Config</p>
-
                             <div>
                                 {customerLevelTaskRate.notes.length > 0 ?
                                     (
                                         <>
                                             <Popover placement="bottom" showArrow={true}>
                                                 <PopoverTrigger>
-                                                    {/*<div>*/}
-                                                        <u
-                                                            className={"text-tiny hover:cursor-pointer"}>
-                                                            Task Rate:{' '}{customerLevelTaskRate.commRate}%
-                                                        </u>
-                                                    {/*</div>*/}
+                                                    <u className={"text-tiny hover:cursor-pointer"}>
+                                                        Task Rate:{' '}{customerLevelTaskRate.commRate}%
+                                                    </u>
                                                 </PopoverTrigger>
                                                 <PopoverContent>
                                                     <div>
-                                                        {/*<div className="text-small font-bold">Popover Content</div>*/}
                                                         <div className="text-tiny">{customerLevelTaskRate.notes}</div>
                                                     </div>
                                                 </PopoverContent>
@@ -142,33 +114,21 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                             </div>
                         </li>
 
-                        {customerInfoWithSalesEmployeeList.salesPersonList !== undefined ? customerInfoWithSalesEmployeeList.salesPersonList.map((elem, index) => (
-                            // console.log("customerInfoWithSalesEmployeeList.salesPersonList = ", customerInfoWithSalesEmployeeList.salesPersonList)
+                        {customerInfoWithSalesEmployeeList.salesPersonList !== undefined ? customerInfoWithSalesEmployeeList.salesPersonList.map((elem: { lastNameFirstName: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined; salesPersonId: any; }, index: React.Key | null | undefined) => (
                             <li key={index} className="text-tiny">
                                 {elem.lastNameFirstName}: {' '}
                                 <GetSalespersonAssignedTaskRate empID={elem.salesPersonId} taskID={taskObj.taskID}/>
                             </li>
                         )):null}
-
-
-                        {/*<li className="text-tiny">Fisher, Chris: 24%</li>*/}
-                        {/*<li className="text-tiny">Hand, Donald: 34%</li>*/}
-                        {/*<li className="text-tiny">House, Fisher: 21%</li>*/}
                     </ul>
-                    {/*<div className="text-tiny">This is the popover content</div>*/}
                 </div>
-
-                {/*<span>{customerLevelTaskRate.notes}</span>*/}
             </>
         );
 
     };
 
-    // invoiceTaskRateInfo
+    // @ts-ignore
     const DisplayTaskCommRate = ({taskItem}) =>{
-
-        // const taskID = taskItem.taskID.taskID;
-
         // @ts-ignore
         const { data: invoiceTaskRateInfo, data:invoiceTaskRateInfoError } = useSWR(invoiceNumber > 0?
                 "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceTaskRateInfo?invoiceID=" + invoiceNumber +
@@ -177,12 +137,8 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
         );
 
         if(invoiceTaskRateInfo){
-            // console.log("employeeCommRateInfo = ", employeeCommRateInfo)
             return (
                 <div className={'flex'}>
-                    {/*<Switch size={'sm'}*/}
-                    {/*        color={'default'}*/}
-                    {/*        isSelected={invoiceTaskRateInfo.active} />*/}
                     <input id={"invoiceLevelCommRateInput#" + taskItem.taskID}
                            defaultValue={invoiceTaskRateInfo.commRate}
                            type={"number"}
@@ -194,9 +150,6 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
 
         return (
             <div className={'flex'}>
-                {/*<Switch size={'sm'}*/}
-                {/*        color={'default'}*/}
-                {/*        isSelected={invoiceTaskRateInfo.active} />*/}
                 <input id={"invoiceLevelCommRateInput#" + taskItem.taskID}
                        type={"number"}
                        className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />
@@ -239,7 +192,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
         );
     }
 
-
+    // @ts-ignore
     // @ts-ignore
     return (
         <>
@@ -260,16 +213,10 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                             Name
                         </th>
                         <th scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Description
-                        </th>
-                        {/*<th scope="col"*/}
-                        {/*    className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Customer-level*/}
-                        {/*    Rate*/}
-                        {/*</th>*/}
-                        <th scope="col"
                             className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Invoice-level
                             Rate
                         </th>
+                        {/*@ts-ignore*/}
                         {(customerInfoWithSalesEmployeeList !== undefined) ? customerInfoWithSalesEmployeeList.salesPersonList.map((item, index) => (
                             <th key={index}
                                 scope="col"
@@ -305,39 +252,21 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                                     {taskItem.taskName}
                                 </div>
                             </td>
-                            {/*@ts-ignore*/}
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">{taskItem.description}</td>
-                            {/*<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">*/}
-                            {/*    <GetCustomerLevelTaskRate taskID={taskItem.taskID} />*/}
-                            {/*</td>*/}
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
                                 <DisplayTaskCommRate taskItem={taskItem}/>
-                                {/*<input id={"invoiceLevelCommRateInput#" + taskItem.taskID}*/}
-                                {/*       type={"number"}*/}
-                                {/*       className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />*/}
                             </td>
                             {/*@ts-ignore*/}
                             {(customerInfoWithSalesEmployeeList !== undefined) ? customerInfoWithSalesEmployeeList.salesPersonList.map((item, index) => (
                                 <td key={index}
                                     className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
-                                    {/*{item.salesPersonId }*/}
                                     <DisplayAssignedEmployeeCommRate taskItem={taskItem} employeeId={item.salesPersonId}/>
-                                    {/*<input id={"invoiceLevelCommRateInput#" + taskItem.taskID + '#salesEmpId#'+item.salesPersonId}*/}
-                                    {/*       defaultValue={item.salesPersonId}*/}
-                                    {/*       type={"number"}*/}
-                                    {/*       className={"max-w-20 remove-arrow text-center border-small bg-gray-100 dark:bg-[#27272a] rounded "} />*/}
-
                                 </td>
                             )) : null}
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
                                 <div className={'flex'}>
-
                                     <EnableDisableConfig customerId={customerJobInfo.customerID}
                                         invoiceNumber={invoiceNumber}
                                         taskItem={taskItem}/>
-                                    {/*<Switch id={'switchTaskId#'+taskItem.taskID} onChange={(e)=>enableDisableConfig(taskItem, e)}*/}
-                                    {/*    size={'sm'}*/}
-                                    {/*    color={'default'} />*/}
                                 </div>
                             </td>
                         </tr>
@@ -350,7 +279,6 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 customerInfoWithSalesEmployeeList={customerInfoWithSalesEmployeeList} />
-
         </>
     );
 };
