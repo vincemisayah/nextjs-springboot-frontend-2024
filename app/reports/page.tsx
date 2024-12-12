@@ -68,7 +68,7 @@ export default function BlogPage() {
                 </div>
                 <div><Divider orientation="vertical" /></div>
 
-                <div className={"grow h-56 w-[70vw]"}>
+                <div className={"grow max-h-fit w-[70vw]"}>
                     <div id={'savedBatchReport'} hidden={hideMainContent1}><SavedBatchReports/></div>
                     <div id={'filterPaidInvoices'} hidden={hideMainContent2}><FilterPaidInvoicesMainContent /></div>
                     <div id={'generateReport'} hidden={hideMainContent3}><GenerateReportMainContent /></div>

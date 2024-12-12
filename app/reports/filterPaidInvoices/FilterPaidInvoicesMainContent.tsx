@@ -2,6 +2,7 @@ import { Card, Skeleton, Spacer } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import ViewFilteredInvoices from "@/app/reports/filterPaidInvoices/ViewFilteredInvoices";
 import React from "react";
+import { FaFileExcel, FaFileInvoiceDollar } from "react-icons/fa";
 
 export default function FilterPaidInvoicesMainContent() {
     const [currentFile, setCurrentFile] = React.useState<File | null>(null);
@@ -48,12 +49,13 @@ export default function FilterPaidInvoicesMainContent() {
                                onChange={onFileSelectedHandler}
                         />
                     </div>
-                    <div id={'fileSelected'} hidden={true}>
-                        File Selected: {' '}
-                        <span id={"selectedFileName"} className={'dark:bg-[#2b2d30] bg-gray-200 p-1 pl-2 pr-2 rounded'}></span>
+                    <div id={"fileSelected"} hidden={true}>
+                        File Selected: {" "}
+                        <span id={"selectedFileName"}
+                              className={"dark:bg-[#2b2d30] bg-gray-200 p-1 pl-2 pr-2 rounded"}></span>
                     </div>
                 </div>
-                <div id={'filterPaidInvoicesBtn'} hidden={true}>
+                <div id={"filterPaidInvoicesBtn"} hidden={true}>
                     <ViewFilteredInvoices selectedFile={currentFile} />
                 </div>
             </div>
