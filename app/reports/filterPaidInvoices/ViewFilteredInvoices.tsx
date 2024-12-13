@@ -10,7 +10,7 @@ import { FaFileInvoiceDollar } from "react-icons/fa";
 
 
 interface ViewFilteredInvoicesProps {
-    selectedFile?: File | null;
+    selectedFile?: File | any;
 }
 
 const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
