@@ -3,7 +3,7 @@ import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell} from "@
 const DisplayArrayOfObjectsAsTable = ({list}:any)=>{
     return(
         <>
-            <Table aria-label="Example static collection table">
+            <Table removeWrapper isCompact>
                 <TableHeader>
                     {Object.keys(list[0]).map((headerName, index)=>(
                         <TableColumn key={index}>{headerName}</TableColumn>

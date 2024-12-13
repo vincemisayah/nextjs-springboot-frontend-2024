@@ -17,7 +17,7 @@ const ListboxWrapper = ({children}:any) => (
 );
 
 export default function BlogPage() {
-    const [hideMainContent1, setHideMainContent1] = useState(true);
+    const [hideMainContent1, setHideMainContent1] = useState(false);
     const [hideMainContent2, setHideMainContent2] = useState(true);
     const [hideMainContent3, setHideMainContent3] = useState(true);
 
