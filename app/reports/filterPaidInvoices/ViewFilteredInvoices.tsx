@@ -20,6 +20,9 @@ import { FaFileInvoiceDollar } from "react-icons/fa";
 import DisplayArrayOfObjectsAsTable from "@/components/DisplayArrayOfObjectsAsTable";
 import { LuFilter } from "react-icons/lu";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
+import { IoCloseOutline } from "react-icons/io5";
+import { RiCloseLargeLine } from "react-icons/ri";
+import { IoIosWarning } from "react-icons/io";
 
 
 interface ViewFilteredInvoicesProps {
@@ -43,7 +46,8 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
     const [savingOverPaid, setSavingOverPaid] = useState(false);
     const [savingShortPaid, setSavingShortPaid] = useState(false);
 
-    const [failedToSaveInvoices, setFailedToSaveInvoices] = useState([]);
+    const [failedToSaveFullyPaidInvoices, setFailedToSaveFullyPaidInvoices] = useState([]);
+    const [failedToSaveOverPaidInvoices, setFailedToSaveOverPaidInvoices] = useState([]);
 
     const postData = async ( ) =>{
         setShortPaidInvoices([]);
@@ -53,7 +57,8 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         setViewShortPaidInvoices([]);
         setViewOverPaidInvoices([]);
         setDuplicateInvoices([]);
-        setFailedToSaveInvoices([]);
+        setFailedToSaveFullyPaidInvoices([])
+        setFailedToSaveOverPaidInvoices([]);
 
         if(selectedFile !== null){
             console.log("postData selectedFile = ", selectedFile);
@@ -126,6 +131,8 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
     }
 
     const saveInvoiceData = async (idName:string, idName2:string, invoiceData:any, setIsSaving: ((arg0: boolean) => void) | undefined) =>{
+        setFailedToSaveFullyPaidInvoices([])
+        setFailedToSaveOverPaidInvoices([])
         if (setIsSaving) {
             setIsSaving(true);
         }
@@ -146,7 +153,14 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                 }
                 else if(data.SavedInvoicesCount < invoiceData.length){
                     showWarningSaveMsg(idName2, 2000);
-                    setFailedToSaveInvoices(data.UnsavedInvoices)
+                    console.log("idName = ", idName);
+                    console.log("idName2 = ", idName2);
+
+                    if(idName2 === 'warningSaveMsgFullyPaid'){
+                        setFailedToSaveFullyPaidInvoices(data.UnsavedInvoices)
+                    }else if(idName2 === 'warningSaveMsgOverPaid'){
+                        setFailedToSaveOverPaidInvoices(data.UnsavedInvoices)
+                    }
                 }
                 console.log("Unsaved Invoices = ", data.UnsavedInvoices);
         }).catch(error => {
@@ -154,38 +168,49 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         });
     }
 
-    const WarningMessage = ( ) =>{
+    const WarningMessage = ({ warningID }:any) =>{
         const closeWarningMessage = ( ) =>{
             console.log("Closing warning message");
-            const warningSaveMsgFullyPaid = document.getElementById('warningSaveMsgFullyPaid');
-            warningSaveMsgFullyPaid.style.opacity = '0';
-            setTimeout(()=>{
-                warningSaveMsgFullyPaid.hidden = true;
-            }, 1000)
-
+            const warningSaveMsg = document.getElementById(warningID);
+            if(warningSaveMsg !== null){
+                warningSaveMsg.style.opacity = '0';
+                setFailedToSaveFullyPaidInvoices([])
+                setFailedToSaveOverPaidInvoices([])
+                setTimeout(()=>{
+                    warningSaveMsg.hidden = true;
+                }, 1000)
+            }
         }
 
         return(
             <>
-                <div hidden={false} id={"warningSaveMsgFullyPaid"}
+                <div hidden={false} id={warningID}
                      className={"opacity-100 " +
                          "max-w-56 transition-opacity ease-out text-start " +
                          "rounded-md p-1 bg-yellow-300  " +
-                         "text-yellow-700 dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 dark:text-yellow-200"}>
-                    <div className={"flex flex-row gap-32"}>
-                        <span className={"text-sm font-bold"}>Warning</span>
+                         "text-yellow-700 dark:bg-yellow-900 dark:border-1 dark:border-yellow-500 dark:text-yellow-200"}>
+                    <div className={"flex flex-row gap-[90px]"}>
+                        <div className={"flex items-center space-x-2"}>
+                            <IoIosWarning />
+                            <span>Warning</span>
+                        </div>
                         <button onClick={closeWarningMessage}
-                            className={"dark:border-1 dark:border-yellow-500 px-2 rounded"}>x</button>
+                                className={"px-2"}><RiCloseLargeLine /></button>
                     </div>
-
                     <br />
-                    <span className={"text-sm"}>The following invoice IDs failed to save because they do not
-                                                            match with any existing invoices in our database.</span>
-
-                    {failedToSaveInvoices.length > 0 ? (
-                        <div className="dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 max-h-40  overflow-auto">
+                    <span className={"text-sm"}>The following invoices did not save because they failed to match with any existing invoices in our database.</span>
+                    {failedToSaveFullyPaidInvoices.length > 0 ? (
+                        <div className="dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 max-h-40  overflow-auto rounded">
                             <ol className={"ml-5 text-sm "}>
-                                {failedToSaveInvoices.map((invoiceID, index) => (
+                                {failedToSaveFullyPaidInvoices.map((invoiceID, index) => (
+                                    <li key={index}>{index + 1}. {invoiceID}</li>
+                                ))}
+                            </ol>
+                        </div>) : null}
+                    {failedToSaveOverPaidInvoices.length > 0 ? (
+                        <div className="dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 max-h-40  overflow-auto rounded">
+                            <ol className={"ml-5 text-sm "}>
+                                {failedToSaveOverPaidInvoices.map((invoiceID, index) => (
                                     <li key={index}>{index + 1}. {invoiceID}</li>
                                 ))}
                             </ol>
@@ -248,8 +273,8 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                                                          className={"opacity-0 transition-opacity ease-out text-center rounded-md p-1 bg-green-300  text-green-700 dark:bg-green-950 dark:border-1 dark:border-green-500 dark:text-green-200"}>
                                                         <span className={"text-sm"}>Save success!</span>
                                                     </div>
-                                                    {failedToSaveInvoices.length > 0 ? (
-                                                            <WarningMessage/>
+                                                    {failedToSaveFullyPaidInvoices.length > 0 ? (
+                                                            <WarningMessage warningID={'warningSaveMsgFullyPaid'}/>
                                                     ): null}
 
                                                 </div>
@@ -277,18 +302,9 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                                                          className={"opacity-0 transition-opacity ease-out text-center rounded-md p-1 bg-green-300  text-green-700 dark:bg-green-950 dark:border-1 dark:border-green-500 dark:text-green-200"}>
                                                         <span className={"text-sm"}>Save success!</span>
                                                     </div>
-                                                    <div id={"warningSaveMsgOverPaid"}
-                                                         className={" opacity-0 transition-opacity ease-out text-center rounded-md p-1 bg-yellow-300  text-yellow-700 dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 dark:text-yellow-200"}>
-                                                        <span className={"text-sm font-bold"}>Warning</span>
-                                                        <br />
-                                                        <span className={"text-sm"}>Some invoices failed to save</span>
-                                                        {failedToSaveInvoices.length > 0 ? (
-                                                            <>
-                                                                {failedToSaveInvoices.map(invoiceID=>(
-                                                                    <div>invoiceID</div>
-                                                                ))}
-                                                            </>):null}
-                                                    </div>
+                                                    {failedToSaveOverPaidInvoices.length > 0 ? (
+                                                        <WarningMessage warningID={'warningSaveMsgOverPaid'}/>
+                                                    ): null}
                                                 </div>
                                             </div>
                                         ) :

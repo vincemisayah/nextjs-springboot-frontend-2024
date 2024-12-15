@@ -51,6 +51,7 @@ export default function GenerateReportMainContent() {
                     if(data !== undefined){
                         // @ts-ignore
                         console.log('data.PaidInvoices = ', data.PaidInvoices);
+                        console.log("DATA = ", data);
                     }
 
 
