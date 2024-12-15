@@ -40,62 +40,56 @@ export default function FilterPaidInvoicesMainContent() {
                 <span>To begin, browse and select the spreadsheet file that contains a list of paid invoices.</span>
                 <br />
                 <Spacer y={2} />
-                <span>Please note that an <strong>Excel file</strong> with correct formatting and with the extension, <i>xlxs</i>, are required components in order to successfully filter out
-                    Fully-paid invoices.</span>
+                <span>Please note that an <strong>Excel file</strong> with correct formatting and file extension (<i>".xlxs"</i>) is required in order to successfully filter out
+                    fully-paid invoices.</span>
                 <Spacer y={2} />
                 <div className="text-center m-auto">
-                    <span className={"text-sm text-slate-600 dark:text-slate-500"}>The following is an example of an excel file that our program can properly process.</span>
+                    <span className={"text-sm text-gray-600 dark:text-gray-500"}>The following is an example of an excel file that our program can properly process.</span>
                     <Spacer y={1} />
                     <Image
                         className={"m-auto"}
                         alt="Proper Format Image"
-                        // src={"pngs/properFormatForPaidInvoiceFile.png"}
                         src={process.env.NEXT_PUBLIC_BASE_URL + "pngs/properFormatForPaidInvoiceFile.png"}
                         width={700}
                         removeWrapper
                         radius={"lg"}
                     />
-
-                    {/*<img src={"properFormatForPaidInvoiceFile.png"}/>*/}
-
                 </div>
-
             </div>
             <Spacer y={16} />
             <div className={"flex flex-col space-y-4"}>
-            <div
-                    className={"flex gap-5 h-fit border-small px-5 py-3 rounded-small border-default-200 dark:border-default-100"}>
-                    <div>
-                        <label htmlFor="toFilterPaidInvoices" className="custom-file-upload">
-                            <div className={"flex items-center space-x-2"}>
-                                <LuFolderSearch />
-                                <span>Browse and select Paid Invoices Excel File</span>
-                            </div>
-                        </label>
-                        <input type="file"
-                               id="toFilterPaidInvoices"
-                               accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                               onChange={onFileSelectedHandler}
-                        />
-
-                    </div>
-                    <div>
-                        <Divider orientation={'vertical'} />
-                    </div>
-
-                    <div id={"fileSelected"} hidden={true}>
+            <div className={"flex gap-5 h-fit border-t-small border-b-small px-5 py-3 border-default-200 dark:border-default-100"}>
+                <div>
+                    <label htmlFor="toFilterPaidInvoices" className="custom-file-upload">
                         <div className={"flex items-center space-x-2"}>
-                            <BsFileEarmarkExcel />
-                            <span>Excel File Selected: {" "}</span>
-                            <span id={"selectedFileName"}
-                                  className={"dark:bg-[#2b2d30] bg-gray-200 p-1 pl-2 pr-2 rounded"}></span>
+                            <LuFolderSearch />
+                            <span>Browse and select Paid Invoices Excel File</span>
                         </div>
+                    </label>
+                    <input type="file"
+                           id="toFilterPaidInvoices"
+                           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                           onChange={onFileSelectedHandler}
+                    />
 
+                </div>
+                <div>
+                    <Divider orientation={'vertical'} />
+                </div>
+
+                <div id={"fileSelected"} hidden={true}>
+                    <div className={"flex items-center space-x-2"}>
+                        <BsFileEarmarkExcel />
+                        <span>Excel File Selected: {" "}</span>
+                        <span id={"selectedFileName"}
+                              className={"dark:bg-[#2b2d30] bg-gray-200 p-1 pl-2 pr-2 rounded"}></span>
                     </div>
+
                 </div>
-                <div id={"filterPaidInvoicesBtn"} hidden={true}>
-                    <ViewFilteredInvoices selectedFile={currentFile} />
-                </div>
+            </div>
+            <div id={"filterPaidInvoicesBtn"} hidden={true}>
+                <ViewFilteredInvoices selectedFile={currentFile} />
+            </div>
             </div>
         </main>
     );

@@ -19,6 +19,7 @@ import DisplayInvoiceList from "@/app/reports/filterPaidInvoices/DisplayInvoiceL
 import { FaFileInvoiceDollar } from "react-icons/fa";
 import DisplayArrayOfObjectsAsTable from "@/components/DisplayArrayOfObjectsAsTable";
 import { LuFilter } from "react-icons/lu";
+import { ScrollShadow } from "@nextui-org/scroll-shadow";
 
 
 interface ViewFilteredInvoicesProps {
@@ -42,7 +43,18 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
     const [savingOverPaid, setSavingOverPaid] = useState(false);
     const [savingShortPaid, setSavingShortPaid] = useState(false);
 
+    const [failedToSaveInvoices, setFailedToSaveInvoices] = useState([]);
+
     const postData = async ( ) =>{
+        setShortPaidInvoices([]);
+        setFullyPaidInvoices([]);
+        setOverPaidInvoices([]);
+        setViewFullyPaidInvoices([]);
+        setViewShortPaidInvoices([]);
+        setViewOverPaidInvoices([]);
+        setDuplicateInvoices([]);
+        setFailedToSaveInvoices([]);
+
         if(selectedFile !== null){
             console.log("postData selectedFile = ", selectedFile);
 
@@ -88,9 +100,32 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         )
     }
 
-    const saveInvoiceData = async (invoiceData:any, setIsSaving: ((arg0: boolean) => void) | undefined) =>{
-        console.log("saveInvoiceData = ", invoiceData);
+    const showSaveMsg = (idName:string, second:any) =>{
+        const saveMsg = document.getElementById(idName);
+        if(saveMsg !== null){
+            saveMsg.style.opacity = '85%';
+            setTimeout(() => {
+                saveMsg.style.opacity = '0';
+            }, second);
+        }
+    }
 
+    const showWarningSaveMsg = (idName:string, second:any) =>{
+        const saveMsg = document.getElementById(idName);
+        if(saveMsg !== null){
+            saveMsg.hidden = false;
+            setTimeout(() => {
+                saveMsg.style.opacity = '100%';
+            }, 50);
+
+            // setTimeout(() => {
+            //     saveMsg.style.opacity = '0%';
+            //     saveMsg.hidden = true;
+            // }, 5000);
+        }
+    }
+
+    const saveInvoiceData = async (idName:string, idName2:string, invoiceData:any, setIsSaving: ((arg0: boolean) => void) | undefined) =>{
         if (setIsSaving) {
             setIsSaving(true);
         }
@@ -102,24 +137,72 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.json(); // Assuming the response is JSON
-        })
-            .then(data => {
-                if (setIsSaving) {
+            return response.json();
+        }).then(data => {
+                if (setIsSaving)
                     setIsSaving(false);
+                if(data.SavedInvoicesCount === invoiceData.length){
+                    showSaveMsg(idName, 2000);
                 }
-            })
-            .catch(error => {
+                else if(data.SavedInvoicesCount < invoiceData.length){
+                    showWarningSaveMsg(idName2, 2000);
+                    setFailedToSaveInvoices(data.UnsavedInvoices)
+                }
+                console.log("Unsaved Invoices = ", data.UnsavedInvoices);
+        }).catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
-            });
+        });
+    }
+
+    const WarningMessage = ( ) =>{
+        const closeWarningMessage = ( ) =>{
+            console.log("Closing warning message");
+            const warningSaveMsgFullyPaid = document.getElementById('warningSaveMsgFullyPaid');
+            warningSaveMsgFullyPaid.style.opacity = '0';
+            setTimeout(()=>{
+                warningSaveMsgFullyPaid.hidden = true;
+            }, 1000)
+
+        }
+
+        return(
+            <>
+                <div hidden={false} id={"warningSaveMsgFullyPaid"}
+                     className={"opacity-100 " +
+                         "max-w-56 transition-opacity ease-out text-start " +
+                         "rounded-md p-1 bg-yellow-300  " +
+                         "text-yellow-700 dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 dark:text-yellow-200"}>
+                    <div className={"flex flex-row gap-32"}>
+                        <span className={"text-sm font-bold"}>Warning</span>
+                        <button onClick={closeWarningMessage}
+                            className={"dark:border-1 dark:border-yellow-500 px-2 rounded"}>x</button>
+                    </div>
+
+                    <br />
+                    <span className={"text-sm"}>The following invoice IDs failed to save because they do not
+                                                            match with any existing invoices in our database.</span>
+
+                    {failedToSaveInvoices.length > 0 ? (
+                        <div className="dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 max-h-40  overflow-auto">
+                            <ol className={"ml-5 text-sm "}>
+                                {failedToSaveInvoices.map((invoiceID, index) => (
+                                    <li key={index}>{index + 1}. {invoiceID}</li>
+                                ))}
+                            </ol>
+                        </div>) : null}
+                </div>
+            </>
+        )
     }
 
     return (
         <>
-            <div className={'flex flex-col gap-4'}>
+            <div className={"flex flex-col gap-4"}>
                 <div>
-                    <Button  onPress={() => {postData( )}}
-                             radius={'sm'}>
+                    <Button onPress={() => {
+                        postData();
+                    }}
+                            radius={"sm"}>
                         <LuFilter />
                         <span>Filter Paid Invoices</span>
                     </Button>
@@ -128,8 +211,9 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                 {isFetching ? <LoadingFilteredInvoicesSkeleton /> :
                     (fullyPaidInvoices.length > 0) ?
                         <>
-                            {duplicateInvoices.length > 0 ?(
-                                <div className={'w-fit flex flex-row border-small items-center p-2 rounded-small border-default-200 dark:border-default-100'}>
+                            {duplicateInvoices.length > 0 ? (
+                                <div
+                                    className={"w-fit flex flex-row border-t-small border-b-small items-center pt-4 pb-4 p-2 border-default-200 dark:border-default-100"}>
                                     <div className={"w-80 flex flex-row h-fit"}>
                                         <span className={"text-[10pt] justify-start p-1"}>
                                             Your file contained {duplicateInvoices.length} duplicated invoice IDs.
@@ -138,27 +222,36 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                                             The duplicates of the listed invoices (shown right) are removed after the filtering process.
                                         </span>
                                     </div>
-                                    <div className={'pl-3 border-l-small border-default-200 dark:border-default-100'}>
+                                    <div className={"pl-3 border-l-small border-default-200 dark:border-default-100"}>
                                         <DisplayArrayOfObjectsAsTable list={duplicateInvoices} />
                                     </div>
-
                                 </div>
                             ) : null}
 
                             <Accordion selectionMode="multiple">
-                                <AccordionItem key="1" aria-label="Accordion 1" title={titleInfo("Fully Paid Invoices")}>
-                                    {viewFullyPaidInvoices.length > 0 ? (
-                                            <div className={"flex space-x-5"}>
+                                <AccordionItem key="1" aria-label="Accordion 1"
+                                               title={titleInfo("Fully Paid Invoices")}>
+                                {viewFullyPaidInvoices.length > 0 ? (
+                                            <div className={"flex space-x-5 w-56"}>
                                                 <DisplayInvoiceList invoiceList={viewFullyPaidInvoices} />
                                                 <div
-                                                    className={"h-fit flex flex-col space-y-2 border-small px-3 py-3 rounded-small border-default-200 dark:border-default-100"}>
+                                                    className={"flex flex-col space-y-2 border-l-small px-3 py-3 dark:border-default-100"}>
                                                     <span
                                                         className={"text-sm"}>Invoice Count: {viewFullyPaidInvoices.length}</span>
                                                     <Button radius={"sm"}
-                                                            onClick={( )=>saveInvoiceData(fullyPaidInvoices, setSavingFullyPaid)}
+                                                            onClick={() => saveInvoiceData("successSaveMsgFullyPaid", "warningSaveMsgFullyPaid", fullyPaidInvoices, setSavingFullyPaid)}
                                                             disabled={savingFullyPaid}
                                                     >Save Invoice Data</Button>
-                                                    {savingFullyPaid?(<Spinner id={'fullyPaidSpinner'}/>):null}
+                                                    {savingFullyPaid ? (
+                                                        <Spinner id={"fullyPaidSpinner"} color={"default"} />) : null}
+                                                    <div id={"successSaveMsgFullyPaid"}
+                                                         className={"opacity-0 transition-opacity ease-out text-center rounded-md p-1 bg-green-300  text-green-700 dark:bg-green-950 dark:border-1 dark:border-green-500 dark:text-green-200"}>
+                                                        <span className={"text-sm"}>Save success!</span>
+                                                    </div>
+                                                    {failedToSaveInvoices.length > 0 ? (
+                                                            <WarningMessage/>
+                                                    ): null}
+
                                                 </div>
                                             </div>
                                         ) :
@@ -167,15 +260,35 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                                         </div>}
                                 </AccordionItem>
                                 <AccordionItem key="2" aria-label="Accordion 3" title={titleInfo("Over Paid Invoices")}>
-                                {viewOverPaidInvoices.length > 0 ? (
+                                    {viewOverPaidInvoices.length > 0 ? (
                                             <div className={"flex space-x-5"}>
                                                 <DisplayInvoiceList invoiceList={viewOverPaidInvoices} />
                                                 <div
-                                                    className={"h-fit flex flex-col space-y-2 border-small px-3 py-3 rounded-small border-default-200 dark:border-default-100"}>
-                                                <span
-                                                    className={"text-sm"}>Invoice Count: {viewOverPaidInvoices.length}</span>
-                                                    <Button radius={"sm"} onPress={( )=>saveInvoiceData(overPaidInvoices, setSavingOverPaid)}>Save Invoice Data</Button>
-                                                    {savingOverPaid?(<Spinner id={'overPaidSpinner'}/>):null}
+                                                    className={"flex flex-col space-y-2 border-l-small px-3 py-3 dark:border-default-100"}>
+                                                    <span
+                                                        className={"text-sm"}>Invoice Count: {viewOverPaidInvoices.length}</span>
+                                                    <Button radius={"sm"}
+                                                            onPress={() => saveInvoiceData("successSaveMsgOverPaid", "warningSaveMsgOverPaid", overPaidInvoices, setSavingOverPaid)}>Save
+                                                        Invoice Data
+                                                    </Button>
+                                                    {savingOverPaid ? (
+                                                        <Spinner id={"overPaidSpinner"} color={"default"} />) : null}
+                                                    <div id={"successSaveMsgOverPaid"}
+                                                         className={"opacity-0 transition-opacity ease-out text-center rounded-md p-1 bg-green-300  text-green-700 dark:bg-green-950 dark:border-1 dark:border-green-500 dark:text-green-200"}>
+                                                        <span className={"text-sm"}>Save success!</span>
+                                                    </div>
+                                                    <div id={"warningSaveMsgOverPaid"}
+                                                         className={" opacity-0 transition-opacity ease-out text-center rounded-md p-1 bg-yellow-300  text-yellow-700 dark:bg-yellow-950 dark:border-1 dark:border-yellow-500 dark:text-yellow-200"}>
+                                                        <span className={"text-sm font-bold"}>Warning</span>
+                                                        <br />
+                                                        <span className={"text-sm"}>Some invoices failed to save</span>
+                                                        {failedToSaveInvoices.length > 0 ? (
+                                                            <>
+                                                                {failedToSaveInvoices.map(invoiceID=>(
+                                                                    <div>invoiceID</div>
+                                                                ))}
+                                                            </>):null}
+                                                    </div>
                                                 </div>
                                             </div>
                                         ) :
@@ -185,16 +298,16 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                                 </AccordionItem>
                                 <AccordionItem key="3" aria-label="Accordion 2"
                                                title={titleInfo("Short Paid Invoices")}>
-                                {viewShortPaidInvoices.length > 0? (
-                                        <div className={"flex space-x-5"}>
-                                            <DisplayInvoiceList invoiceList={viewShortPaidInvoices} />
+                                    {viewShortPaidInvoices.length > 0 ? (
+                                            <div className={"flex space-x-5"}>
+                                                <DisplayInvoiceList invoiceList={viewShortPaidInvoices} />
                                             <div
-                                                className={"h-fit flex flex-col space-y-2 border-small px-3 py-3 rounded-small border-default-200 dark:border-default-100"}>
+                                                className={"flex flex-col space-y-2 border-l-small px-3 py-3 dark:border-default-100"}>
                                                 <span
                                                     className={'text-sm'}>Invoice Count: {viewShortPaidInvoices.length}</span>
                                                 <Popover color={'danger'} radius={'sm'} placement={'top-end'}>
                                                     <PopoverTrigger>
-                                                        <Button radius={'sm'} onPress={( )=>saveInvoiceData(shortPaidInvoices, setSavingShortPaid)} disabled={true}>Save Invoice Data</Button>
+                                                        <Button radius={'sm'} disabled={true}>Save Invoice Data</Button>
                                                     </PopoverTrigger>
                                                     <PopoverContent>
                                                         <div className="px-1 py-2">
