@@ -1,35 +1,37 @@
 import { DateRangePicker, DateValue, Divider, RangeValue, Spacer } from "@nextui-org/react";
 import {Listbox, ListboxItem} from "@nextui-org/react";
-import { BsPersonFill } from "react-icons/bs";
-import React, { useRef } from "react";
+import { BsPersonFill, BsSearch } from "react-icons/bs";
+import React, { useEffect, useRef } from "react";
 import { useDateFormatter } from "@react-aria/i18n";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
+import DisplayFetchedInvoices from "@/app/reports/generateReport/DisplayFetchedInvoices";
+import { FaRegFilePdf } from "react-icons/fa";
+import { CiSearch } from "react-icons/ci";
+import { GrStorage } from "react-icons/gr";
+import { GoArchive } from "react-icons/go";
 
 export default function GenerateReportMainContent() {
     const [dateValue, setDateValue] = React.useState<RangeValue<DateValue> | null>(null);
+    const [paidInvoices, setPaidInvoices] = React.useState([]);
+    const [assignedInvoices, setAssignedInvoices] = React.useState([]);
+
+    useEffect(() => {
+
+    }, [paidInvoices, assignedInvoices]);
+
     let formatter1 = useDateFormatter({dateStyle:'long'});
     let formatter2 = useDateFormatter({dateStyle:'short'});
+
     // @ts-ignore
     const dateRangePickerRef = useRef<DateRangePicker>(null);
 
-    function openResponseInNewTab(response) {
-        // Convert response to Blob
-        response.blob().then(blob => {
-            // Create a URL object from the Blob
-            const url = URL.createObjectURL(blob);
 
-            // Open the URL in a new tab
-            window.open(url, '_blank');
-        });
-    }
 
     const getInvoiceListByDateRange = async ( ) =>{
         console.log('getInvoiceListByDateRange . . . ');
         if(dateValue !== null){
             const startDate = formatter2.format(dateValue.start.toDate(getLocalTimeZone()));
             const endDate = formatter2.format(dateValue.end.toDate(getLocalTimeZone()));
-            console.log("Date Start: ", startDate);
-            console.log("Date End: ", endDate);
 
             let data = new FormData();
             // @ts-ignore
@@ -52,9 +54,12 @@ export default function GenerateReportMainContent() {
                         // @ts-ignore
                         console.log('data.PaidInvoices = ', data.PaidInvoices);
                         console.log("DATA = ", data);
+
+                        // "PaidInvoices", viewablePaidInvoices,
+                        // "SalespersonAssignedInvoices", salespersonAssignedInvoices));
+                        setPaidInvoices(data.PaidInvoices);
+                        setAssignedInvoices(data.SalespersonAssignedInvoices);
                     }
-
-
                 })
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
@@ -67,19 +72,24 @@ export default function GenerateReportMainContent() {
     return (
         <main>
             <div>
-                <div className={'flex flex-row gap-5 border-t-small border-b-small p-3 border-default-200 dark:border-default-100'}>
+                <div className={'mb-5'}>
+                    <span className={"font-bold"}>Generate Report</span>
+                    <p>Begin by selecting an invoice date-range to fetch fully-paid invoices saved in our database.</p>
+                </div>
+                <div
+                    className={'flex flex-row gap-5 border-t-small border-b-small p-3 border-default-200 dark:border-default-100'}>
                     <div>
-                        {(dateValue === null)?(<span className={"text-md"}>Pick an invoice date-range</span>):null}
+                        {(dateValue === null) ? (<span className={"text-md"}>Pick an invoice date-range</span>) : null}
                         <DateRangePicker ref={dateRangePickerRef} label={"Invoice Date-Range"} visibleMonths={3}
                                          calendarWidth={256} labelPlacement={"inside"} size={"lg"}
                                          showMonthAndYearPickers={true}
                                          className={"max-w-xs mt-6 border-small border-gray-300 dark:border-none h-fit rounded-xl"}
                                          isRequired={true}
-                                         // onChange={dateRangePickerOnChangeHandler}
+                            // onChange={dateRangePickerOnChangeHandler}
                                          onChange={setDateValue}
                         />
-                        <Spacer y={1}/>
-                        {(dateValue !== null)?(
+                        <Spacer y={1} />
+                        {(dateValue !== null) ? (
                             <div>
                                 <p className="text-default-500 text-sm">
                                     Selected date:{" "}
@@ -90,51 +100,40 @@ export default function GenerateReportMainContent() {
                                         )
                                         : "--"}
                                 </p>
-                                <Spacer y={2}/>
+                                <Spacer y={2} />
+
                                 <button onClick={getInvoiceListByDateRange}
-                                    className={'border-1 bg-[#d6e8fd] text-[#3369a9] rounded px-3 py-0.5'}>
-                                    Search Invoice</button>
+                                    className={"text-sm border-1 py-1 px-3 rounded-md bg-[#d6e8fd] text-[#4069af] border-[#3f84c7] " +
+                                        "dark:bg-[#27272a] dark:border-[#818188] dark:text-[#818188]"}>
+                                    <div className={"flex items-center space-x-2"}>
+                                        <BsSearch />
+                                        <span>Search Invoice</span>
+                                    </div>
+                                </button>
 
                             </div>
                         ) : null}
                     </div>
-
                     <div><Divider orientation="vertical" /></div>
+                    <div>
+                        {paidInvoices.length > 0 && assignedInvoices.length > 0? (
+                            <div className={'mt-5'}>
+                                <span className={'font-bold'}>Save to Batch Report Records</span>
+                                <p>Save all sales employees calculated commission report to records.</p>
+                                <Spacer y={3}/>
+                                <button
+                                    className={"text-sm border-1 py-1 px-3 rounded-md bg-[#d6e8fd] text-[#4069af] border-[#3f84c7] " +
+                                        "dark:bg-[#27272a] dark:border-[#818188] dark:text-[#818188]"}>
+                                    <div className={"flex items-center space-x-2"}>
+                                        <GoArchive />
+                                        <span>Save to Batch Report Records</span>
+                                    </div>
+                                </button>
 
-
-                    {/*<Spacer x={20}/>*/}
-                    {/*<div>*/}
-                    {/*    <span className={'dark:bg-[#1e1f22] py-1 px-2 rounded'}>Choose Salesperson</span>*/}
-                    {/*    <Listbox*/}
-                    {/*        disallowEmptySelection*/}
-                    {/*        aria-label="Single selection example"*/}
-                    {/*        // selectedKeys={selectedKeys}*/}
-                    {/*        selectionMode="single"*/}
-                    {/*        variant="flat"*/}
-                    {/*        // onSelectionChange={setSelectedKeys}*/}
-                    {/*    >*/}
-                    {/*        <ListboxItem key="1">*/}
-                    {/*            <div className={"flex items-center space-x-2"}>*/}
-                    {/*                <BsPersonFill />*/}
-                    {/*                <span>Bill Woodlock</span>*/}
-                    {/*            </div>*/}
-                    {/*        </ListboxItem>*/}
-                    {/*        <ListboxItem key="2">*/}
-                    {/*            <div className={"flex items-center space-x-2"}>*/}
-                    {/*                <BsPersonFill />*/}
-                    {/*                <span>Chris Fischer</span>*/}
-                    {/*            </div>*/}
-                    {/*        </ListboxItem>*/}
-                    {/*        <ListboxItem key="3">*/}
-                    {/*            <div className={"flex items-center space-x-2"}>*/}
-                    {/*                <BsPersonFill />*/}
-                    {/*                <span>Thomas Scarpati Jr.</span>*/}
-                    {/*            </div>*/}
-                    {/*        </ListboxItem>*/}
-                    {/*    </Listbox>*/}
-                    {/*</div>*/}
+                            </div>) : null}
+                    </div>
                 </div>
-
+                <DisplayFetchedInvoices PaidInvoice={paidInvoices} SalespersonAssignedInvoices={assignedInvoices} />
             </div>
         </main>
     );

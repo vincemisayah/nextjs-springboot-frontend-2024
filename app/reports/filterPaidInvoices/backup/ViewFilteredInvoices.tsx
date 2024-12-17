@@ -61,6 +61,8 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         setFailedToSaveOverPaidInvoices([]);
 
         if(selectedFile !== null){
+            console.log("postData selectedFile = ", selectedFile);
+
             let data = new FormData();
             // @ts-ignore
             data.append('file', selectedFile);
@@ -169,16 +171,16 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                 warningSaveMsg.style.opacity = '0';
                 setFailedToSaveFullyPaidInvoices([])
                 setFailedToSaveOverPaidInvoices([])
-                setTimeout(()=>{
+                setTimeout(( )=>{
                     warningSaveMsg.hidden = true;
                 }, 1000)
             }
         }
 
-        const warningSaveMsgElem = (
+        return(
             <>
                 <div hidden={false} id={warningID}
-                     className={"opacity-100 " +
+                     className={"opacity-0 " +
                          "max-w-56 transition-opacity ease-out text-start " +
                          "rounded-md p-1 bg-yellow-300  " +
                          "text-yellow-700 dark:bg-yellow-900 dark:border-1 dark:border-yellow-500 dark:text-yellow-200"}>
@@ -211,7 +213,6 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                 </div>
             </>
         )
-        return(warningSaveMsgElem)
     }
 
     return (

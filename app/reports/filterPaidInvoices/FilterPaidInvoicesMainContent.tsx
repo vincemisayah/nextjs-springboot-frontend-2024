@@ -33,6 +33,9 @@ export default function FilterPaidInvoicesMainContent() {
     return (
         <main>
             <div>
+                <span className={'font-bold'}>Filter Paid Invoices</span>
+                <br/>
+                <Spacer y={2}/>
                 <span className={"text-medium"}>Generating Commission Reports require a list of paid invoices
                     data that need to be saved to our database.</span>
                 <br />
