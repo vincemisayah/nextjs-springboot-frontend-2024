@@ -1,4 +1,4 @@
-import { DateRangePicker, DateValue, Divider, RangeValue, Spacer } from "@nextui-org/react";
+import { DateRangePicker, DateValue, Divider, RangeValue, Spacer, Spinner } from "@nextui-org/react";
 import {Listbox, ListboxItem} from "@nextui-org/react";
 import { BsPersonFill, BsSearch } from "react-icons/bs";
 import React, { useEffect, useRef } from "react";
@@ -14,6 +14,9 @@ export default function GenerateReportMainContent() {
     const [dateValue, setDateValue] = React.useState<RangeValue<DateValue> | null>(null);
     const [paidInvoices, setPaidInvoices] = React.useState([]);
     const [assignedInvoices, setAssignedInvoices] = React.useState([]);
+    const [savingBatchCommissionReport, setSavingBatchCommissionReport] = React.useState(false);
+    const [showSaveAttemptSuccessStatus, setShowSaveAttemptSuccessStatus] = React.useState(false);
+    const [showSaveAttemptFailedStatus, setShowSaveAttemptFailedStatus] = React.useState(false);
 
     useEffect(() => {
 
@@ -67,7 +70,49 @@ export default function GenerateReportMainContent() {
         }
     }
 
+    const saveToBatchReportRecords = async ( ) =>{
+        console.log('getInvoiceListByDateRange . . . ');
+        if(dateValue !== null){
+            const startDate = formatter2.format(dateValue.start.toDate(getLocalTimeZone()));
+            const endDate = formatter2.format(dateValue.end.toDate(getLocalTimeZone()));
 
+            let data = new FormData();
+            // @ts-ignore
+            data.append('startDate', startDate);
+            data.append('endDate', endDate);
+
+            setSavingBatchCommissionReport(true);
+            await fetch('http://localhost:1118/invoiceCommissionService/report/v1/saveToBatchReport',{
+                method: 'POST',
+                body: data,
+            }).then(response => {
+                setSavingBatchCommissionReport(false);
+                if (!response.ok) {
+                    // throw new Error('Network response was not ok');
+                    setShowSaveAttemptFailedStatus(true);
+                    setTimeout(() => {
+                        setShowSaveAttemptFailedStatus(false);
+                    }, 2500);
+                }else{
+                    console.log("Save success!");
+                    setShowSaveAttemptSuccessStatus(true);
+                    setTimeout(() => {
+                        setShowSaveAttemptSuccessStatus(false);
+                    }, 2500);
+
+                }
+                return response.json(); // Assuming the response is JSON
+                // openResponseInNewTab(response);
+                // console.log("response.json() = ", response.json());
+            })
+                .then(data => {
+                    console.log("DATA = ", data)
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        }
+    }
 
     return (
         <main>
@@ -116,21 +161,53 @@ export default function GenerateReportMainContent() {
                     </div>
                     <div><Divider orientation="vertical" /></div>
                     <div>
-                        {paidInvoices.length > 0 && assignedInvoices.length > 0? (
+                        {paidInvoices.length > 0 && assignedInvoices.length > 0 ? (
                             <div className={'mt-5'}>
                                 <span className={'font-bold'}>Save to Batch Report Records</span>
                                 <p>Save all sales employees calculated commission report to records.</p>
-                                <Spacer y={3}/>
-                                <button
-                                    className={"text-sm border-1 py-1 px-3 rounded-md bg-[#d6e8fd] text-[#4069af] border-[#3f84c7] " +
-                                        "dark:bg-[#27272a] dark:border-[#818188] dark:text-[#818188]"}>
-                                    <div className={"flex items-center space-x-2"}>
-                                        <GoArchive />
-                                        <span>Save to Batch Report Records</span>
-                                    </div>
-                                </button>
+                                <Spacer y={3} />
+                                {savingBatchCommissionReport ? (
+                                    <button
+                                        disabled={true}
+                                        className={"text-sm border-1 py-1 px-3 rounded-md bg-[#eef6ff] text-[#688cca] border-[#3f84c7] " +
+                                            "dark:bg-[#27272a] dark:border-[#818188] dark:text-[#818188]"}>
+                                        <div className={"flex items-center space-x-2"}>
+                                            <Spinner size="sm" />
+                                            <span>Saving Report . . . </span>
+                                        </div>
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={saveToBatchReportRecords}
+                                        className={"text-sm border-1 py-1 px-3 rounded-md bg-[#d6e8fd] text-[#4069af] border-[#3f84c7] " +
+                                            "dark:bg-[#27272a] dark:border-[#818188] dark:text-[#818188]"}>
+                                        <div className={"flex items-center space-x-2"}>
+                                            <GoArchive />
+                                            <span>Save to Batch Report Records</span>
+                                        </div>
+                                    </button>
+                                )}
+
 
                             </div>) : null}
+
+                        {showSaveAttemptSuccessStatus ? (
+                            <div className={'bg-green-100 w-fit p-2 m-2 rounded'}>
+                                <span className={'text-green-800'}>
+                                    Commission Batch Report saved successfully!
+                                </span>
+                            </div>
+                        ) : null}
+
+                        {showSaveAttemptFailedStatus ? (
+                            <div className={'bg-red-100 w-fit p-2 m-2 rounded'}>
+                                <span className={'text-red-800'}>
+                                    Commission Batch Report failed to save
+                                </span>
+                            </div>
+                        ) : null}
+
+
                     </div>
                 </div>
                 <DisplayFetchedInvoices PaidInvoice={paidInvoices} SalespersonAssignedInvoices={assignedInvoices} />
