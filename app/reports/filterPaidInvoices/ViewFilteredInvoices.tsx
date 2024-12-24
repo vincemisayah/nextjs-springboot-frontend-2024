@@ -61,14 +61,16 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         setFailedToSaveOverPaidInvoices([]);
 
         if(selectedFile !== null){
-            let data = new FormData();
+            let data = new URLSearchParams();
             // @ts-ignore
             data.append('file', selectedFile);
             data.append('empIDStr', loggedIn.toString( ));
 
+            console.log("In viewFilteredInvoices file = ", selectedFile);
+
             setIsFetching(true);
 
-            await fetch('http://localhost:1118/invoiceCommissionService/fileUpload/v1/excelFile/filterPaidInvoices',{
+            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/filterInvoices`,{
                 method: 'POST',
                 body: data,
             }).then(response => {
@@ -79,7 +81,6 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
             })
                 .then(data => {
                     setIsFetching(false);
-                    console.log(data);
                     setShortPaidInvoices(data.ShortPaidInvoices);
                     setFullyPaidInvoices(data.FullyPaidInvoices);
                     setOverPaidInvoices(data.OverPaidInvoices);
@@ -113,16 +114,6 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         }
     }
 
-    // const showWarningSaveMsg = (idName:string, second:any) =>{
-    //     const saveMsg = document.getElementById(idName);
-        // if(saveMsg !== null){
-        //     saveMsg.hidden = false;
-        //     setTimeout(() => {
-        //         saveMsg.style.opacity = '100%';
-        //     }, second);
-        // }
-    // }
-
     const saveInvoiceData = async (idName:string, idName2:string, invoiceData:any, setIsSaving: ((arg0: boolean) => void) | undefined) =>{
         setFailedToSaveFullyPaidInvoices([])
         setFailedToSaveOverPaidInvoices([])
@@ -145,17 +136,12 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                     showSaveMsg(idName, 2000);
                 }
                 else if(data.SavedInvoicesCount < invoiceData.length){
-                    // showWarningSaveMsg(idName2, 2000);
-                    console.log("idName = ", idName);
-                    console.log("idName2 = ", idName2);
-
                     if(idName2 === 'warningSaveMsgFullyPaid'){
                         setFailedToSaveFullyPaidInvoices(data.UnsavedInvoices)
                     }else if(idName2 === 'warningSaveMsgOverPaid'){
                         setFailedToSaveOverPaidInvoices(data.UnsavedInvoices)
                     }
                 }
-                console.log("Unsaved Invoices = ", data.UnsavedInvoices);
         }).catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
         });
@@ -163,7 +149,6 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
 
     const WarningMessage = ({ warningID }:any) =>{
         const closeWarningMessage = ( ) =>{
-            console.log("Closing warning message");
             const warningSaveMsg = document.getElementById(warningID);
             if(warningSaveMsg !== null){
                 warningSaveMsg.style.opacity = '0';

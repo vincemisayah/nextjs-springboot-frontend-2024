@@ -23,6 +23,7 @@ const DisplayFetchedInvoices = ({PaidInvoice, SalespersonAssignedInvoices}:any) 
     const viewPdfCommissionReport = async (empID:number, invoiceIDs: string | any[] | Blob) =>{
         const invoiceIdArray: string | any[] | Blob = [];
 
+        // @ts-ignore
         invoiceIDs.forEach((invoiceId: { InvoiceID: any; }) => {
             invoiceIdArray.push(invoiceId.InvoiceID);
         })
@@ -41,7 +42,9 @@ const DisplayFetchedInvoices = ({PaidInvoice, SalespersonAssignedInvoices}:any) 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            viewPdfButtonRef.current.disabled = false;
+            if(viewPdfButtonRef !== null){ // @ts-ignore
+                viewPdfButtonRef.current.disabled = false;
+            }
             setIsFetching(false);
             // console.log('calculatingSpan.current = ', calculatingSpan.current);
             openResponseInNewTab(response);

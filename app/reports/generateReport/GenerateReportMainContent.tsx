@@ -1,13 +1,9 @@
 import { DateRangePicker, DateValue, Divider, RangeValue, Spacer, Spinner } from "@nextui-org/react";
-import {Listbox, ListboxItem} from "@nextui-org/react";
-import { BsPersonFill, BsSearch } from "react-icons/bs";
+import { BsSearch } from "react-icons/bs";
 import React, { useEffect, useRef } from "react";
 import { useDateFormatter } from "@react-aria/i18n";
-import { getLocalTimeZone, parseDate } from "@internationalized/date";
+import { getLocalTimeZone } from "@internationalized/date";
 import DisplayFetchedInvoices from "@/app/reports/generateReport/DisplayFetchedInvoices";
-import { FaRegFilePdf } from "react-icons/fa";
-import { CiSearch } from "react-icons/ci";
-import { GrStorage } from "react-icons/gr";
 import { GoArchive } from "react-icons/go";
 
 export default function GenerateReportMainContent() {
@@ -31,35 +27,25 @@ export default function GenerateReportMainContent() {
 
 
     const getInvoiceListByDateRange = async ( ) =>{
-        console.log('getInvoiceListByDateRange . . . ');
         if(dateValue !== null){
             const startDate = formatter2.format(dateValue.start.toDate(getLocalTimeZone()));
             const endDate = formatter2.format(dateValue.end.toDate(getLocalTimeZone()));
-
-            let data = new FormData();
+            let data = new URLSearchParams();
             // @ts-ignore
             data.append('startDate', startDate);
             data.append('endDate', endDate);
 
-            await fetch('http://localhost:1118/invoiceCommissionService/report/v1/paidInvoices',{
+            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/generateReport/api/paidInvoices`,{
                 method: 'POST',
                 body: data,
             }).then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json(); // Assuming the response is JSON
-                // openResponseInNewTab(response);
-                // console.log("response.json() = ", response.json());
+                return response.json();
             })
                 .then(data => {
                     if(data !== undefined){
-                        // @ts-ignore
-                        console.log('data.PaidInvoices = ', data.PaidInvoices);
-                        console.log("DATA = ", data);
-
-                        // "PaidInvoices", viewablePaidInvoices,
-                        // "SalespersonAssignedInvoices", salespersonAssignedInvoices));
                         setPaidInvoices(data.PaidInvoices);
                         setAssignedInvoices(data.SalespersonAssignedInvoices);
                     }
@@ -71,18 +57,18 @@ export default function GenerateReportMainContent() {
     }
 
     const saveToBatchReportRecords = async ( ) =>{
-        console.log('getInvoiceListByDateRange . . . ');
         if(dateValue !== null){
             const startDate = formatter2.format(dateValue.start.toDate(getLocalTimeZone()));
             const endDate = formatter2.format(dateValue.end.toDate(getLocalTimeZone()));
 
-            let data = new FormData();
+            let data = new URLSearchParams();
             // @ts-ignore
             data.append('startDate', startDate);
             data.append('endDate', endDate);
 
             setSavingBatchCommissionReport(true);
-            await fetch('http://localhost:1118/invoiceCommissionService/report/v1/saveToBatchReport',{
+
+            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/generateReport/api/saveToRecords`,{
                 method: 'POST',
                 body: data,
             }).then(response => {
@@ -94,7 +80,6 @@ export default function GenerateReportMainContent() {
                         setShowSaveAttemptFailedStatus(false);
                     }, 2500);
                 }else{
-                    console.log("Save success!");
                     setShowSaveAttemptSuccessStatus(true);
                     setTimeout(() => {
                         setShowSaveAttemptSuccessStatus(false);
@@ -102,11 +87,9 @@ export default function GenerateReportMainContent() {
 
                 }
                 return response.json(); // Assuming the response is JSON
-                // openResponseInNewTab(response);
-                // console.log("response.json() = ", response.json());
             })
                 .then(data => {
-                    console.log("DATA = ", data)
+
                 })
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
@@ -206,8 +189,6 @@ export default function GenerateReportMainContent() {
                                 </span>
                             </div>
                         ) : null}
-
-
                     </div>
                 </div>
                 <DisplayFetchedInvoices PaidInvoice={paidInvoices} SalespersonAssignedInvoices={assignedInvoices} />

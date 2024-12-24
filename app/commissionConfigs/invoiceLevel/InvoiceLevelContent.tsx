@@ -1,10 +1,6 @@
 'use client'
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useState } from "react";
 import DisplayInvoice from "@/app/commissionConfigs/invoiceLevel/DisplayInvoice";
-import { FaMagnifyingGlass } from "react-icons/fa6";
-import { Spacer } from "@nextui-org/react";
-import { Button } from "@nextui-org/button";
-import ShowSearchResults from "@/app/commissionConfigs/invoiceLevel/ShowSearchResults";
 import SearchInvoice from "@/app/commissionConfigs/invoiceLevel/SearchInvoice";
 
 

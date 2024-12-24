@@ -12,7 +12,10 @@ const DisplayInvoiceList = ({invoiceList}:any)=>{
                         </TableHeader>
                         <TableBody>{invoiceList.map((item: Object, index: number) => (
                             <TableRow key={index}>{Object.keys(item).map((key: string) => (
-                                <TableCell key={key}>{item[key]}</TableCell>))}
+                                <TableCell key={key}>
+                                    {/*@ts-ignore*/}
+                                    {item[key]}
+                                </TableCell>))}
                             </TableRow>))}
                         </TableBody>
                     </Table>
