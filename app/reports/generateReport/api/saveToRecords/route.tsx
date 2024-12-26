@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     // @ts-ignore
     data.append("endDate", endDate);
 
-    const res = await fetch(`${process.env.SERVER_API_ROUTE}/invoiceCommissionService/report/v1/saveToBatchReport` ,{
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_PORT}/invoiceCommissionService/report/v1/saveToBatchReport` ,{
         headers: request.headers,
         method: 'POST',
         body: data,

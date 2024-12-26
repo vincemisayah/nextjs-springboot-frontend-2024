@@ -1,27 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { next } from "sucrase/dist/types/parser/tokenizer";
 
-const isLoggedIn: boolean = true
-const token = 'eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaXNoZXIgUHJpbnRpbmcgSW5jLiIsInN1YiI6Im1taXNheWFoIiwiaWF0IjoxNzM0OTMwOTMxLCJleHAiOjE3NjAxMzA5MzF9.Yxq8KNBXD_Mpvgx_Z4fCHuu2lFm_Z53qPtkm405uyFXecix6IiXERXKTnHmYiZfOYnhgJVS9BRMowhhKILrutA'
+const isLoggedIn: boolean = true;
+const token = 'eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaXNoZXIgUHJpbnRpbmcgSW5jLiIsInN1YiI6Im1taXNheWFoIiwiaWF0IjoxNzM0OTMwOTMxLCJleHAiOjE3NjAxMzA5MzF9.Yxq8KNBXD_Mpvgx_Z4fCHuu2lFm_Z53qPtkm405uyFXecix6IiXERXKTnHmYiZfOYnhgJVS9BRMowhhKILrutA'; // Fetch your token from your auth mechanism
 
 export function middleware(request: NextRequest) {
-    if(isLoggedIn) {
-        // Clone the request headers
-        const requestHeaders = new Headers(request.headers);
-        requestHeaders.append("Authorization", `Bearer ${token}`);
-        // requestHeaders.set("content-type", '');
+    const requestHeaders = new Headers(request.headers);
 
-        // Create a new request with the modified headers
-        const modifiedRequest = new Request(request.url, {
-            method: request.method,
-            headers: requestHeaders,
-            body: request.body
-        });
+    // Add the Authorization header
+    requestHeaders.set('Authorization', `Bearer ${token}`);
 
-        // Pass the modified request to the next handler
-        return NextResponse.next({
-            request: modifiedRequest,
-        });
-    }else{
-        return NextResponse.redirect(new URL('/home', request.url));
-    }
+    const modifiedRequest = new Request(request.url, {
+        method: request.method,
+        headers: requestHeaders,
+        body: request.body
+    });
+
+    return NextResponse.next({
+        request: modifiedRequest,
+    });
 }

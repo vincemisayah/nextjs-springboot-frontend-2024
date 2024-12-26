@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     // @ts-ignore
     data.set("passedDate", passedDate);
 
-    const res = await fetch(`${process.env.SERVER_API_ROUTE}/invoiceCommissionService/report/v1/download/batchReport` ,{
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_PORT}/invoiceCommissionService/report/v1/download/batchReport` ,{
         headers: request.headers,
         method: 'POST',
         body: data,

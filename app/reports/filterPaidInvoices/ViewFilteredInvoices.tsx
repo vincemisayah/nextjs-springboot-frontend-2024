@@ -63,8 +63,9 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         if(selectedFile !== null){
             let data = new URLSearchParams();
             // @ts-ignore
-            data.append('file', selectedFile);
-            data.append('empIDStr', loggedIn.toString( ));
+            // data.append('file', selectedFile);
+            // data.append('empIDStr', loggedIn.toString( ));
+            data.append("name", "vince");
 
             console.log("In viewFilteredInvoices file = ", selectedFile);
 
@@ -92,6 +93,31 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
                 });
+
+            // setIsFetching(true);
+
+            // await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/filterInvoices`,{
+            //     method: 'POST',
+            //     body: data,
+            // }).then(response => {
+            //     if (!response.ok) {
+            //         throw new Error('Network response was not ok');
+            //     }
+            //     return response.json(); // Assuming the response is JSON
+            // })
+            //     .then(data => {
+            //         setIsFetching(false);
+            //         setShortPaidInvoices(data.ShortPaidInvoices);
+            //         setFullyPaidInvoices(data.FullyPaidInvoices);
+            //         setOverPaidInvoices(data.OverPaidInvoices);
+            //         setViewFullyPaidInvoices(data.ViewableFullyPaidInvoices);
+            //         setViewShortPaidInvoices(data.ViewableShortPaidInvoices);
+            //         setViewOverPaidInvoices(data.ViewableOverPaidInvoices);
+            //         setDuplicateInvoices(data.InvoiceDupsFound);
+            //     })
+            //     .catch(error => {
+            //         console.error('There was a problem with the fetch operation:', error);
+            //     });
         }
     }
 
