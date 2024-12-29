@@ -20,22 +20,22 @@ const DisplayFetchedInvoices = ({PaidInvoice, SalespersonAssignedInvoices}:any) 
         });
     }
 
-    const viewPdfCommissionReport = async (empID:number, invoiceIDs: string | any[] | Blob) =>{
+    const viewPdfCommissionReport = async (empID:number, invoiceIDList: string | any[] | Blob) =>{
         const invoiceIdArray: string | any[] | Blob = [];
 
         // @ts-ignore
-        invoiceIDs.forEach((invoiceId: { InvoiceID: any; }) => {
+        invoiceIDList.forEach((invoiceId: { InvoiceID: any; }) => {
             invoiceIdArray.push(invoiceId.InvoiceID);
         })
 
-        let data = new FormData();
-        // @ts-ignore
-        data.append('invoiceList', invoiceIdArray);
+        let data = new URLSearchParams(); // @ts-ignore
+        data.append('invoiceIDs', invoiceIdArray); // @ts-ignore
+        data.append('empID', empID);
 
         setIsFetching(true);
         if(viewPdfButtonRef.current !== null)
             viewPdfButtonRef.current.disabled = true;
-        await fetch('http://localhost:1118/invoiceCommissionService/report/v1/viewSalespersonPdfReport/' + empID,{
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/generateReport/api/viewSalesCommissionReport`,{
             method: 'POST',
             body: data,
         }).then(response => {
@@ -46,15 +46,12 @@ const DisplayFetchedInvoices = ({PaidInvoice, SalespersonAssignedInvoices}:any) 
                 viewPdfButtonRef.current.disabled = false;
             }
             setIsFetching(false);
-            // console.log('calculatingSpan.current = ', calculatingSpan.current);
             openResponseInNewTab(response);
-        })
-            .then(data => {
-
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
+        }).then(data => {
+            // Do nothing. Browser opens the PDF file returned by server
+        }).catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
     }
 
     return (

@@ -6,6 +6,10 @@ const token = 'eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaXNoZXIgUHJpbnRpbmcgSW5jLiIsInN1
 
 export function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers);
+    let length = requestHeaders.get('Content-length');
+    console.log(`IN MIDDLEWARE Content Length: ${length}`);
+
+
 
     // Add the Authorization header
     requestHeaders.set('Authorization', `Bearer ${token}`);

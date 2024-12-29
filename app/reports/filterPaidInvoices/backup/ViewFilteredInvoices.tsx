@@ -29,7 +29,7 @@ interface ViewFilteredInvoicesProps {
     selectedFile?: File | any;
 }
 
-const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
+const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
     const [loggedIn, setLoggedIn] = useState(3667);
     const [isFetching, setIsFetching] = useState(false);
     const [shortPaidInvoices, setShortPaidInvoices] = useState([]);
@@ -60,35 +60,64 @@ const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
         setFailedToSaveFullyPaidInvoices([])
         setFailedToSaveOverPaidInvoices([]);
 
-        if(parsedSelectedFile !== null){
+        if(selectedFile !== null){
+            let data = new URLSearchParams();
+            // @ts-ignore
+            // data.append('file', selectedFile);
+            // data.append('empIDStr', loggedIn.toString( ));
+            data.append("name", "vince");
+
+            console.log("In viewFilteredInvoices file = ", selectedFile);
+
             setIsFetching(true);
-            if(parsedSelectedFile.length > 0){
-                const routeURL = `${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/filterInvoices`
 
-                let data = new URLSearchParams(); // @ts-ignore
-                data.append("empID", loggedIn); // @ts-ignore
-                data.append("invoiceRowData", JSON.stringify(parsedSelectedFile));
-
-                const response = await fetch(routeURL,{
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    method: 'POST',
-                    body: data,
+            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/filterInvoices`,{
+                method: 'POST',
+                body: data,
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response is JSON
+            })
+                .then(data => {
+                    setIsFetching(false);
+                    setShortPaidInvoices(data.ShortPaidInvoices);
+                    setFullyPaidInvoices(data.FullyPaidInvoices);
+                    setOverPaidInvoices(data.OverPaidInvoices);
+                    setViewFullyPaidInvoices(data.ViewableFullyPaidInvoices);
+                    setViewShortPaidInvoices(data.ViewableShortPaidInvoices);
+                    setViewOverPaidInvoices(data.ViewableOverPaidInvoices);
+                    setDuplicateInvoices(data.InvoiceDupsFound);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
                 });
-                const result = await response.json();
 
-                setIsFetching(false);
-                setShortPaidInvoices(result.ShortPaidInvoices);
-                setFullyPaidInvoices(result.FullyPaidInvoices);
-                setOverPaidInvoices(result.OverPaidInvoices);
-                setViewFullyPaidInvoices(result.ViewableFullyPaidInvoices);
-                setViewShortPaidInvoices(result.ViewableShortPaidInvoices);
-                setViewOverPaidInvoices(result.ViewableOverPaidInvoices);
-                setDuplicateInvoices(result.InvoiceDupsFound);
-            }else{
-                console.log("Nothing to send . . . ")
-            }
+            // setIsFetching(true);
+
+            // await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/filterInvoices`,{
+            //     method: 'POST',
+            //     body: data,
+            // }).then(response => {
+            //     if (!response.ok) {
+            //         throw new Error('Network response was not ok');
+            //     }
+            //     return response.json(); // Assuming the response is JSON
+            // })
+            //     .then(data => {
+            //         setIsFetching(false);
+            //         setShortPaidInvoices(data.ShortPaidInvoices);
+            //         setFullyPaidInvoices(data.FullyPaidInvoices);
+            //         setOverPaidInvoices(data.OverPaidInvoices);
+            //         setViewFullyPaidInvoices(data.ViewableFullyPaidInvoices);
+            //         setViewShortPaidInvoices(data.ViewableShortPaidInvoices);
+            //         setViewOverPaidInvoices(data.ViewableOverPaidInvoices);
+            //         setDuplicateInvoices(data.InvoiceDupsFound);
+            //     })
+            //     .catch(error => {
+            //         console.error('There was a problem with the fetch operation:', error);
+            //     });
         }
     }
 
@@ -117,38 +146,30 @@ const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
         if (setIsSaving) {
             setIsSaving(true);
         }
-
-        const routeURL = `${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/saveFilteredInvoiceData`
-
-        let data = new URLSearchParams(); // @ts-ignore
-        data.append("invoiceData", JSON.stringify(invoiceData));
-
-        await fetch(routeURL,{
-            headers: {
-                "Content-Type": "application/json",
-            },
+        await fetch('http://localhost:1118/invoiceCommissionService/fileUpload/v1/excelFile/saveInvoiceData',{
             method: 'POST',
-            body: data,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(invoiceData),
         }).then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         }).then(data => {
-            if (setIsSaving)
-                setIsSaving(false);
-            if(data.SavedInvoicesCount === invoiceData.length){
-                showSaveMsg(idName, 2000);
-            }
-            else if(data.SavedInvoicesCount < invoiceData.length){
-                if(idName2 === 'warningSaveMsgFullyPaid'){
-                    setFailedToSaveFullyPaidInvoices(data.UnsavedInvoices)
-                }else if(idName2 === 'warningSaveMsgOverPaid'){
-                    setFailedToSaveOverPaidInvoices(data.UnsavedInvoices)
+                if (setIsSaving)
+                    setIsSaving(false);
+                if(data.SavedInvoicesCount === invoiceData.length){
+                    showSaveMsg(idName, 2000);
                 }
-            }
+                else if(data.SavedInvoicesCount < invoiceData.length){
+                    if(idName2 === 'warningSaveMsgFullyPaid'){
+                        setFailedToSaveFullyPaidInvoices(data.UnsavedInvoices)
+                    }else if(idName2 === 'warningSaveMsgOverPaid'){
+                        setFailedToSaveOverPaidInvoices(data.UnsavedInvoices)
+                    }
+                }
         }).catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
+                console.error('There was a problem with the fetch operation:', error);
         });
     }
 
@@ -316,6 +337,7 @@ const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
                                                         </div>
                                                     </PopoverContent>
                                                 </Popover>
+
                                             </div>
                                         </div>
                                     ) :

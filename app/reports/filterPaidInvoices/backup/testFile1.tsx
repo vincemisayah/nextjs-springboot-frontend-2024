@@ -8,49 +8,8 @@ const TestFile1 = ( ) =>{
     const fileRef = useRef(null);
     const [invoiceData, setInvoiceData] = React.useState([]);
 
-    // const sendData3 = async ( ) =>{
-    //     let data = new URLSearchParams();
-    //     // @ts-ignore
-    //     data.append("name", "Daphne");
-    //
-    //     const response = await fetch(routeURL,{
-    //         method: 'POST',
-    //         body: data,
-    //     });
-    //
-    //     const result = await response.json();
-    //
-    //     console.log("sendData3 Response = ", result );
-    //
-    // }
-
-    // const sendData = async ( ) =>{
-    //     if(invoiceData.length > 0){
-    //         console.log(`SENDING DATA . . . ${JSON.stringify(invoiceData)}`)
-    //         let data = new URLSearchParams();
-    //         // @ts-ignore
-    //         data.append("invoiceRowData", JSON.stringify(invoiceData));
-    //
-    //         const response = await fetch(routeURL,{
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 // "Content-Length":""
-    //             },
-    //             method: 'POST',
-    //             body: data,
-    //         });
-    //
-    //         const result = await response.json();
-    //
-    //         console.log("sendData3 Response = ", result );
-    //     }else{
-    //         console.log("Nothing to send . . . ")
-    //     }
-    // }
-
     const sendData = async ( ) =>{
         if(invoiceData.length > 0){
-            console.log(`SENDING DATA . . . ${JSON.stringify(invoiceData)}`)
             let data = new URLSearchParams();
             // @ts-ignore
             data.append("invoiceRowData", JSON.stringify(invoiceData));
