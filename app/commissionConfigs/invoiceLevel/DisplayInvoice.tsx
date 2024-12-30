@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { Accordion, Divider, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import {
+    Accordion,
+    Divider,
+    Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow
+} from "@nextui-org/react";
 import { AccordionItem } from "@nextui-org/accordion";
 import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
@@ -17,25 +27,26 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
     const [selectedTaskId, setSelectedTaskId] = useState(-1);
     const [customerInfo, setCustomerInfo] = useState([]);
 
+//  `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/searchInvoiceById?searchInput=${searchInput}`:null,
     const { data: invoiceChargedItems, error: invoiceChargedItemsError } = useSWR(props.invoiceNumber > 0?
-        "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceChargedTaskItems?invoiceId=" + props.invoiceNumber:null,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceChargedTaskItems?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
     // http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=208072
     const { data: customerJobInfo, error: customerJobInfoError } = useSWR(props.invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=" + props.invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/customerAndJobInfo?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
     const { data: customerInfoWithSalesEmployeeList, error: customerInfoWithSalesEmployeeListError } = useSWR(props.invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + props.invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/customerInfo?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
     // http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceDistinctTaskItems?invoiceID=208072
     const { data: distinctInvoiceTaskItems, error: distinctInvoiceTaskItemsError } = useSWR(props.invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceDistinctTaskItems?invoiceID=" + props.invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceDistinctTaskItems?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
@@ -114,6 +125,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                         distinctInvoiceTaskItems={distinctInvoiceTaskItems}
                     />
                 ): null}
+
 
             </div>
             <div

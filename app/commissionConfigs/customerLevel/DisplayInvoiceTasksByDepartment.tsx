@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import useSWR from "swr";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
 import {
@@ -51,10 +51,14 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [isSaving, setIsSaving] = useState(false);
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set(["text"]));
+    const [searchCustomerVisible, setSearchCustomerVisible] = useState(true);
+
     const selectedValue = React.useMemo(
         () => Array.from(selectedKeys).join(", "),
         [selectedKeys]
     );
+
+    const searchCustomerRef = useRef(null);
 
     const handleClick = (arNumber: string, customerId: number, customerName: string, salesPersonList: string[]) => {
         setStartFetchingTaskItems(true);
@@ -63,6 +67,18 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         setCustomerName(customerName);
         // @ts-ignore
         setSalesPersonList(salesPersonList);
+
+        if(searchCustomerRef.current !== null){
+            const targetDiv = searchCustomerRef.current; // @ts-ignore
+
+            if(!targetDiv.hidden)
+                targetDiv.hidden = true;
+            else
+                targetDiv.hidden = false;
+
+            setSearchCustomerVisible(targetDiv.hidden);
+        }
+
     };
 
     const handleChange = (e: any) => {
@@ -328,7 +344,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         }
 
         return (
-            <>
+            <div>
                 <Accordion motionProps={{
                     variants: {
                         enter: {
@@ -430,7 +446,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 </Accordion>
 
 
-            </>
+            </div>
         );
     };
 
@@ -534,6 +550,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 }
             }
 
+
             return (
                 <div className={"shadow-sm p-3"}>
                     <ToolsModule deptID={deptId} />
@@ -541,8 +558,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                     <Table removeWrapper selectionMode={"none"} id={'tableInvoiceTaskItemsDeptId#' + deptId}>
                         <TableHeader>
                             <TableColumn>Task Name</TableColumn>
-                            <TableColumn>Description</TableColumn>
-                            <TableColumn>Task Comm. Rate</TableColumn>
+                            <TableColumn>Description</TableColumn>{/*@ts-ignore*/}
+                            <TableColumn>Task Comm. Rate</TableColumn>{/*@ts-ignore*/}
                             {/*@ts-ignore*/}
                             {salesPersonList.map((name: any, index: any) => (
                                 <TableColumn key={index}>{name.lastNameFirstName}</TableColumn>
@@ -615,7 +632,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                 </textarea>
                                             </div>
                                         </div>
-                                    </TableCell>
+                                    {/*@ts-ignore*/}
+                                    </TableCell>{/*@ts-ignore*/}
                                     {/*@ts-ignore*/}
                                     {salesPersonList.map((sales: any, index: any) => (
                                         <TableCell
@@ -664,16 +682,38 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             );
         };
 
+        const showSearchCustomer = ( ) =>{
+            if(searchCustomerRef.current !== null){
+                const targetDiv = searchCustomerRef.current; // @ts-ignore
+
+                if(!targetDiv.hidden) // @ts-ignore
+                    targetDiv.hidden = true;
+                else // @ts-ignore
+                    targetDiv.hidden = false; // @ts-ignore
+                setSearchCustomerVisible(targetDiv.hidden);
+            }
+        }
+
         const ViewSelectedCustomer = () => {
 
             return (
                 <>
+                    {searchCustomerVisible?(
+                        <>
+                            <button onClick={showSearchCustomer}
+                                    className={"border-small p-0.5 px-4 border-default-200 dark:border-default-100 rounded mb-3.5"}>Select
+                                different customer
+                            </button>
+                        </>
+                    ) : null}
+
+                    <br />
                     <span className={"pb-5 text-lg"}>
                         This configuration will apply to the following customer and its assigned sales people
                     </span>
                     <Spacer y={3}/>
-                    <div className={"mb-5"}>
-                        <Table aria-label="Example static collection table">
+                    <div className={"mb-5 border-small px-1 py-2 border-default-200 dark:border-default-100 "}>
+                        <Table shadow={"none"} fullWidth={true} radius={'none'} isCompact={true}>
                             <TableHeader>
                                 <TableColumn>AR Number</TableColumn>
                                 <TableColumn>Customer ID</TableColumn>
@@ -709,15 +749,15 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         };
 
         return (
-            <>
+            <div>
                 <ViewSelectedCustomer />
                 <div className={"pb-5"}>
                     <span className={"text-lg"}>
                         Select the invoice department to view and configure their associated invoice task items
                     </span>
                 </div>
-                <div className="task-dept-container flex flex-col">
-                    <Accordion selectionMode="multiple" isCompact className={"w-full bg-[#fefdff] dark:bg-[#18181b]"}>
+                <div className={"flex flex-col"}>
+                    <Accordion selectionMode="multiple" isCompact className={"w-full dark:bg-[#18181b] bg-[#fefdff]"}>
                         {data?.map((object: any, index: React.Key | null | undefined) => (
                             <AccordionItem key={index} aria-label="Accordion 1"
                                            title={<span
@@ -726,15 +766,16 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             </AccordionItem>))}
                     </Accordion>
                 </div>
-            </>
+            </div>
         );
     };
 
     // @ts-ignore
     return (
         <>
-            <div className="flex mx-auto">
-                <div className={"space-y-4 p-5 shadow-md h-fit rounded-small border-small border-default-200 dark:border-default-100 h-fit sticky top-24"}>
+            <div className={"flex gap-5"}>
+                <div hidden={false} ref={searchCustomerRef}
+                    className={"space-y-4 p-5 shadow-md h-fit rounded-small border-small border-default-200 dark:border-default-100 h-fit sticky top-24"}>
                     <span>Search the customer by their AR number and click the customer you want to configure</span>
                     <Spacer y={1} />
                     <input
@@ -744,11 +785,11 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         value={searchTerm}
                         onChange={handleChange}
                         id="series" />{" "}
-                    <br/>
+                    <br />
                     {startFetching && <SearchResults keyword={searchTerm} url={props.url} />}
                 </div>
-                <Spacer x={14} />
-                <div className={"rounded-small border-small border-default-200 dark:border-default-100 p-5 shadow-md"}>
+                {/*className={"rounded-small border-small border-default-200 dark:border-default-100 p-5 bg-red-400"}*/}
+                <div>
                     {startFetchingTaskItems && <InvoiceTaskItems arNumber={arNumber} />}
                 </div>
             </div>

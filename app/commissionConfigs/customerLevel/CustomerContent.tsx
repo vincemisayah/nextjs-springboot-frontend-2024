@@ -2,10 +2,8 @@ import DisplayInvoiceTasksByDepartment from "@/app/commissionConfigs/customerLev
 
 export default function CustomerContent() {
     return (
-        <>
-            <main>
-                <DisplayInvoiceTasksByDepartment url={`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/customerListByAr`} />
-            </main>
-        </>
+        <div className={'flex flex-row min-w-screen justify-center items-center'}>
+            <DisplayInvoiceTasksByDepartment url={`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/customerListByAr`} />
+        </div>
     );
 }

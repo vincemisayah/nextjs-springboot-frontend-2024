@@ -3,7 +3,10 @@ import { NextRequest } from "next/server";
 export const revalidate = 3
 
 export async function GET(request: NextRequest) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_PORT}/invoiceCommissionService/report/v1/savedBatchReports/2024`,{
+    const url = new URL(request.url);
+    const searchInput = url.searchParams.get('searchInput');
+
+    const res = await fetch(`${process.env.SERVER_API_ROUTE}/invoiceCommissionService/invoiceLevel/searchInvoiceById?invoiceID=${searchInput}`,{
         headers:request.headers
     });
     const data = await res.json();

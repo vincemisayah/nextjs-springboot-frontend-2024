@@ -8,28 +8,23 @@ import { PiPercentLight } from "react-icons/pi";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
-
 // @ts-ignore
 const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoiceTaskItems}) => {
     const { data: customerInfoWithSalesEmployeeList, error: customerInfoWithSalesEmployeeListError } = useSWR(invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/customerInfo?invoiceId=${invoiceNumber}`:null,
         fetcher
     );
 
     const { data: customerJobInfo, error: customerJobInfoError } = useSWR(invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=" + invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/customerAndJobInfo?invoiceId=${invoiceNumber}`:null,
         fetcher
     );
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     // @ts-ignore
     const GetSalespersonAssignedTaskRate = ({empID, taskID}) => {
-        console.log("TASK ID = ", taskID)
-
         const { data: assignedRateInfo, error: assignedRateInfoError } = useSWR(invoiceNumber > 0 ?
-                "http://localhost:1118/invoiceCommissionService/customerlevel/employeeAssignedRate?customerID="+customerId
-                +"&empID=" +empID
-                +"&taskID=" + taskID: null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/employeeAssignedRate?customerID=${customerId}&empID=${empID}&taskID=${taskID}`:null,
             fetcher
         );
 
@@ -55,16 +50,11 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
     }
 
     const GetCustomerLevelTaskRate = (taskObj: any) => {
-        const url = "http://localhost:1118/invoiceCommissionService/customerlevel/taskRateInfo?customerID="+customerId
-            +"&taskID=" +taskObj.taskID;
-        console.log("URL = ", url);
+        console.log("GetCustomerLevelTaskRate customerID = ", customerId);
         const { data: customerLevelTaskRate, error: customerLevelTaskRateError } = useSWR(invoiceNumber > 0 ?
-                "http://localhost:1118/invoiceCommissionService/customerlevel/taskRateInfo?customerID="+customerId
-                +"&taskID=" +taskObj.taskID : null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/taskRateInfoCustomerLevelConfig?customerID=${customerId}&taskID=${taskObj.taskID}`: null,
             fetcher
         );
-
-        console.log('GetCustomerLevelTaskRate customerLevelTaskRate = ', customerLevelTaskRate);
 
         if(customerLevelTaskRateError){
             return (
@@ -130,9 +120,9 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
     // @ts-ignore
     const DisplayTaskCommRate = ({taskItem}) =>{
         // @ts-ignore
+        // `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/employeeAssignedRates?customerID=${invoiceNumber}&empID=${empID}&taskID=${taskItem.taskID}`
         const { data: invoiceTaskRateInfo, data:invoiceTaskRateInfoError } = useSWR(invoiceNumber > 0?
-                "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceTaskRateInfo?invoiceID=" + invoiceNumber +
-                "&taskID="+taskItem.taskID:null,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceTaskRateInfo?invoiceID=${invoiceNumber}&taskID=${taskItem.taskID}`:null,
             fetcher
         );
 
@@ -162,9 +152,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
     const DisplayAssignedEmployeeCommRate = ({ taskItem, employeeId }) => {
         // @ts-ignore
         const { data: employeeCommRateInfo, data: employeeCommRateInfoError } = useSWR(invoiceNumber > 0 ?
-                "http://localhost:1118/invoiceCommissionService/invoiceLevel/employeeAssignedRate?invoiceID=" + invoiceNumber +
-                "&empID=" + employeeId +
-                "&taskID="+taskItem.taskID:null,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/employeeAssignedRateInvoiceLevel?invoiceID=${invoiceNumber}&empID=${employeeId}&taskID=${taskItem.taskID}`:null,
             fetcher
         );
 
@@ -192,7 +180,6 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
         );
     }
 
-    // @ts-ignore
     // @ts-ignore
     return (
         <>
@@ -281,5 +268,11 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                 customerInfoWithSalesEmployeeList={customerInfoWithSalesEmployeeList} />
         </>
     );
+
+    // return(
+    //     <>
+    //         ShowDistinctInvoiceTaskItems
+    //     </>
+    // )
 };
 export default ShowDistinctInvoiceTaskItems;

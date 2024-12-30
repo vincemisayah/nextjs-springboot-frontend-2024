@@ -16,8 +16,7 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
     const [isSaving, setIsSaving] = useState(false);
 
     const { data: invoiceTaskRateInfo, data:invoiceTaskRateInfoError } = useSWR(invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceTaskRateInfo?invoiceID=" + invoiceNumber +
-            "&taskID="+taskItem.taskID:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceTaskRateInfo?invoiceID=${invoiceNumber}&taskID=${taskItem.taskID}`:null,
         fetcher
     );
 
@@ -57,7 +56,8 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
             OBJ_TO_SAVE.empRates.push(empRateInfo);
         });
         setIsSaving(true);
-        const response = await fetch("http://localhost:1118/invoiceCommissionService/invoiceLevel/saveInvoiceTaskConfig", {
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/saveInvoiceTaskConfig`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(OBJ_TO_SAVE)
@@ -95,11 +95,6 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
                     color={'default'}
                     defaultSelected={invoiceTaskRateInfo.active}
                     onValueChange={setIsSelected}
-
-                    // onChange={(isSelected)=>{
-                    //     console.log("val = ", isSelected.target.checked);
-                    //     updateInvoiceLevelConfigStatus(isSelected.target.checked);
-                    // }}
                 />
                 <Button onPress={updateInvoiceLevelConfigStatus}
                     size={'sm'}>

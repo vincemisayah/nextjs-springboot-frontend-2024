@@ -14,7 +14,7 @@ export default function SavedBatchReports() {
         return new Date( ).getFullYear();
     }
 
-    const { data: savedBatchReports, error: savedBatchReportsError } = useSWR(`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/api/savedReports`,
+    const { data: savedBatchReports, error: savedBatchReportsError } = useSWR(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/savedBatchReports/api/commissionReports`,
         fetcher
     );
 
