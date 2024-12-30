@@ -74,7 +74,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     // @ts-ignore
     const SearchResults = ({ url, keyword }) => {
         const { data, error } = useSWR(
-            `${url + keyword}`,
+            `${url}?arNumber=${keyword}`,
             fetcher
         );
 
@@ -164,8 +164,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         onOpen( );
     };
 
-
-
     // @ts-ignore
     const ToolsModule = ({ deptID }) => {
         const postData = async (data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
@@ -184,44 +182,40 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                 // @ts-ignore
                 spinner.textContent = 'Saving changes . . . '
-                const response = await fetch('http://localhost:1118/invoiceCommissionService/customerlevel/saveCustomerLevelConfig',{
+
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/saveCustomerLevelConfig`,{
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data),
                 })
 
-                // "spinnerDeptId#" + deptID
                 if(200 <= response.status || response.status < 300){
                     // @ts-ignore
                     saveBtn.hidden = false;
+                    // @ts-ignore
                     spinnerDiv.hidden = true;
+                    // @ts-ignore
                     spinner.style.color = '#19b9d4'
+                    // @ts-ignore
                     spinner.textContent = 'Success!'
 
-                    setTimeout(() => {
-                        spinner.style.color = 'grey'
-                        spinner.textContent = ''
+                    setTimeout(() => { // @ts-ignore
+                        spinner.style.color = 'grey' // @ts-ignore
+                        spinner.textContent = '' // @ts-ignore
                     }, "1500");
 
                     // router.refresh();
                     break;
-                }else{
+                }else{ // @ts-ignore
                     saveBtn.hidden = false;
-                    // setIsSaving(false);
-                    alert('Failed to save changes. Server response status: ' + response.status)
+                    alert('Failed to save changes. Server response status: ' + response.status) // @ts-ignore
                     spinner.textContent = 'Save attempt failed'
-                    // @ts-ignore
-                    setTimeout(() => {
-                        spinnerDiv.hidden = true;
+                    setTimeout(() => {  // @ts-ignore
+                        spinnerDiv.hidden = true; // @ts-ignore
                     }, "1500");
-                    // router.refresh();
                     break;
                 }
             }
-
-            // 'spinnerDivDeptId#' + deptID
-
-            // router.refresh();
         }
 
         const saveChanges = () =>{
@@ -430,17 +424,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                     </div>
 
                                 </div>
-
-                                {/*<div className={"m-auto"}>*/}
-                                {/*    <div id={"spinnerDivDeptId#" + deptID} hidden={true}>*/}
-                                {/*    <Spinner color="default" />*/}
-                                {/*    </div>*/}
-                                {/*<div>*/}
-                                {/*<span id={"spinnerDeptId#" + deptID}*/}
-                                {/*      className={"text-[16pt] font-medium select-none text-[gray]"}></span>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
-
                             </div>
                         </div>
                     </AccordionItem>
@@ -453,7 +436,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
     const InvoiceTaskItems = (arg: { arNumber: string }) => {
         const { data, error } = useSWR(
-            "http://localhost:1118/invoiceCommissionService/customerlevel/invoiceDepartmentList",
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/invoiceDepartmentList`,
             fetcher
         );
 
@@ -464,17 +447,17 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         // @ts-ignore
         const DepartmentInvoiceTaskItems = ({ deptId }) => {
             const { data, error } = useSWR(
-                "http://localhost:1118/invoiceCommissionService/customerlevel/invoiceTaskItemListByDeptId?deptId=" + deptId,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/invoiceTaskItemListByDeptId?deptId=${deptId}`,
                 fetcher
             );
 
             const { data: taskRates, error: taskRatesError } = useSWR(
-                "http://localhost:1118/invoiceCommissionService/customerlevel/taskCommissionRates?customerID=" + customerId,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/taskCommissionRates?customerId=${customerId}`,
                 fetcher
             );
 
             const { data: empAssignedRates, error: empAssignedRatesError } = useSWR(
-                "http://localhost:1118/invoiceCommissionService/customerlevel/employeeAssignedRates?customerID=" + customerId,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/employeeAssignedRates?customerId=${customerId}`,
                 fetcher
             );
 
@@ -746,20 +729,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             </>
         );
     };
-
-    function StickyDisplaySelectedTaskItems() {
-        return (
-            <div
-                className="w-full min-w-fit max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 h-fit sticky top-40">
-                <Listbox className={"w-[100px]"}>
-                    {selectedTaskItems.map((object, index) => (
-                        <ListboxItem key={index}>{object}</ListboxItem>
-                    ))}
-                </Listbox>
-                <Button onClick={CollectSelectedTaskItems}>Assign Commission Rates</Button>
-            </div>
-        );
-    }
 
     // @ts-ignore
     return (

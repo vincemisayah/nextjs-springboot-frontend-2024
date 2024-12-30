@@ -1,26 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { next } from "sucrase/dist/types/parser/tokenizer";
-
-const isLoggedIn: boolean = true;
-const token = 'eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaXNoZXIgUHJpbnRpbmcgSW5jLiIsInN1YiI6Im1taXNheWFoIiwiaWF0IjoxNzM0OTMwOTMxLCJleHAiOjE3NjAxMzA5MzF9.Yxq8KNBXD_Mpvgx_Z4fCHuu2lFm_Z53qPtkm405uyFXecix6IiXERXKTnHmYiZfOYnhgJVS9BRMowhhKILrutA'; // Fetch your token from your auth mechanism
 
 export function middleware(request: NextRequest) {
-    const requestHeaders = new Headers(request.headers);
-    let length = requestHeaders.get('Content-length');
-    console.log(`IN MIDDLEWARE Content Length: ${length}`);
+    let loginSuccess = false;
 
+    // @ts-ignore
+    if(request.cookies.get('token') !== undefined && request.cookies.get('token').value.length > 0){
+        loginSuccess = true;
+    }
 
+    if(loginSuccess && request.url === `${process.env.NEXT_PUBLIC_BASE_URL}/`){
+        return NextResponse.redirect(new URL("/reports", request.url));
+    }
 
-    // Add the Authorization header
-    requestHeaders.set('Authorization', `Bearer ${token}`);
+    if(loginSuccess){
+        const jwtToken = request.cookies.get('token')?.value;
+        const requestHeaders = new Headers(request.headers);
+        // Add the Authorization header
+        requestHeaders.set('Authorization', `Bearer ${jwtToken}`);
 
-    const modifiedRequest = new Request(request.url, {
-        method: request.method,
-        headers: requestHeaders,
-        body: request.body
-    });
+        const modifiedRequest = new Request(request.url, {
+            method: request.method,
+            headers: requestHeaders,
+            body: request.body
+        });
 
-    return NextResponse.next({
-        request: modifiedRequest,
-    });
+        return NextResponse.next({
+            request: modifiedRequest,
+        });
+    }
+
+    if(!loginSuccess &&
+        (  request.url === `${process.env.NEXT_PUBLIC_BASE_URL}/`
+        || request.url === `${process.env.NEXT_PUBLIC_BASE_URL}/reports`
+        || request.url === `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel`
+        || request.url === `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel`)
+    ){
+        return NextResponse.redirect(new URL("/login", request.url));
+    }
 }
