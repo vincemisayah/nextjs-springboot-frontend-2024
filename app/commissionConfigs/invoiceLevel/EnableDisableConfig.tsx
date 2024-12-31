@@ -1,10 +1,11 @@
 'use client'
 
-import { Popover, PopoverContent, PopoverTrigger, Spinner, Switch } from "@nextui-org/react";
+import { Popover, PopoverContent, PopoverTrigger, Spinner } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Button } from "@nextui-org/button";
 import { IoInformationCircleSharp } from "react-icons/io5";
+import {Switch} from "@nextui-org/react";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
@@ -104,6 +105,10 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
                             : (<p>Save</p>)}
                     </span>
                 </Button>
+                <label className="switch">
+                    <input type="checkbox" disabled={false}/>
+                    <span className="slider round"></span>
+                </label>
             </div>
         )
     }
@@ -120,6 +125,7 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
                             : (<p>Save</p>)}
                     </span>
             </Button>
+            {/*<Switch defaultSelected aria-label="Automatic updates" />*/}
         </div>
     )
 }
