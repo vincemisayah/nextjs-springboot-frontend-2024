@@ -8,11 +8,9 @@ export default function CustomerLevelPage(){
         <section>
             {/*<h1>Invoice Level</h1>*/}
             <main>
-                <div className={'flex'}>
+                <div className={'border-5'}>
                     <InvoiceLevelContent/>
-                    {/*<DisplayInvoice invoiceNumber={123}/>*/}
                 </div>
-
             </main>
         </section>
     );
