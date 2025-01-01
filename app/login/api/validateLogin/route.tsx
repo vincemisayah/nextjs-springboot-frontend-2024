@@ -13,5 +13,7 @@ export async function POST(request: NextRequest) {
         body: bodyText,
     })
 
-    return new Response(res.body);
+    console.log("RES = ", res);
+
+    return res;
 }
