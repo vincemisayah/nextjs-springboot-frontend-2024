@@ -1,4 +1,3 @@
-// "http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=" + props.invoiceNumber
 import { NextRequest } from "next/server";
 
 export const revalidate = 3

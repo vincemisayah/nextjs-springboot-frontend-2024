@@ -30,7 +30,7 @@ interface ViewFilteredInvoicesProps {
 }
 
 const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
-    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
+    const [loggedIn, setLoggedIn] = useState(-1);
     const [isFetching, setIsFetching] = useState(false);
     const [shortPaidInvoices, setShortPaidInvoices] = useState([]);
     const [fullyPaidInvoices, setFullyPaidInvoices] = useState([]);
@@ -48,6 +48,12 @@ const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
 
     const [failedToSaveFullyPaidInvoices, setFailedToSaveFullyPaidInvoices] = useState([]);
     const [failedToSaveOverPaidInvoices, setFailedToSaveOverPaidInvoices] = useState([]);
+
+    useEffect(() => {
+        const userID = Number(window.localStorage.getItem("userID"));
+        if(userID !== null)
+            setLoggedIn(userID);
+    }, [loggedIn]);
 
     const postData = async ( ) =>{
         setShortPaidInvoices([]);

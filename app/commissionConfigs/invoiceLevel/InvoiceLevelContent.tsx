@@ -20,7 +20,7 @@ const InvoiceLevelContent = () => {
 
     return (
         <>
-            <div className={'flex flex-row gap-5'}>
+            <div className={'flex flex-row gap-5 bg'}>
                 <div id={'searchInvoiceContainer'}
                      className={'m-auto text-center border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 pr-5'}>
                     <SearchInvoice onInvoiceIdChange={handleNameChange} />

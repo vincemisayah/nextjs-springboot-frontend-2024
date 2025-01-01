@@ -1,20 +1,9 @@
 "use client";
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spacer, Spinner } from "@nextui-org/react";
-import React, { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
-import { BlockingData } from "swr/_internal";
-import { Tabs, Tab, Card, CardBody } from "@nextui-org/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@nextui-org/react";
+import React from "react";
+import { Tabs, Tab } from "@nextui-org/react";
 import { IoPersonSharp } from "react-icons/io5";
-import useSWR from "swr";
 import SalesPersonCalculatedCommission from "@/app/commissionConfigs/invoiceLevel/SalesPersonCalculatedCommission";
-import { router } from "next/client";
-import AssignTaskAndEmployeeRates from "@/app/commissionConfigs/invoiceLevel/AssignTaskAndEmployeeRates";
-
-// http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=208072
-
-// @ts-ignore
-const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
-
 
 const ModalSalesCommission = ({
                                   onOpen,
@@ -25,65 +14,7 @@ const ModalSalesCommission = ({
                                   order,
                                   taskId,
                                   customerInfo
-                              }) => {
-
-    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
-    const [isSaving, setIsSaving] = useState(false);
-    const [selectedEmpId, setSelectedEmpId] = useState(undefined);
-
-
-
-    const saveChanges = async () => {
-        // Scan through the tabs containing the sales employees' ID
-        // and identify the target employee ID.
-        let empID = undefined;
-        const buttonsArr = Array.from(document.getElementsByClassName('tabSalesEmployee'));
-        buttonsArr.forEach(btn=>{
-            if(btn.ariaSelected === 'true'){
-                const childrenElems = Array.from(btn.children);
-                const targetChild = childrenElems.at(childrenElems.length-1);
-                // @ts-ignore
-                empID = (targetChild.firstElementChild.id).split('#').at((targetChild.firstElementChild.id).split('#').length-1);
-            }
-        })
-
-        // @ts-ignore
-        const taskRateInput = document.getElementById("taskRateForTaskID#" + taskId).value;
-        // @ts-ignore
-        const salesRateInput = document.getElementById("salesAssignedRateForTaskID#" + taskId).value;
-        // @ts-ignore
-        const textAreaTaskNote = document.getElementById("textAreaTaskNote#" +empID + "#taskId#"+taskId).value;
-        // @ts-ignore
-        const textAreaSalesNote = document.getElementById("textAreaSalesNote#"+empID+"#taskId#"+taskId).value;
-
-        const TO_SAVE = {
-            lastEditedBy: loggedIn,
-            customerID: customerInfo.id,
-            invoiceID: invoiceId,
-            taskID: taskId,
-            empID: Number(empID),
-            taskRate: Number(taskRateInput),
-            salesRate: Number(salesRateInput),
-            taskNote: textAreaTaskNote,
-            salesEmployeeNote: textAreaSalesNote,
-        };
-
-        setIsSaving(true);
-        const response = await fetch("http://localhost:1118/invoiceCommissionService/invoiceLevel/saveInvoiceLevelConfig", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(TO_SAVE)
-        });
-        if (200 <= response.status || response.status < 300) {
-            setIsSaving(false);
-
-        } else {
-            setIsSaving(false);
-            alert("Failed to save changes. Server response status: " + response.status);
-        }
-    };
-
-
+                              }:any) => {
 
     // @ts-ignore
     return (
@@ -108,10 +39,6 @@ const ModalSalesCommission = ({
                                     <li className={"ml-5 text-[9pt] dark:text-[#9898a1]"}>
                                         INVOICE ID: {invoiceId}
                                     </li>
-                                    {/*<li className={"ml-5 text-[9pt]"}>*/}
-                                    {/*    <strong>TASK ID: </strong>{taskId}</li>*/}
-                                    {/*<li className={"ml-5 text-[9pt]"}>*/}
-                                    {/*    <strong>ORDER: </strong>{order}</li>*/}
                                 </ul>
                             </ModalHeader>
                             <ModalBody className={"dark:bg-[#222222]"}>
@@ -134,13 +61,6 @@ const ModalSalesCommission = ({
                                                  }
                                             >
                                                 <div className={"h-[20vh] w-[43vw]"}>
-                                                    {/*<AssignTaskAndEmployeeRates*/}
-                                                    {/*    customerID={customerJobInfo.customerID}*/}
-                                                    {/*    invoiceID={invoiceId}*/}
-                                                    {/*    taskID={taskId}*/}
-                                                    {/*    orderNumber={order}*/}
-                                                    {/*    employeeID={item.salesPersonId}*/}
-                                                    {/*/>*/}
                                                     <SalesPersonCalculatedCommission
                                                         customerID={customerJobInfo.customerID}
                                                         invoiceID={invoiceId}
@@ -157,11 +77,6 @@ const ModalSalesCommission = ({
                             <ModalFooter className={"dark:bg-[#222222]"}>
                                 <Button color="danger" variant="light" onPress={onClose}>
                                     Close
-                                </Button>
-                                <Button color="primary" onPress={saveChanges} isDisabled={isSaving}>
-                                    {isSaving ? (<span className={"min-w-[93px]"}><Spinner size={"sm"}
-                                                                                           color={"white"} /></span>) :
-                                        <span>Save changes</span>}
                                 </Button>
                             </ModalFooter>
                         </>

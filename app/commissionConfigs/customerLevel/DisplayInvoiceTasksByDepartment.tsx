@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
 import {
@@ -37,7 +37,7 @@ const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const router = useRouter();
-    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
+    const [loggedIn, setLoggedIn] = useState(-1);
     const [startFetching, setStartFetching] = useState(false);
     const [startFetchingTaskItems, setStartFetchingTaskItems] = useState(false);
 
@@ -52,6 +52,12 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set(["text"]));
     const [searchCustomerVisible, setSearchCustomerVisible] = useState(true);
+
+    useEffect(() => {
+        const userID = Number(window.localStorage.getItem("userID"));
+        if(userID !== null)
+            setLoggedIn(userID);
+    }, [loggedIn]);
 
     const selectedValue = React.useMemo(
         () => Array.from(selectedKeys).join(", "),
@@ -71,11 +77,11 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         if(searchCustomerRef.current !== null){
             const targetDiv = searchCustomerRef.current; // @ts-ignore
 
-            if(!targetDiv.hidden)
+            if(!targetDiv.hidden) // @ts-ignore
                 targetDiv.hidden = true;
-            else
+            else // @ts-ignore
                 targetDiv.hidden = false;
-
+            // @ts-ignore
             setSearchCustomerVisible(targetDiv.hidden);
         }
 
@@ -663,8 +669,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             {salesPersonList.map((name: any, index: any) => (
                                 <TableColumn key={index}>{name.lastNameFirstName}</TableColumn>
                             ))}
-                            {/*@ts-ignore*/}
-                            <TableColumn></TableColumn>
+                            <TableColumn>{''}</TableColumn>
                         </TableHeader>
                         <TableBody>
                             {data?.map((object: any, index: React.Key | null) => (

@@ -183,7 +183,7 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
     return (
         <>
             <div
-                className={"min-w-[50vw] p-4 m-3 shadow-md rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
+                className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c] bg-white"}>
                 <div className="space-y-1 mb-5">
                     <h4 className="text-medium font-medium">Configurable Invoice Task Items for Invoice
                         ID: {invoiceNumber}</h4>
@@ -267,11 +267,5 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
                 customerInfoWithSalesEmployeeList={customerInfoWithSalesEmployeeList} />
         </>
     );
-
-    // return(
-    //     <>
-    //         ShowDistinctInvoiceTaskItems
-    //     </>
-    // )
 };
 export default ShowDistinctInvoiceTaskItems;

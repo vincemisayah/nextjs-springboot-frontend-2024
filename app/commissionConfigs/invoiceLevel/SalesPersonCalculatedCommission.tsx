@@ -63,19 +63,15 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
         };
     }, []);
 
-    const url = "http://localhost:1118/invoiceCommissionService/invoiceLevel/calculatedInvoiceTaskCommission?" +
-        "customerID=" + customerID +
-        "&invoiceID=" + invoiceID +
-        "&taskID=" + taskID +
-        "&orderNumber=" + orderNumber +
-        "&employeeID=" + employeeID;
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/finalSalesCalculatedCommissionInfo?` +
+        `customerID=${customerID}` +
+        `&invoiceID=${invoiceID}` +
+        `&taskID=${taskID}` +
+        `&orderNumber=${orderNumber}`+
+        `&employeeID=${employeeID}`
+
     const { data: calculatedCommissionInfo, error: calculatedCommissionInfoError } = useSWR(invoiceID > 0?
-            "http://localhost:1118/invoiceCommissionService/invoiceLevel/calculatedInvoiceTaskCommission?" +
-            "customerID=" + customerID +
-            "&invoiceID=" + invoiceID +
-            "&taskID=" + taskID +
-            "&orderNumber=" + orderNumber +
-            "&employeeID=" + employeeID : null,
+            url : null,
         fetcher
     );
 
@@ -106,17 +102,17 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
     }
 
     return(
-        <div id={'tableId#' + employeeID} className={'opacity-0 transition-opacity ease-linear delay-150'}>
+        <div id={'tableId#' + employeeID} className={'flex flex-row min-w-screen justify-center items-center opacity-0 transition-opacity ease-linear delay-150'}>
             {calculatedCommissionInfo != undefined ? (
                 <Table
                     removeWrapper={true} isCompact>
                     <TableHeader>
                         <TableColumn className={'dark:bg-[#222222]'}>Amount</TableColumn>
+                        <TableColumn className={'dark:bg-[#222222]'}>Applied Config. Lvl</TableColumn>
                         <TableColumn className={'dark:bg-[#222222]'}>Task Rate Percent</TableColumn>
                         <TableColumn className={'dark:bg-[#222222]'}>Task Commission Value</TableColumn>
                         <TableColumn className={'dark:bg-[#222222]'}>Assigned Rate Percent</TableColumn>
                         <TableColumn className={'dark:bg-[#222222]'}>Sales Commission</TableColumn>
-                        <TableColumn className={'dark:bg-[#222222]'}>Actions</TableColumn>
                     </TableHeader>
                     <TableBody>
                         <TableRow
@@ -124,27 +120,24 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                             <TableCell className={'text-[10pt] dark:text-[#dedfe1]'}>
                                 {formatter.format(calculatedCommissionInfo.amount)}
                             </TableCell>
-                            {/*<TableCell className={'text-[9pt] dark:text-[#dedfe1]'}>{calculatedCommissionInfo.taskRate}</TableCell>*/}
                             <TableCell className={'text-[10pt] dark:text-[#dedfe1]'}>
-                                <div className={"flex"}>
-                                    <input id={'taskRateForTaskID#' + taskID}
-                                         type={"number"}
-                                         defaultValue={calculatedCommissionInfo.taskRate}
-                                         className={"dark:bg-[#18181b] remove-arrow border-1 text-center w-full sm:w-16 rounded"}
-                                    />
-                                    <PiPercentLight className={"ml-1"} size={15} />
+                                {calculatedCommissionInfo.configLevel}
+                            </TableCell>
+                            <TableCell className={'text-[10pt] dark:text-[#dedfe1]'}>
+                                <div className={"flex items-center ml-5"}>
+                                    <span>{calculatedCommissionInfo.taskRate}%</span>
                                     <div ref={messageIconDivRef}>
-                                        {calculatedCommissionInfo.taskRateNote.length > 0?
+                                        {calculatedCommissionInfo.taskRateNote.length > 0 ?
                                             (
                                                 <>
                                                     <PiNoteFill size={16} className={"ml-1 hover:cursor-pointer"}
-                                                        onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                                onClick={() => showNote("taskNote#" + employeeID + "#taskId#" + taskID)} />
                                                 </>
 
-                                            ):(
+                                            ) : (
                                                 <>
-                                                    <PiNoteBlank  size={16} className={"ml-1 hover:cursor-pointer"}
-                                                        onClick={()=>showNote("taskNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                    <PiNoteBlank size={16} className={"ml-1 hover:cursor-pointer"}
+                                                                 onClick={() => showNote("taskNote#" + employeeID + "#taskId#" + taskID)} />
                                                 </>
                                             )}
                                     </div>
@@ -165,37 +158,26 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                 {formatter.format(calculatedCommissionInfo.taskCommissionDollarValue)}
                             </TableCell>
                             <TableCell className={"text-[10pt] dark:text-[#dedfe1]"}>
-                                <div className={"flex"}>
-                                    <input id={'salesAssignedRateForTaskID#' + taskID}
-                                           type={"number"}
-                                           defaultValue={calculatedCommissionInfo.salesPersonAssignedRate}
-                                           className={"dark:bg-[#18181b] remove-arrow border-1 text-center w-full sm:w-16 rounded"}
-                                    />
-                                    <PiPercentLight className={"ml-1"} size={15} />
+                                <div className={"flex items-center ml-5"}>
+                                    <span>{calculatedCommissionInfo.salesPersonAssignedRate}%</span>
                                     <div ref={messageIconDivRef2}>
-                                        {/*<FaRegMessage*/}
-                                        {/*    color={clsx({*/}
-                                        {/*        ["#06b6d4"]: (calculatedCommissionInfo.salesPersonAssignedRateNote).length > 0*/}
-                                        {/*    })}*/}
-                                        {/*    className={"ml-1 hover:cursor-pointer"}*/}
-                                        {/*    onClick={() => showNote("salesNote#" + employeeID + "#taskId#" + taskID)}*/}
-                                        {/*/>*/}
-
-                                        {calculatedCommissionInfo.salesPersonAssignedRateNote.length > 0?
+                                        {calculatedCommissionInfo.salesPersonAssignedRateNote.length > 0 ?
                                             (
                                                 <>
-                                                    <PiNoteFill size={16} className={"ml-1 hover:cursor-pointer"} color={"#06b6d4"}
-                                                                onClick={()=>showNote("salesNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                    <PiNoteFill size={16} className={"ml-1 hover:cursor-pointer"}
+                                                                color={"#06b6d4"}
+                                                                onClick={() => showNote("salesNote#" + employeeID + "#taskId#" + taskID)} />
                                                 </>
 
-                                            ):(
+                                            ) : (
                                                 <>
-                                                    <PiNoteBlank  size={16} className={"ml-1 hover:cursor-pointer"}
-                                                                  onClick={()=>showNote("salesNote#" + employeeID + "#taskId#" + taskID )}/>
+                                                    <PiNoteBlank size={16} className={"ml-1 hover:cursor-pointer"}
+                                                                 onClick={() => showNote("salesNote#" + employeeID + "#taskId#" + taskID)} />
                                                 </>
                                             )}
                                     </div>
-                                    <div ref={divRef2} id={"salesNote#" + employeeID + "#taskId#" + taskID} hidden={true}>
+                                    <div ref={divRef2} id={"salesNote#" + employeeID + "#taskId#" + taskID}
+                                         hidden={true}>
                                         <div
                                             className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded-lg border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
                                             <textarea
@@ -210,25 +192,6 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                             </TableCell>
                             <TableCell className={"text-[10pt] dark:text-[#dedfe1]"}>
                                 {formatter.format(calculatedCommissionInfo.salesDollarValue)}
-                            </TableCell>
-                            <TableCell>
-                                <div className="relative flex items-center gap-2">
-                                    <Tooltip content="Details">
-                                        <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                                            <EyeIcon />
-                                        </span>
-                                    </Tooltip>
-                                    <Tooltip content="Edit user">
-                                        <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                                            <EditIcon />
-                                        </span>
-                                    </Tooltip>
-                                    <Tooltip color="danger" content="Revert back to Customer Level Config">
-                                        <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                                            <RxReset />
-                                        </span>
-                                    </Tooltip>
-                                </div>
                             </TableCell>
                         </TableRow>
                     </TableBody>

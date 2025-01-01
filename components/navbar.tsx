@@ -11,16 +11,24 @@ import {
 } from "@nextui-org/navbar";
 import { Link } from "@nextui-org/link";
 import {Popover, PopoverTrigger, PopoverContent, Button} from "@nextui-org/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { FcDataConfiguration } from "react-icons/fc";
 import { usePathname, useRouter } from "next/navigation";
 
 
 export const Navbar = () => {
+    const [loggedInUser, setLoggedInUser] = React.useState('');
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const pathname = usePathname();
     const { push } = useRouter();
+
+    useEffect(() => {
+        const fullName = window.localStorage.getItem("Fullname");
+        if(fullName !== null)
+            setLoggedInUser(fullName);
+    }, [loggedInUser]);
+
     const menuItems = {
         CUSTOMER: {title:"Customer Level",
                    description:"Search the customer and customize the invoice task commission rate for all invoices belonging to that customer.",
@@ -107,11 +115,9 @@ export const Navbar = () => {
                         <NavbarItem className="hidden sm:flex gap-2">
                             <ThemeSwitch />
                         </NavbarItem>
-                            {localStorage.getItem("Fullname") !== undefined ? (
-                                <NavbarItem className="hidden sm:flex gap-2">
-                                    <span>{localStorage.getItem("Fullname")}</span>
-                                </NavbarItem>
-                            ):null}
+                            <NavbarItem className="hidden sm:flex gap-2">
+                                <span>{loggedInUser}</span>
+                            </NavbarItem>
                         <NavbarItem className="hidden lg:flex">
                             <button onClick={logoutUser}>
                                 <span className={'font-semibold text-[#58a1f4] hover:text-[#457ebf] transition-all ease-in-out'}>Logout</span>

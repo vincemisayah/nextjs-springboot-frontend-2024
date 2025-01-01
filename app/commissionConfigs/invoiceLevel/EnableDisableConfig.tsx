@@ -12,9 +12,15 @@ const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 // @ts-ignore
 const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
-    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
+    const [loggedIn, setLoggedIn] = useState(-1);
     const [isSelected, setIsSelected] = React.useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        const userID = Number(window.localStorage.getItem("userID"));
+        if(userID !== null)
+            setLoggedIn(userID);
+    }, [loggedIn]);
 
     const { data: invoiceTaskRateInfo, data:invoiceTaskRateInfoError } = useSWR(invoiceNumber > 0?
             `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceTaskRateInfo?invoiceID=${invoiceNumber}&taskID=${taskItem.taskID}`:null,
@@ -51,7 +57,7 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
             const empRateInfo = {
                 empID: empId,
                 salesRate: empRate,
-                note:'test note for employee'
+                note:''
             }
             // @ts-ignore
             OBJ_TO_SAVE.empRates.push(empRateInfo);

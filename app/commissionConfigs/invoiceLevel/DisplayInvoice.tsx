@@ -79,9 +79,23 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
 
     return(
         <div id={'mainConfigContent'}
-            className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
+             className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#f4f4f5] dark:bg-[#222222]'}>
+
+            <div id={'changeInvoiceBtn'} hidden={false} className={'px-4 pt-1.5 text-end'}>
+                <button
+                    onClick={expandInvoiceSelector}
+                    className={'border-small px-3 py-1 mt-1.5 rounded-small ' +
+                        'border-default-200 dark:border-default-100 ' +
+                        'bg-white dark:bg-[#414147] shadow-sm text-gray-500 ' +
+                        'text-md hover:bg-[#e7e7e9] active:bg-[#dadadd] ' +
+                        'dark:text-gray-300 dark:hover:bg-[#3c3c3c] transition ease-in-out duration-100'}
+                >
+                    Select different invoice
+                </button>
+            </div>
+
             <div
-                className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
+                className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c] bg-white"}>
                 <h1>Customer and Job Details</h1>
                 {(customerJobInfo !== undefined) ? (
                     <>
@@ -101,13 +115,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                         </ul>
                     </>
                 ) : null}
-                <div  id={'changeInvoiceBtn'} hidden={false}>
-                    <Button
-                        onPress={expandInvoiceSelector}
-                        className={'mt-2'} size={'sm'}>
-                        Select different invoice
-                    </Button>
-                </div>
+
 
                 <ModalSalesCommission invoiceId={props.invoiceNumber}
                                       customerJobInfo={customerJobInfo}
@@ -119,19 +127,19 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                                       customerInfo={customerInfo}
                 />
             </div>
-            <div className={"rounded-small dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]"}>
+            <div className={"bg-[#f4f4f5] dark:bg-[#222222]"}>
                 {(customerJobInfo !== undefined) ? (
                     <ShowDistinctInvoiceTaskItems
                         customerId={customerJobInfo.customerID}
                         invoiceNumber={props.invoiceNumber}
                         distinctInvoiceTaskItems={distinctInvoiceTaskItems}
                     />
-                ): null}
+                ) : null}
 
 
             </div>
             <div
-                className={"p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
+                className={"p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c] bg-white"}>
                 <Table aria-label="Example static collection table" removeWrapper={true} isCompact>
                     <TableHeader>
                         <TableColumn className={"dark:bg-[#222222]"}>Task</TableColumn>
@@ -161,11 +169,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                     </TableBody>
                 </Table>
             </div>
-
-
         </div>
-
-
     )
 }
 export default DisplayInvoice;
