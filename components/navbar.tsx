@@ -107,9 +107,11 @@ export const Navbar = () => {
                         <NavbarItem className="hidden sm:flex gap-2">
                             <ThemeSwitch />
                         </NavbarItem>
-                        <NavbarItem className="hidden sm:flex gap-2">
-                            <span>{localStorage.getItem("Fullname")}</span>
-                        </NavbarItem>
+                            {localStorage.getItem("Fullname") !== undefined ? (
+                                <NavbarItem className="hidden sm:flex gap-2">
+                                    <span>{localStorage.getItem("Fullname")}</span>
+                                </NavbarItem>
+                            ):null}
                         <NavbarItem className="hidden lg:flex">
                             <button onClick={logoutUser}>
                                 <span className={'font-semibold text-[#58a1f4] hover:text-[#457ebf] transition-all ease-in-out'}>Logout</span>
