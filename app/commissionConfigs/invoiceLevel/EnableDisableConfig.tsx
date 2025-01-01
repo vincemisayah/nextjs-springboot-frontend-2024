@@ -105,10 +105,6 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
                             : (<p>Save</p>)}
                     </span>
                 </Button>
-                <label className="switch">
-                    <input type="checkbox" disabled={false}/>
-                    <span className="slider round"></span>
-                </label>
             </div>
         )
     }
