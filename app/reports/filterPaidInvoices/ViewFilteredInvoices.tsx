@@ -87,7 +87,7 @@ const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
                 setViewOverPaidInvoices(result.ViewableOverPaidInvoices);
                 setDuplicateInvoices(result.InvoiceDupsFound);
             }else{
-                console.log("Nothing to send . . . ")
+                // Nothing to send. Do nothing.
             }
         }
     }

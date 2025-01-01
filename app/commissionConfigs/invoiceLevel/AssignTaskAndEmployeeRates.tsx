@@ -23,9 +23,6 @@ const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 // @ts-ignore
 const AssignTaskAndEmployeeRates = ({customerID, invoiceID, taskID, orderNumber, employeeID}) =>{
-
-    console.log("AssignTaskAndEmployeeRates invoiceID = ", invoiceID);
-
     const divRef = useRef(null);
     const messageIconDivRef = useRef(null);
 
@@ -76,7 +73,6 @@ const AssignTaskAndEmployeeRates = ({customerID, invoiceID, taskID, orderNumber,
         fetcher
     );
 
-    // console.log('SalesPersonCalculatedCommission calculatedCommissionInfo = ', calculatedCommissionInfo);
     if(calculatedCommissionInfoError){
         return(
             <>

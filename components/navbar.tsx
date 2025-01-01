@@ -67,7 +67,6 @@ export const Navbar = () => {
     }
 
     const logoutUser = () => {
-        console.log(`${getCookieByName("token")}`);
         // @ts-ignore
         if(getCookieByName("token").length > 0){
             document.cookie = "token=;";

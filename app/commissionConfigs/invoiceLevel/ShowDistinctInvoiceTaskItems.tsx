@@ -50,7 +50,6 @@ const ShowDistinctInvoiceTaskItems = ({customerId, invoiceNumber, distinctInvoic
     }
 
     const GetCustomerLevelTaskRate = (taskObj: any) => {
-        console.log("GetCustomerLevelTaskRate customerID = ", customerId);
         const { data: customerLevelTaskRate, error: customerLevelTaskRateError } = useSWR(invoiceNumber > 0 ?
             `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/taskRateInfoCustomerLevelConfig?customerID=${customerId}&taskID=${taskObj.taskID}`: null,
             fetcher

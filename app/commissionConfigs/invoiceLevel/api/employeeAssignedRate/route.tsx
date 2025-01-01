@@ -12,12 +12,7 @@ export async function GET(request: NextRequest) {
         headers:request.headers
     });
 
-    // const body = await res.text();
-    // console.log("IN ROUTE RES BODY: ", body);
-    //
     const data = await res.json();
-
-
 
     // @ts-ignore
     return Response.json(data);

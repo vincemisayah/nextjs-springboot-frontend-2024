@@ -124,7 +124,6 @@ export default function FilterPaidInvoicesMainContent() {
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            console.log(jsonData[0]);
 
             const invoiceRowData = {
                 invoiceID: '',
@@ -145,10 +144,8 @@ export default function FilterPaidInvoicesMainContent() {
                     JSON.stringify(invoiceRowData)
                 );
 
-
                 // arrObj.push(invoiceRowData);
                 arrObj.push(deepCopyObj);
-                console.log(`invoiceRowData = ${invoiceRowData.invoiceID}`);
             })
 
 
@@ -156,7 +153,6 @@ export default function FilterPaidInvoicesMainContent() {
         reader.readAsArrayBuffer(file);
         // @ts-ignore
         setInvoiceData(arrObj);
-        console.log('arrObj = ', arrObj);
     }
 
 

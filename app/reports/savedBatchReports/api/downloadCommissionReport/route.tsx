@@ -3,9 +3,6 @@ import { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
     let passedValue = await new Response(request.body).text();
     let passedDate = passedValue.split('=').at(1);
-    console.log(`PASSED VALUE: ${passedValue}`);
-
-    console.log(`IN POST Headers: ${request.headers}`);
 
     let data = new URLSearchParams(); // @ts-ignore
     data.set("passedDate", passedDate);

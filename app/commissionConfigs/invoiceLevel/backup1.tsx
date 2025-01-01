@@ -18,7 +18,6 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
         fetcher
     );
 
-    console.log('SalesPersonCalculatedCommission calculatedCommissionInfo = ', calculatedCommissionInfo);
     if(calculatedCommissionInfoError){
         return(
             <>

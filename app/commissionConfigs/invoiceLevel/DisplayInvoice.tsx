@@ -51,8 +51,6 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
     );
 
     const openModal = (taskId: React.SetStateAction<number>, order: React.SetStateAction<number>) => {
-        console.log("openModal = ",customerInfoWithSalesEmployeeList.salesPersonList);
-        console.log('taskId = ', taskId)
         setSelectedOrder(order);
         setSelectedTaskId(taskId);
         // salesPersonList

@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 
 const SendAndSaveData = (props: { data: any; })=>{
-
     const [rateInfo, setRateInfo] = useState(props.data);
-    console.log("SendAndSaveData . . . ");
-    console.log(props.data);
 
     return(
         <>

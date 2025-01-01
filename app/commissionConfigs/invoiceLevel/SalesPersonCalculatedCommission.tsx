@@ -69,7 +69,6 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
         "&taskID=" + taskID +
         "&orderNumber=" + orderNumber +
         "&employeeID=" + employeeID;
-    console.log("CALCULATED COMMISSION URL = ", url);
     const { data: calculatedCommissionInfo, error: calculatedCommissionInfoError } = useSWR(invoiceID > 0?
             "http://localhost:1118/invoiceCommissionService/invoiceLevel/calculatedInvoiceTaskCommission?" +
             "customerID=" + customerID +
@@ -80,7 +79,6 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
         fetcher
     );
 
-    // console.log('SalesPersonCalculatedCommission calculatedCommissionInfo = ', calculatedCommissionInfo);
     if(calculatedCommissionInfoError){
         return(
             <>

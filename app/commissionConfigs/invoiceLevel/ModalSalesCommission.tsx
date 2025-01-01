@@ -40,7 +40,6 @@ const ModalSalesCommission = ({
         const buttonsArr = Array.from(document.getElementsByClassName('tabSalesEmployee'));
         buttonsArr.forEach(btn=>{
             if(btn.ariaSelected === 'true'){
-                // console.log('BTN = ', btn.children);
                 const childrenElems = Array.from(btn.children);
                 const targetChild = childrenElems.at(childrenElems.length-1);
                 // @ts-ignore
@@ -75,7 +74,6 @@ const ModalSalesCommission = ({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(TO_SAVE)
         });
-        console.log(response);
         if (200 <= response.status || response.status < 300) {
             setIsSaving(false);
 

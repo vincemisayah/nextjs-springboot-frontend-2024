@@ -22,7 +22,6 @@ export default function BlogPage() {
     const [hideMainContent3, setHideMainContent3] = useState(true);
 
     const ShowContent = (key:any) =>{
-        console.log("ShowContent key = ", key);
         setHideMainContent1(true);
         setHideMainContent2(true);
         setHideMainContent3(true);

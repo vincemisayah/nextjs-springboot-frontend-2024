@@ -164,22 +164,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         );
     };
 
-    const CollectSelectedTaskItems = () => {
-        console.log("CollectSelectedTaskItems . . . ");
-        const rows = document.getElementsByClassName("taskRow");
-
-        if (selectedTaskItems.length > 0) {
-            selectedTaskItems.splice(0, selectedTaskItems.length);
-        }
-        for (let i = 0; i < rows.length; i++) {
-            if (rows[i].getAttribute("aria-selected") === "true") {
-                // @ts-ignore
-                selectedTaskItems.push(rows[i].id);
-            }
-        }
-        onOpen( );
-    };
-
     // @ts-ignore
     const ToolsModule = ({ deptID }) => {
         const postData = async (data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
@@ -238,10 +222,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             let arrayRateInfos: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[] = [];
 
             const collectionOfRows = document.getElementsByClassName("taskRowDeptId#" + deptID);
-            console.log("saveChanges collectionOfRows: ", collectionOfRows);
-
             const rows = Array.from(collectionOfRows);
-            console.log("saveChanges rows: ", rows);
 
             rows.forEach((row: any, index: any) => {
                 const tdChildren = Array.from(row.children);
@@ -262,8 +243,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                     // @ts-ignore
                     const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
-                    // console.log("tdChildren[i].getElementsByTagName(\"input\"))[0] = ",  Array.from(tdChildren[i].getElementsByTagName("input"))[0]);
-                    // console.log('taskCommRate: ', taskCommRate);
 
                     if(i === TASK_COMM_RATE_COLUMN_INDEX){
                         // @ts-ignore
@@ -565,32 +544,19 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 })
 
                 if(200 <= response.status || response.status < 300){
-                    // console.log("Save success!")
                     return true;
                 }else{ // @ts-ignore
-                    // console.error("Save attempt failed.")
                     return false;
                 }
-
             }
 
             const saveSingleRowEdit = (deptId:any, rowIndex:any, tableRowId:any) =>{
                 let arrayRateInfos: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[] = [];
-
-                console.log("saveSingleRowEdit for : ", tableRowId);
-                // const collectionOfRows = document.getElementsByClassName(tableRowId);
-                // console.log("collectionOfRows: ", collectionOfRows[rowIndex]);
-
-
                 const collectionOfRows = document.getElementsByClassName(tableRowId);
-                console.log("saveChanges collectionOfRows: ", collectionOfRows);
-
                 const rows = Array.from(collectionOfRows);
-                console.log("saveChanges rows: ", rows[rowIndex]);
 
                 rows.forEach((row: any, index: any) => {
                     if(index === rowIndex){
-                        console.log("row: ", row);
                         const tdChildren = Array.from(row.children);
 
                         const rateInfo = {
@@ -606,11 +572,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                         const TASK_COMM_RATE_COLUMN_INDEX = 2;
                         for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length-1; i++) {
-
                             // @ts-ignore
                             const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
-                            // console.log("tdChildren[i].getElementsByTagName(\"input\"))[0] = ",  Array.from(tdChildren[i].getElementsByTagName("input"))[0]);
-                            // console.log('taskCommRate: ', taskCommRate);
 
                             if(i === TASK_COMM_RATE_COLUMN_INDEX){
                                 // @ts-ignore
@@ -653,8 +616,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                 })
 
-                // console.log("arrayRateInfos: ", arrayRateInfos)
-
                 if(arrayRateInfos.length > 0){
                     const button = document.getElementById(`index#${rowIndex}#${tableRowId}#btn`); // @ts-ignore
                     button.disabled = true;
@@ -691,15 +652,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             // @ts-ignore
             return (
                 <div className={"shadow-sm p-3"}>
-                    {data?.slice(0, 1).map((object: any, index: React.Key | null) => (
-                        <div key={index}>
-                            {lastEditByMap.get("commRateTaskId#" + object.id)?(
-                                <span>
-                                    Last edited by {" "}{lastEditByMap.get("commRateTaskId#" + object.id)}
-                                </span>
-                            ):null}
-                        </div>
-                    ))}
                     <ToolsModule deptID={deptId} />
                     <Spacer y={5} />
                     <Table removeWrapper selectionMode={"none"} id={"tableInvoiceTaskItemsDeptId#" + deptId}>
