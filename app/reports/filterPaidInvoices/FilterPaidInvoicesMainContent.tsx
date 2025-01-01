@@ -176,13 +176,15 @@ export default function FilterPaidInvoicesMainContent() {
                 <span>Please note that an <strong>Excel file</strong> with correct formatting and file extension (<i>".xlxs"</i>) is required in order to successfully filter out
                     fully-paid invoices.</span>
                 <Spacer y={2} />
-                <div className="text-center m-auto">
-                    <span className={"text-sm text-gray-600 dark:text-gray-500"}>The following is an example of an excel file that our program can properly process.</span>
+                <div className="text-center m-auto mt-5">
+                    <span className={"text-sm text-gray-600 dark:text-gray-500"}>
+                        The following is an example of a properly formatted spreadsheet.
+                    </span>
                     <Spacer y={1} />
                     <Image
                         className={"m-auto"}
                         alt="Proper Format Image"
-                        src={process.env.NEXT_PUBLIC_BASE_URL + "pngs/properFormatForPaidInvoiceFile.png"}
+                        src={`${process.env.NEXT_PUBLIC_BASE_URL}/pngs/properFormatForPaidInvoiceFile.png`}
                         width={700}
                         removeWrapper
                         radius={"lg"}

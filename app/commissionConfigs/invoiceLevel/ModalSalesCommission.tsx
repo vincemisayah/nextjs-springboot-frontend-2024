@@ -27,18 +27,13 @@ const ModalSalesCommission = ({
                                   customerInfo
                               }) => {
 
-    const [loggedIn, setLoggedIn] = useState(3667);
+    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
     const [isSaving, setIsSaving] = useState(false);
     const [selectedEmpId, setSelectedEmpId] = useState(undefined);
 
 
 
     const saveChanges = async () => {
-        console.log("Saving . . . ");
-        console.log("selectedEmpId= ", selectedEmpId);
-
-        // console.log(document.getElementsByClassName('tabSalesEmployee'))
-
         // Scan through the tabs containing the sales employees' ID
         // and identify the target employee ID.
         let empID = undefined;

@@ -30,7 +30,7 @@ interface ViewFilteredInvoicesProps {
 }
 
 const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
-    const [loggedIn, setLoggedIn] = useState(3667);
+    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
     const [isFetching, setIsFetching] = useState(false);
     const [shortPaidInvoices, setShortPaidInvoices] = useState([]);
     const [fullyPaidInvoices, setFullyPaidInvoices] = useState([]);

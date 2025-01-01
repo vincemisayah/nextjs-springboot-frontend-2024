@@ -12,7 +12,7 @@ const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 // @ts-ignore
 const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
-    const [loggedIn, setLoggedIn] = useState(3667);
+    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
     const [isSelected, setIsSelected] = React.useState(false);
     const [isSaving, setIsSaving] = useState(false);
 

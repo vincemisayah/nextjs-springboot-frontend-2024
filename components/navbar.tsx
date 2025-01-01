@@ -67,13 +67,13 @@ export const Navbar = () => {
     }
 
     const logoutUser = () => {
-        console.log("logging out . . . ");
         console.log(`${getCookieByName("token")}`);
         // @ts-ignore
         if(getCookieByName("token").length > 0){
             document.cookie = "token=;";
         }
         document.cookie = "token=;";
+        localStorage.clear();
         push('/login');
     }
 
@@ -100,7 +100,7 @@ export const Navbar = () => {
                         </NavbarItem>
                         <NavbarItem isActive>
                             <Link href="/reports" aria-current="page">
-                                Reports
+                                <span className={"font-semibold text-[#58a1f4] hover:text-[#457ebf] transition-all ease-in-out'"}>Reports</span>
                             </Link>
                         </NavbarItem>
                     </NavbarContent>
@@ -108,10 +108,12 @@ export const Navbar = () => {
                         <NavbarItem className="hidden sm:flex gap-2">
                             <ThemeSwitch />
                         </NavbarItem>
+                        <NavbarItem className="hidden sm:flex gap-2">
+                            <span>{localStorage.getItem("Fullname")}</span>
+                        </NavbarItem>
                         <NavbarItem className="hidden lg:flex">
-                            {/*<Link href="/login">Logout</Link>*/}
                             <button onClick={logoutUser}>
-                                <span>Logout</span>
+                                <span className={'font-semibold text-[#58a1f4] hover:text-[#457ebf] transition-all ease-in-out'}>Logout</span>
                             </button>
                         </NavbarItem>
                     </NavbarContent>

@@ -37,7 +37,7 @@ const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const router = useRouter();
-    const [loggedIn, setLoggedIn] = useState(3667);
+    const [loggedIn, setLoggedIn] = useState(localStorage.getItem("userID"));
     const [startFetching, setStartFetching] = useState(false);
     const [startFetchingTaskItems, setStartFetchingTaskItems] = useState(false);
 
@@ -238,7 +238,11 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             let arrayRateInfos: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[] = [];
 
             const collectionOfRows = document.getElementsByClassName("taskRowDeptId#" + deptID);
+            console.log("saveChanges collectionOfRows: ", collectionOfRows);
+
             const rows = Array.from(collectionOfRows);
+            console.log("saveChanges rows: ", rows);
+
             rows.forEach((row: any, index: any) => {
                 const tdChildren = Array.from(row.children);
 
@@ -254,9 +258,12 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
 
                 const TASK_COMM_RATE_COLUMN_INDEX = 2;
-                for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length; i++) {
+                for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length-1; i++) {
+
                     // @ts-ignore
                     const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+                    // console.log("tdChildren[i].getElementsByTagName(\"input\"))[0] = ",  Array.from(tdChildren[i].getElementsByTagName("input"))[0]);
+                    // console.log('taskCommRate: ', taskCommRate);
 
                     if(i === TASK_COMM_RATE_COLUMN_INDEX){
                         // @ts-ignore
@@ -550,12 +557,152 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 }
             }
 
+            const postDataSingleRow = async (deptID:any, data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/saveCustomerLevelConfig`,{
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data),
+                })
 
+                if(200 <= response.status || response.status < 300){
+                    // console.log("Save success!")
+                    return true;
+                }else{ // @ts-ignore
+                    // console.error("Save attempt failed.")
+                    return false;
+                }
+
+            }
+
+            const saveSingleRowEdit = (deptId:any, rowIndex:any, tableRowId:any) =>{
+                let arrayRateInfos: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[] = [];
+
+                console.log("saveSingleRowEdit for : ", tableRowId);
+                // const collectionOfRows = document.getElementsByClassName(tableRowId);
+                // console.log("collectionOfRows: ", collectionOfRows[rowIndex]);
+
+
+                const collectionOfRows = document.getElementsByClassName(tableRowId);
+                console.log("saveChanges collectionOfRows: ", collectionOfRows);
+
+                const rows = Array.from(collectionOfRows);
+                console.log("saveChanges rows: ", rows[rowIndex]);
+
+                rows.forEach((row: any, index: any) => {
+                    if(index === rowIndex){
+                        console.log("row: ", row);
+                        const tdChildren = Array.from(row.children);
+
+                        const rateInfo = {
+                            customerID: customerId,
+                            taskId: undefined,
+                            taskRate:undefined,
+                            taskNote:undefined,
+                            lastEditBy: loggedIn,
+                            salesAssignedRates:[]
+                        };
+
+
+
+                        const TASK_COMM_RATE_COLUMN_INDEX = 2;
+                        for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length-1; i++) {
+
+                            // @ts-ignore
+                            const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+                            // console.log("tdChildren[i].getElementsByTagName(\"input\"))[0] = ",  Array.from(tdChildren[i].getElementsByTagName("input"))[0]);
+                            // console.log('taskCommRate: ', taskCommRate);
+
+                            if(i === TASK_COMM_RATE_COLUMN_INDEX){
+                                // @ts-ignore
+                                const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
+                                // @ts-ignore
+                                rateInfo.taskId = inputID.split('#').at(inputID.split('#').length - 1);
+                                // @ts-ignore
+                                rateInfo.taskRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+                                const taskRateNote = document.getElementById("textAreaTaskNote#" + rateInfo.taskId);
+                                // @ts-ignore
+                                rateInfo.taskNote = taskRateNote.value;
+                            }
+
+                            if(i > TASK_COMM_RATE_COLUMN_INDEX){
+                                const salesPerson = {
+                                    empId: undefined,
+                                    assignedRate: undefined,
+                                    salesNote: undefined
+                                }
+
+                                // @ts-ignore
+                                const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
+                                salesPerson.empId = inputID.split('#').at(inputID.split('#').length - 1)
+                                // @ts-ignore
+                                salesPerson.assignedRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+
+                                const salesNote = document.getElementById("textAreaSalesNote#" + salesPerson.empId + "#taskId#" + rateInfo.taskId);
+                                // @ts-ignore
+                                salesPerson.salesNote = salesNote.value;
+
+                                // @ts-ignore
+                                rateInfo.salesAssignedRates.push(salesPerson)
+                            }
+                        }
+
+                        if(rateInfo.taskRate !== undefined && rateInfo.taskRate !== ''){
+                            arrayRateInfos.push(rateInfo);
+                        }
+                    }
+
+                })
+
+                // console.log("arrayRateInfos: ", arrayRateInfos)
+
+                if(arrayRateInfos.length > 0){
+                    const button = document.getElementById(`index#${rowIndex}#${tableRowId}#btn`); // @ts-ignore
+                    button.disabled = true;
+
+                    const buttonSave = document.getElementById(`index#${rowIndex}#${tableRowId}`);
+                    // @ts-ignore
+                    buttonSave.textContent = 'Saving';
+                    // @ts-ignore
+                    if(postDataSingleRow(deptId, arrayRateInfos)){
+                        setTimeout(() => { // @ts-ignore
+                            buttonSave.textContent = 'Success';
+                            setTimeout(() => { // @ts-ignore
+                                buttonSave.textContent = 'Save'; // @ts-ignore
+                                button.disabled = false;
+                            }, 2000);
+                        }, 1000);
+
+
+                    }else{
+                        setTimeout(() => { // @ts-ignore
+                            buttonSave.textContent = 'Failed';
+                            setTimeout(() => { // @ts-ignore
+                                buttonSave.textContent = 'Save'; // @ts-ignore
+                                button.disabled = false;
+                            }, 2000);
+                        }, 1000);
+                    }
+                    // buttonSave.textContent = 'Save';
+                }
+
+            }
+
+
+            // @ts-ignore
             return (
                 <div className={"shadow-sm p-3"}>
+                    {data?.slice(0, 1).map((object: any, index: React.Key | null) => (
+                        <div key={index}>
+                            {lastEditByMap.get("commRateTaskId#" + object.id)?(
+                                <span>
+                                    Last edited by {" "}{lastEditByMap.get("commRateTaskId#" + object.id)}
+                                </span>
+                            ):null}
+                        </div>
+                    ))}
                     <ToolsModule deptID={deptId} />
                     <Spacer y={5} />
-                    <Table removeWrapper selectionMode={"none"} id={'tableInvoiceTaskItemsDeptId#' + deptId}>
+                    <Table removeWrapper selectionMode={"none"} id={"tableInvoiceTaskItemsDeptId#" + deptId}>
                         <TableHeader>
                             <TableColumn>Task Name</TableColumn>
                             <TableColumn>Description</TableColumn>{/*@ts-ignore*/}
@@ -564,6 +711,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             {salesPersonList.map((name: any, index: any) => (
                                 <TableColumn key={index}>{name.lastNameFirstName}</TableColumn>
                             ))}
+                            {/*@ts-ignore*/}
+                            <TableColumn></TableColumn>
                         </TableHeader>
                         <TableBody>
                             {data?.map((object: any, index: React.Key | null) => (
@@ -594,6 +743,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                 </PopoverContent>
                                             </Popover>
                                             <Spacer x={1} />
+                                            {/*@ts-ignore*/}
+                                            <span className={'mr-2'}>{index+1}.</span>
                                             {object.taskName}
                                         </div>
 
@@ -674,6 +825,18 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                                         </TableCell>
                                     ))}
+
+                                    {/*@ts-ignore*/}
+                                    <TableCell>
+                                        <button id={`index#${index}#taskRowDeptId#${deptId}#btn`}
+                                            onClick={()=>saveSingleRowEdit(deptId, index,`taskRowDeptId#${deptId}`)}
+                                            className={'dark:bg-[#27272a] dark:hover:bg-[#1e2122] bg-[#f4f4f5] hover:bg-[#e7e7e9] ' +
+                                            'text-[9pt] border-small px-3 py-1 rounded-small border-default-200 dark:border-default-100'}>
+                                            <span id={`index#${index}#taskRowDeptId#${deptId}`}>
+                                                Save
+                                            </span>
+                                        </button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

@@ -73,6 +73,10 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
         const changeInvoiceBtn = document.getElementById('changeInvoiceBtn');
         // @ts-ignore
         changeInvoiceBtn.hidden = true;
+
+        const displayInvoiceContainer = document.getElementById('displayInvoiceContainer');
+        // @ts-ignore
+        displayInvoiceContainer.hidden = true;
     }
 
     return(
@@ -99,7 +103,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                         </ul>
                     </>
                 ) : null}
-                <div  id={'changeInvoiceBtn'} hidden={true}>
+                <div  id={'changeInvoiceBtn'} hidden={false}>
                     <Button
                         onPress={expandInvoiceSelector}
                         className={'mt-2'} size={'sm'}>

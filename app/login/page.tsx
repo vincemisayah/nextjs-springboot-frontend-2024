@@ -31,6 +31,9 @@ export default function MyHomePage() {
                     throw new Error('Request failed with status ' + response.status);
                 }
             }).then(data => {
+                // document.cookie = `userID=${data.UserID}`; UserName
+                localStorage.setItem('Fullname', data.Fullname);
+                localStorage.setItem('userID', data.UserID);
                 document.cookie = `token=${data.GeneratedToken}`;
                 push('/reports');
             }).catch(error => {
