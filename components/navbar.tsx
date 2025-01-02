@@ -12,7 +12,6 @@ import React, { useEffect } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { FcDataConfiguration } from "react-icons/fc";
 import { usePathname, useRouter } from "next/navigation";
-// import Cookies from 'js-cookie';
 
 
 export const Navbar = () => {
@@ -60,28 +59,19 @@ export const Navbar = () => {
         );
     }
 
-    function getCookieByName(name: string | any[]) {
-        const cookieString = document.cookie;
-        const cookies = cookieString.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                return cookie.substring(name.length + 1);
-            }
-        }
-        return null;
-    }
-
-    const logoutUser = () => {
-        // Cookies.delete("token");
-
-        // @ts-ignore
-        if(getCookieByName("token").length > 0){
-            document.cookie = "token=;";
-        }
-        document.cookie = "token=;";
+    const logoutUser = async () => {
         localStorage.clear();
-        push('/login');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/login/api/clearCookies`, {
+            method: "POST",
+        })
+
+        const data = await response.json();
+
+        if(data.status === 200){
+            push('/login');
+        }else{
+            push('/login');
+        }
     }
 
     return (
