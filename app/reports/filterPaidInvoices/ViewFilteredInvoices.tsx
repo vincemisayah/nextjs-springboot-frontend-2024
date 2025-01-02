@@ -53,7 +53,7 @@ const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
         const userID = Number(window.localStorage.getItem("userID"));
         if(userID !== null)
             setLoggedIn(userID);
-    }, [loggedIn]);
+    }, [window.localStorage.getItem("userID")]);
 
     const postData = async ( ) =>{
         setShortPaidInvoices([]);

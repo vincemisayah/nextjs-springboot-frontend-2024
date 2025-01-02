@@ -45,8 +45,11 @@ export default function LoginPage() {
 
                 localStorage.setItem('Fullname', data.fullname);
                 localStorage.setItem('userID', data.userID);
+                push('/reports');
 
                 setTimeout(() => {
+                    localStorage.setItem('Fullname', data.fullname);
+                    localStorage.setItem('userID', data.userID);
                     push('/reports');
                 }, 2000);
             }else{
@@ -65,24 +68,24 @@ export default function LoginPage() {
     return (
         <div className={'text-center'}>
             <span className={'text-lg font-semibold'}>Invoice Commission App</span>
-                <div className={'dark:bg-[#0c0c0d] bg-white flex flex-col gap-2 border-small p-3 border-default-200 dark:border-default-100 rounded m-5 shadow'}>
-                        <input placeholder={'username'}
-                            className={'text-center ml-2 border-small border-default-200 dark:border-default-100 rounded bg-gray-50 dark:bg-[#232327]'}
-                            type="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-                    <br />
-                        <input placeholder={'password'}
-                            className={'text-center ml-2 border-small border-default-200 dark:border-default-100 rounded bg-gray-50 dark:bg-[#232327]'}
-                            type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <br />
-                    <button onClick={handleSubmit} disabled={!bothFieldsFilled}
-                            className={'dark:bg-[#19454d] bg-[#3ab19b] text-white text-[9pt]' +
-                                ' m-auto border-small px-10 py-2 border-default-200 dark:border-default-100 rounded-3xl shadow-sm w-fit'}>
-                        <div className={"flex items-center space-x-2"}>
-                            <CiLogin size={17} />
-                            <span>Sign In</span>
-                        </div>
-                    </button>
-                </div>
+            <div className={'dark:bg-[#0c0c0d] bg-white flex flex-col gap-2 border-small p-3 border-default-200 dark:border-default-100 rounded m-5 shadow'}>
+                <input placeholder={'username'}
+                       className={'text-center ml-2 border-small border-default-200 dark:border-default-100 rounded bg-gray-50 dark:bg-[#232327]'}
+                       type="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                <br />
+                <input placeholder={'password'}
+                       className={'text-center ml-2 border-small border-default-200 dark:border-default-100 rounded bg-gray-50 dark:bg-[#232327]'}
+                       type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <br />
+                <button onClick={handleSubmit} disabled={!bothFieldsFilled}
+                        className={'dark:bg-[#19454d] bg-[#3ab19b] text-white text-[9pt]' +
+                            ' m-auto border-small px-10 py-2 border-default-200 dark:border-default-100 rounded-3xl shadow-sm w-fit'}>
+                    <div className={"flex items-center space-x-2"}>
+                        <CiLogin size={17} />
+                        <span>Sign In</span>
+                    </div>
+                </button>
+            </div>
             {showMessage?(
                 <div>
                     <span>{message}</span>

@@ -12,6 +12,7 @@ import React, { useEffect } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { FcDataConfiguration } from "react-icons/fc";
 import { usePathname, useRouter } from "next/navigation";
+// import Cookies from 'js-cookie';
 
 
 export const Navbar = () => {
@@ -24,7 +25,7 @@ export const Navbar = () => {
         const fullName = window.localStorage.getItem("Fullname");
         if(fullName !== null)
             setLoggedInUser(fullName);
-    }, [loggedInUser]);
+    }, [window.localStorage.getItem("Fullname")]);
 
     const menuItems = {
         CUSTOMER: {title:"Customer Level",
@@ -72,6 +73,8 @@ export const Navbar = () => {
     }
 
     const logoutUser = () => {
+        // Cookies.delete("token");
+
         // @ts-ignore
         if(getCookieByName("token").length > 0){
             document.cookie = "token=;";
