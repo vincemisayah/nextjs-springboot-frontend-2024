@@ -17,10 +17,10 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        const userID = Number(window.localStorage.getItem("userID"));
+        const userID = Number(localStorage.getItem("userID"));
         if(userID !== null)
             setLoggedIn(userID);
-    }, [loggedIn]);
+    }, [localStorage.getItem("userID")]);
 
     const { data: invoiceTaskRateInfo, data:invoiceTaskRateInfoError } = useSWR(invoiceNumber > 0?
             `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceTaskRateInfo?invoiceID=${invoiceNumber}&taskID=${taskItem.taskID}`:null,

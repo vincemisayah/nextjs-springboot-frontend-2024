@@ -50,10 +50,10 @@ const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
     const [failedToSaveOverPaidInvoices, setFailedToSaveOverPaidInvoices] = useState([]);
 
     useEffect(() => {
-        const userID = Number(window.localStorage.getItem("userID"));
+        const userID = Number(localStorage.getItem("userID"));
         if(userID !== null)
             setLoggedIn(userID);
-    }, [window.localStorage.getItem("userID")]);
+    }, [localStorage.getItem("userID")]);
 
     const postData = async ( ) =>{
         setShortPaidInvoices([]);

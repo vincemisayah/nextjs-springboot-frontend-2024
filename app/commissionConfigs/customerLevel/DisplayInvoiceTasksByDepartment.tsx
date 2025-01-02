@@ -54,10 +54,10 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [searchCustomerVisible, setSearchCustomerVisible] = useState(true);
 
     useEffect(() => {
-        const userID = Number(window.localStorage.getItem("userID"));
+        const userID = Number(localStorage.getItem("userID"));
         if(userID !== null)
             setLoggedIn(userID);
-    }, [window.localStorage.getItem("userID")]);
+    }, [localStorage.getItem("userID")]);
 
     const selectedValue = React.useMemo(
         () => Array.from(selectedKeys).join(", "),
