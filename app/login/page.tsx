@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { Spacer, Spinner } from "@nextui-org/react";
+import { Spinner } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
 import { CiLogin } from "react-icons/ci";
 
@@ -17,15 +17,9 @@ export default function LoginPage() {
     const { push } = useRouter();
 
     useEffect(() => {
-        if(username.length > 0 && password.length > 0) {
-            setbothFieldsFilled(true);
-            console.log('Enabling button . . . ');
-        }else{
-            setbothFieldsFilled(false);
-            console.log('Disabling button . . . ');
-        }
-
+        setbothFieldsFilled(username.length > 0 && password.length > 0);
     },[username, password]);
+
 
     const handleSubmit = async (event:any) => {
         const FormFieldInputs = {
@@ -35,45 +29,34 @@ export default function LoginPage() {
 
         const URL = `${process.env.NEXT_PUBLIC_BASE_URL}/login/api/validateLogin`
         try {
-            await fetch(URL, {
+            const res = await fetch(URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(FormFieldInputs),
-            }).then(response => {
-                if (response.ok) {
-                    setValidCredentials(true);
-                    setMessage('User found. Signing in.')
-                    setShowMessage(true);
-                    setTimeout(() => {
-                        setShowMessage(false);
-                    }, 2000);
-                    return response.json(); // Parse the response as JSON
-                } else {
-                    setValidCredentials(false);
-                    setMessage('Invalid Credentials')
-                    setShowMessage(true);
-                    setTimeout(() => {
-                        setShowMessage(false);
-                    }, 2000);
+            })
+            const data = await res.json();
 
-                    return;
-                }
-            }).then(data => {
-                // document.cookie = `userID=${data.UserID}`; UserName
-                if(data !== undefined) {
-                    localStorage.setItem('Fullname', data.Fullname);
-                    localStorage.setItem('userID', data.UserID);
-                    document.cookie = `token=${data.GeneratedToken}`;
-                    setTimeout(() => {
-                        push('/reports');
-                    }, 2000);
-                }
-            }).catch(error => {
-                // Handle errors
-                console.error(error);
-            });
+            if(data.status === 200){
+                setValidCredentials(true);
+                setMessage('User found. Signing in.')
+                setShowMessage(true);
+
+                localStorage.setItem('Fullname', data.fullname);
+                localStorage.setItem('userID', data.userID);
+
+                setTimeout(() => {
+                    push('/reports');
+                }, 2000);
+            }else{
+                setValidCredentials(false);
+                setMessage('Invalid Credentials')
+                setShowMessage(true);
+                setTimeout(() => {
+                    setShowMessage(false);
+                }, 2000);
+            }
         } catch (error) {
             setError('An error occurred. Please try again later.');
         }

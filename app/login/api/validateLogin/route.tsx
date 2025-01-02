@@ -1,4 +1,5 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
     const bodyText = await new Response(request.body).text();
@@ -13,5 +14,19 @@ export async function POST(request: NextRequest) {
         body: bodyText,
     })
 
-    return res;
+    if(res.ok){
+        const obj = await res.json();
+        cookies().set('token', obj.GeneratedToken);
+        return NextResponse.json({
+            status:res.status,
+            fullname: obj.Fullname,
+            userID: obj.UserID,
+        });
+    }else{
+        return NextResponse.json({
+            status:res.status,
+            fullname: undefined,
+            userID: undefined,
+        });
+    }
 }
