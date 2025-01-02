@@ -1,39 +1,13 @@
-import { Card, Divider, Skeleton, Spacer } from "@nextui-org/react";
-import { Button } from "@nextui-org/button";
+import { Divider, Spacer } from "@nextui-org/react";
 import ViewFilteredInvoices from "@/app/reports/filterPaidInvoices/ViewFilteredInvoices";
 import React from "react";
-import { FaFileExcel, FaFileInvoiceDollar } from "react-icons/fa";
 import { LuFolderSearch } from "react-icons/lu";
-import { AiOutlineFileExcel } from "react-icons/ai";
 import { BsFileEarmarkExcel } from "react-icons/bs";
 import {Image} from "@nextui-org/image";
-import { usePathname } from "next/navigation";
-import TestFile1 from "@/app/reports/filterPaidInvoices/backup/testFile1";
 import * as XLSX from "xlsx";
 
 export default function FilterPaidInvoicesMainContent() {
-    // const [currentFile, setCurrentFile] = React.useState<File | any>(null);
     const [invoiceData, setInvoiceData] = React.useState([]);
-
-
-    // const onFileSelectedHandler = ( ) =>{
-    //     const fileNameSelected = document.getElementById("toFilterPaidInvoices");
-    //     if(fileNameSelected !== null){
-    //         // @ts-ignore
-    //         if(fileNameSelected.files[0] !== undefined){// @ts-ignore
-    //             setCurrentFile(fileNameSelected.files[0])
-    //             const fileSelected = document.getElementById("fileSelected");
-    //             // @ts-ignore
-    //             fileSelected.hidden = false;
-    //             const filterPaidInvoicesBtn = document.getElementById("filterPaidInvoicesBtn");
-    //             // @ts-ignore
-    //             filterPaidInvoicesBtn.hidden = false;
-    //             const selectedFileName = document.getElementById('selectedFileName');
-    //             // @ts-ignore
-    //             selectedFileName.textContent = fileNameSelected.files[0].name;
-    //         }
-    //     }
-    // }
 
     function addDays(date:Date, days:number) {
         const newDate = new Date(date);
@@ -79,25 +53,6 @@ export default function FilterPaidInvoicesMainContent() {
 
         return (`${year}-${monthStr}-${dayStr}`)
     }
-
-    // const onFileSelectedHandlerOLD = ( ) =>{
-    //     const fileNameSelected = document.getElementById("toFilterPaidInvoices");
-    //     if(fileNameSelected !== null){
-    //         // @ts-ignore
-    //         if(fileNameSelected.files[0] !== undefined){// @ts-ignore
-    //             setCurrentFile(fileNameSelected.files[0])
-    //             const fileSelected = document.getElementById("fileSelected");
-    //             // @ts-ignore
-    //             fileSelected.hidden = false;
-    //             const filterPaidInvoicesBtn = document.getElementById("filterPaidInvoicesBtn");
-    //             // @ts-ignore
-    //             filterPaidInvoicesBtn.hidden = false;
-    //             const selectedFileName = document.getElementById('selectedFileName');
-    //             // @ts-ignore
-    //             selectedFileName.textContent = fileNameSelected.files[0].name;
-    //         }
-    //     }
-    // }
 
     const onFileSelectedHandler = (e: { target: { files: any[]; }; }) =>{
         const file = e.target.files[0];
@@ -165,7 +120,6 @@ export default function FilterPaidInvoicesMainContent() {
                 <span className={"text-medium"}>Generating Commission Reports require a list of paid invoices
                     data that need to be saved to our database.</span>
                 <br />
-                {/*<Spacer y={2}/>*/}
                 <span>To begin, browse and select the spreadsheet file that contains a list of paid invoices.</span>
                 <br />
                 <Spacer y={2} />
@@ -216,21 +170,12 @@ export default function FilterPaidInvoicesMainContent() {
                         <span id={"selectedFileName"}
                               className={"dark:bg-[#2b2d30] bg-gray-200 p-1 pl-2 pr-2 rounded"}></span>
                     </div>
-
                 </div>
             </div>
-                {}
             <div id={"filterPaidInvoicesBtn"} hidden={true}>
                 <ViewFilteredInvoices parsedSelectedFile={invoiceData} />
             </div>
             </div>
         </main>
     );
-
-    // return(
-    //     <>
-    //
-    //         <TestFile1/>
-    //     </>
-    // );
 }

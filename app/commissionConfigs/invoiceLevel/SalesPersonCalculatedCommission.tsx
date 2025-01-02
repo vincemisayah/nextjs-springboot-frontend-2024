@@ -144,7 +144,7 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                     <div ref={divRef} id={"taskNote#" + employeeID + "#taskId#" + taskID} hidden={true}>
                                         <div
                                             className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded-lg border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
-                                            <textarea
+                                            <textarea readOnly={true}
                                                 id={"textAreaTaskNote#" + employeeID + "#taskId#" + taskID}
                                                 className={"max-h-[120px] text-[10pt] dark:bg-[#27272a] rounded-lg border-small border-default-200 dark:border-default-100 p-2"}
                                                 defaultValue={calculatedCommissionInfo.taskRateNote}
@@ -180,7 +180,7 @@ const SalesPersonCalculatedCommission = ({customerID, invoiceID, taskID, orderNu
                                          hidden={true}>
                                         <div
                                             className={"bg-[#f4f4f5] dark:bg-[#4a4a50] absolute mt-3 z-10 rounded-lg border-small border-default-200 dark:border-default-100 p-1 shadow-xl"}>
-                                            <textarea
+                                            <textarea readOnly={true}
                                                 id={"textAreaSalesNote#" + employeeID + "#taskId#" + taskID}
                                                 className={"max-h-[120px] text-[10pt] dark:bg-[#27272a] rounded border-small border-default-200 dark:border-default-100 p-2"}
                                                 defaultValue={calculatedCommissionInfo.salesPersonAssignedRateNote}
