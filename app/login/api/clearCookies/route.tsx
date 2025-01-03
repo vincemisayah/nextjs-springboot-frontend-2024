@@ -10,8 +10,6 @@ export async function POST(request: NextRequest) {
         cookiesList.delete(cookies.name)
     })
 
-    console.log('cookie size: ', cookiesList.size)
-
     if(cookiesList.size === undefined || cookiesList.size < 1){
         return NextResponse.json({
             status:200,
