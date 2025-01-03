@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
 import {
@@ -36,8 +36,7 @@ import { GoHorizontalRule, GoPlus } from "react-icons/go";
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
-    const router = useRouter();
-    const [loggedIn, setLoggedIn] = useState(3667);
+    const [loggedIn, setLoggedIn] = useState(-1);
     const [startFetching, setStartFetching] = useState(false);
     const [startFetchingTaskItems, setStartFetchingTaskItems] = useState(false);
 
@@ -45,16 +44,21 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [arNumber, setArNumber] = useState("");
     const [customerId, setCustomerId] = useState(-1);
     const [customerName, setCustomerName] = useState("");
-    const [selectedTaskItems] = useState([]);
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [salesPersonList, setSalesPersonList] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set(["text"]));
-    const selectedValue = React.useMemo(
-        () => Array.from(selectedKeys).join(", "),
-        [selectedKeys]
-    );
+    const [searchCustomerVisible, setSearchCustomerVisible] = useState(true);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined'){
+            const userID = Number(localStorage.getItem("userID"));
+            if(userID !== null)
+                setLoggedIn(userID);
+        }
+    });
+
+    const searchCustomerRef = useRef(null);
 
     const handleClick = (arNumber: string, customerId: number, customerName: string, salesPersonList: string[]) => {
         setStartFetchingTaskItems(true);
@@ -63,6 +67,18 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         setCustomerName(customerName);
         // @ts-ignore
         setSalesPersonList(salesPersonList);
+
+        if(searchCustomerRef.current !== null){
+            const targetDiv = searchCustomerRef.current; // @ts-ignore
+
+            if(!targetDiv.hidden) // @ts-ignore
+                targetDiv.hidden = true;
+            else // @ts-ignore
+                targetDiv.hidden = false;
+            // @ts-ignore
+            setSearchCustomerVisible(targetDiv.hidden);
+        }
+
     };
 
     const handleChange = (e: any) => {
@@ -74,7 +90,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     // @ts-ignore
     const SearchResults = ({ url, keyword }) => {
         const { data, error } = useSWR(
-            `${url + keyword}`,
+            `${url}?arNumber=${keyword}`,
             fetcher
         );
 
@@ -148,24 +164,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         );
     };
 
-    const CollectSelectedTaskItems = () => {
-        console.log("CollectSelectedTaskItems . . . ");
-        const rows = document.getElementsByClassName("taskRow");
-
-        if (selectedTaskItems.length > 0) {
-            selectedTaskItems.splice(0, selectedTaskItems.length);
-        }
-        for (let i = 0; i < rows.length; i++) {
-            if (rows[i].getAttribute("aria-selected") === "true") {
-                // @ts-ignore
-                selectedTaskItems.push(rows[i].id);
-            }
-        }
-        onOpen( );
-    };
-
-
-
     // @ts-ignore
     const ToolsModule = ({ deptID }) => {
         const postData = async (data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
@@ -184,44 +182,40 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                 // @ts-ignore
                 spinner.textContent = 'Saving changes . . . '
-                const response = await fetch('http://localhost:1118/invoiceCommissionService/customerlevel/saveCustomerLevelConfig',{
+
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/saveCustomerLevelConfig`,{
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data),
                 })
 
-                // "spinnerDeptId#" + deptID
                 if(200 <= response.status || response.status < 300){
                     // @ts-ignore
                     saveBtn.hidden = false;
+                    // @ts-ignore
                     spinnerDiv.hidden = true;
+                    // @ts-ignore
                     spinner.style.color = '#19b9d4'
+                    // @ts-ignore
                     spinner.textContent = 'Success!'
 
-                    setTimeout(() => {
-                        spinner.style.color = 'grey'
-                        spinner.textContent = ''
+                    setTimeout(() => { // @ts-ignore
+                        spinner.style.color = 'grey' // @ts-ignore
+                        spinner.textContent = '' // @ts-ignore
                     }, "1500");
 
                     // router.refresh();
                     break;
-                }else{
+                }else{ // @ts-ignore
                     saveBtn.hidden = false;
-                    // setIsSaving(false);
-                    alert('Failed to save changes. Server response status: ' + response.status)
+                    alert('Failed to save changes. Server response status: ' + response.status) // @ts-ignore
                     spinner.textContent = 'Save attempt failed'
-                    // @ts-ignore
-                    setTimeout(() => {
-                        spinnerDiv.hidden = true;
+                    setTimeout(() => {  // @ts-ignore
+                        spinnerDiv.hidden = true; // @ts-ignore
                     }, "1500");
-                    // router.refresh();
                     break;
                 }
             }
-
-            // 'spinnerDivDeptId#' + deptID
-
-            // router.refresh();
         }
 
         const saveChanges = () =>{
@@ -229,6 +223,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
             const collectionOfRows = document.getElementsByClassName("taskRowDeptId#" + deptID);
             const rows = Array.from(collectionOfRows);
+
             rows.forEach((row: any, index: any) => {
                 const tdChildren = Array.from(row.children);
 
@@ -244,7 +239,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
 
                 const TASK_COMM_RATE_COLUMN_INDEX = 2;
-                for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length; i++) {
+                for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length-1; i++) {
+
                     // @ts-ignore
                     const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
 
@@ -334,7 +330,7 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         }
 
         return (
-            <>
+            <div>
                 <Accordion motionProps={{
                     variants: {
                         enter: {
@@ -430,30 +426,19 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                     </div>
 
                                 </div>
-
-                                {/*<div className={"m-auto"}>*/}
-                                {/*    <div id={"spinnerDivDeptId#" + deptID} hidden={true}>*/}
-                                {/*    <Spinner color="default" />*/}
-                                {/*    </div>*/}
-                                {/*<div>*/}
-                                {/*<span id={"spinnerDeptId#" + deptID}*/}
-                                {/*      className={"text-[16pt] font-medium select-none text-[gray]"}></span>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
-
                             </div>
                         </div>
                     </AccordionItem>
                 </Accordion>
 
 
-            </>
+            </div>
         );
     };
 
     const InvoiceTaskItems = (arg: { arNumber: string }) => {
         const { data, error } = useSWR(
-            "http://localhost:1118/invoiceCommissionService/customerlevel/invoiceDepartmentList",
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/invoiceDepartmentList`,
             fetcher
         );
 
@@ -464,17 +449,17 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         // @ts-ignore
         const DepartmentInvoiceTaskItems = ({ deptId }) => {
             const { data, error } = useSWR(
-                "http://localhost:1118/invoiceCommissionService/customerlevel/invoiceTaskItemListByDeptId?deptId=" + deptId,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/invoiceTaskItemListByDeptId?deptId=${deptId}`,
                 fetcher
             );
 
             const { data: taskRates, error: taskRatesError } = useSWR(
-                "http://localhost:1118/invoiceCommissionService/customerlevel/taskCommissionRates?customerID=" + customerId,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/taskCommissionRates?customerId=${customerId}`,
                 fetcher
             );
 
             const { data: empAssignedRates, error: empAssignedRatesError } = useSWR(
-                "http://localhost:1118/invoiceCommissionService/customerlevel/employeeAssignedRates?customerID=" + customerId,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/employeeAssignedRates?customerId=${customerId}`,
                 fetcher
             );
 
@@ -551,19 +536,134 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                 }
             }
 
+            const postDataSingleRow = async (deptID:any, data: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[])=>{
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/customerLevel/api/saveCustomerLevelConfig`,{
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data),
+                })
+
+                if(200 <= response.status || response.status < 300){
+                    return true;
+                }else{ // @ts-ignore
+                    return false;
+                }
+            }
+
+            const saveSingleRowEdit = (deptId:any, rowIndex:any, tableRowId:any) =>{
+                let arrayRateInfos: { taskId: undefined; taskRate: undefined; salesAssignedRates: never[]; }[] = [];
+                const collectionOfRows = document.getElementsByClassName(tableRowId);
+                const rows = Array.from(collectionOfRows);
+
+                rows.forEach((row: any, index: any) => {
+                    if(index === rowIndex){
+                        const tdChildren = Array.from(row.children);
+
+                        const rateInfo = {
+                            customerID: customerId,
+                            taskId: undefined,
+                            taskRate:undefined,
+                            taskNote:undefined,
+                            lastEditBy: loggedIn,
+                            salesAssignedRates:[]
+                        };
+
+
+
+                        const TASK_COMM_RATE_COLUMN_INDEX = 2;
+                        for(let i = TASK_COMM_RATE_COLUMN_INDEX; i < tdChildren.length-1; i++) {
+                            // @ts-ignore
+                            const taskCommRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+
+                            if(i === TASK_COMM_RATE_COLUMN_INDEX){
+                                // @ts-ignore
+                                const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
+                                // @ts-ignore
+                                rateInfo.taskId = inputID.split('#').at(inputID.split('#').length - 1);
+                                // @ts-ignore
+                                rateInfo.taskRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+                                const taskRateNote = document.getElementById("textAreaTaskNote#" + rateInfo.taskId);
+                                // @ts-ignore
+                                rateInfo.taskNote = taskRateNote.value;
+                            }
+
+                            if(i > TASK_COMM_RATE_COLUMN_INDEX){
+                                const salesPerson = {
+                                    empId: undefined,
+                                    assignedRate: undefined,
+                                    salesNote: undefined
+                                }
+
+                                // @ts-ignore
+                                const inputID = Array.from(tdChildren[i].getElementsByTagName("input"))[0].id;
+                                salesPerson.empId = inputID.split('#').at(inputID.split('#').length - 1)
+                                // @ts-ignore
+                                salesPerson.assignedRate = Array.from(tdChildren[i].getElementsByTagName("input"))[0].value;
+
+                                const salesNote = document.getElementById("textAreaSalesNote#" + salesPerson.empId + "#taskId#" + rateInfo.taskId);
+                                // @ts-ignore
+                                salesPerson.salesNote = salesNote.value;
+
+                                // @ts-ignore
+                                rateInfo.salesAssignedRates.push(salesPerson)
+                            }
+                        }
+
+                        if(rateInfo.taskRate !== undefined && rateInfo.taskRate !== ''){
+                            arrayRateInfos.push(rateInfo);
+                        }
+                    }
+
+                })
+
+                if(arrayRateInfos.length > 0){
+                    const button = document.getElementById(`index#${rowIndex}#${tableRowId}#btn`); // @ts-ignore
+                    button.disabled = true;
+
+                    const buttonSave = document.getElementById(`index#${rowIndex}#${tableRowId}`);
+                    // @ts-ignore
+                    buttonSave.textContent = 'Saving';
+                    // @ts-ignore
+                    if(postDataSingleRow(deptId, arrayRateInfos)){
+                        setTimeout(() => { // @ts-ignore
+                            buttonSave.textContent = 'Success';
+                            setTimeout(() => { // @ts-ignore
+                                buttonSave.textContent = 'Save'; // @ts-ignore
+                                button.disabled = false;
+                            }, 2000);
+                        }, 1000);
+
+
+                    }else{
+                        setTimeout(() => { // @ts-ignore
+                            buttonSave.textContent = 'Failed';
+                            setTimeout(() => { // @ts-ignore
+                                buttonSave.textContent = 'Save'; // @ts-ignore
+                                button.disabled = false;
+                            }, 2000);
+                        }, 1000);
+                    }
+                    // buttonSave.textContent = 'Save';
+                }
+
+            }
+
+
+            // @ts-ignore
             return (
                 <div className={"shadow-sm p-3"}>
                     <ToolsModule deptID={deptId} />
                     <Spacer y={5} />
-                    <Table removeWrapper selectionMode={"none"} id={'tableInvoiceTaskItemsDeptId#' + deptId}>
+                    <Table removeWrapper selectionMode={"none"} id={"tableInvoiceTaskItemsDeptId#" + deptId}>
                         <TableHeader>
                             <TableColumn>Task Name</TableColumn>
-                            <TableColumn>Description</TableColumn>
-                            <TableColumn>Task Comm. Rate</TableColumn>
+                            <TableColumn>Description</TableColumn>{/*@ts-ignore*/}
+                            <TableColumn>Task Comm. Rate</TableColumn>{/*@ts-ignore*/}
                             {/*@ts-ignore*/}
                             {salesPersonList.map((name: any, index: any) => (
                                 <TableColumn key={index}>{name.lastNameFirstName}</TableColumn>
                             ))}
+                            <TableColumn>{''}</TableColumn>
                         </TableHeader>
                         <TableBody>
                             {data?.map((object: any, index: React.Key | null) => (
@@ -594,6 +694,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                 </PopoverContent>
                                             </Popover>
                                             <Spacer x={1} />
+                                            {/*@ts-ignore*/}
+                                            <span className={'mr-2'}>{index+1}.</span>
                                             {object.taskName}
                                         </div>
 
@@ -632,7 +734,8 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                                                 </textarea>
                                             </div>
                                         </div>
-                                    </TableCell>
+                                    {/*@ts-ignore*/}
+                                    </TableCell>{/*@ts-ignore*/}
                                     {/*@ts-ignore*/}
                                     {salesPersonList.map((sales: any, index: any) => (
                                         <TableCell
@@ -673,6 +776,18 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
 
                                         </TableCell>
                                     ))}
+
+                                    {/*@ts-ignore*/}
+                                    <TableCell>
+                                        <button id={`index#${index}#taskRowDeptId#${deptId}#btn`}
+                                            onClick={()=>saveSingleRowEdit(deptId, index,`taskRowDeptId#${deptId}`)}
+                                            className={'dark:bg-[#27272a] dark:hover:bg-[#1e2122] bg-[#f4f4f5] hover:bg-[#e7e7e9] ' +
+                                            'text-[9pt] border-small px-3 py-1 rounded-small border-default-200 dark:border-default-100'}>
+                                            <span id={`index#${index}#taskRowDeptId#${deptId}`}>
+                                                Save
+                                            </span>
+                                        </button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -681,16 +796,38 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
             );
         };
 
+        const showSearchCustomer = ( ) =>{
+            if(searchCustomerRef.current !== null){
+                const targetDiv = searchCustomerRef.current; // @ts-ignore
+
+                if(!targetDiv.hidden) // @ts-ignore
+                    targetDiv.hidden = true;
+                else // @ts-ignore
+                    targetDiv.hidden = false; // @ts-ignore
+                setSearchCustomerVisible(targetDiv.hidden);
+            }
+        }
+
         const ViewSelectedCustomer = () => {
 
             return (
                 <>
+                    {searchCustomerVisible?(
+                        <>
+                            <button onClick={showSearchCustomer}
+                                    className={"border-small p-0.5 px-4 border-default-200 dark:border-default-100 rounded mb-3.5"}>Select
+                                different customer
+                            </button>
+                        </>
+                    ) : null}
+
+                    <br />
                     <span className={"pb-5 text-lg"}>
                         This configuration will apply to the following customer and its assigned sales people
                     </span>
                     <Spacer y={3}/>
-                    <div className={"mb-5"}>
-                        <Table aria-label="Example static collection table">
+                    <div className={"mb-5 border-small px-1 py-2 border-default-200 dark:border-default-100 "}>
+                        <Table shadow={"none"} fullWidth={true} radius={'none'} isCompact={true}>
                             <TableHeader>
                                 <TableColumn>AR Number</TableColumn>
                                 <TableColumn>Customer ID</TableColumn>
@@ -726,15 +863,15 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
         };
 
         return (
-            <>
+            <div>
                 <ViewSelectedCustomer />
                 <div className={"pb-5"}>
                     <span className={"text-lg"}>
                         Select the invoice department to view and configure their associated invoice task items
                     </span>
                 </div>
-                <div className="task-dept-container flex flex-col">
-                    <Accordion selectionMode="multiple" isCompact className={"w-full bg-[#fefdff] dark:bg-[#18181b]"}>
+                <div className={"flex flex-col"}>
+                    <Accordion selectionMode="multiple" isCompact className={"w-full dark:bg-[#18181b] bg-[#fefdff]"}>
                         {data?.map((object: any, index: React.Key | null | undefined) => (
                             <AccordionItem key={index} aria-label="Accordion 1"
                                            title={<span
@@ -743,29 +880,16 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                             </AccordionItem>))}
                     </Accordion>
                 </div>
-            </>
-        );
-    };
-
-    function StickyDisplaySelectedTaskItems() {
-        return (
-            <div
-                className="w-full min-w-fit max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 h-fit sticky top-40">
-                <Listbox className={"w-[100px]"}>
-                    {selectedTaskItems.map((object, index) => (
-                        <ListboxItem key={index}>{object}</ListboxItem>
-                    ))}
-                </Listbox>
-                <Button onClick={CollectSelectedTaskItems}>Assign Commission Rates</Button>
             </div>
         );
-    }
+    };
 
     // @ts-ignore
     return (
         <>
-            <div className="flex mx-auto">
-                <div className={"space-y-4 p-5 shadow-md h-fit rounded-small border-small border-default-200 dark:border-default-100 h-fit sticky top-24"}>
+            <div className={"flex gap-5"}>
+                <div hidden={false} ref={searchCustomerRef}
+                    className={"space-y-4 p-5 shadow-md h-fit rounded-small border-small border-default-200 dark:border-default-100 h-fit sticky top-24"}>
                     <span>Search the customer by their AR number and click the customer you want to configure</span>
                     <Spacer y={1} />
                     <input
@@ -775,11 +899,11 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
                         value={searchTerm}
                         onChange={handleChange}
                         id="series" />{" "}
-                    <br/>
+                    <br />
                     {startFetching && <SearchResults keyword={searchTerm} url={props.url} />}
                 </div>
-                <Spacer x={14} />
-                <div className={"rounded-small border-small border-default-200 dark:border-default-100 p-5 shadow-md"}>
+                {/*className={"rounded-small border-small border-default-200 dark:border-default-100 p-5 bg-red-400"}*/}
+                <div>
                     {startFetchingTaskItems && <InvoiceTaskItems arNumber={arNumber} />}
                 </div>
             </div>

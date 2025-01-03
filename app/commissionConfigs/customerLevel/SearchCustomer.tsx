@@ -81,8 +81,6 @@ const SearchCustomer = (props: { url: any; }) => {
             fetcher
         );
 
-        console.log("InvoiceTaskItems data = ", data);
-
         if (error) return <div>failed to load</div>;
         if (!data) return <div>loading...</div>;
         if (!data[0]) return <div>not found</div>;

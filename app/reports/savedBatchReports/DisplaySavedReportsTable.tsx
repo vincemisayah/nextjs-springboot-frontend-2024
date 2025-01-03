@@ -13,21 +13,13 @@ const DisplaySavedReportsTable = ({SavedBatchReports, Month}:any)=>{
     }
 
     const downloadReport = async (date:string) => {
-        await fetch("http://localhost:1118/invoiceCommissionService/report/v1/download/batchReport/" + date,{
+        const data = new URLSearchParams();
+        data.set("passedDate", date);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/savedBatchReports/api/downloadCommissionReport?date=${date}`,{
             method: 'POST',
-            body: null,
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            openResponseInNewTab(response);
-        })
-            .then(data => {
-
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
+            body: data,
+        });
+        openResponseInNewTab(response);
     }
 
     return (
@@ -42,7 +34,7 @@ const DisplaySavedReportsTable = ({SavedBatchReports, Month}:any)=>{
                     </tr>
                     </thead>
                     <tbody>
-                    {SavedBatchReports[Month].map((item, index) => (
+                    {SavedBatchReports[Month].map((item:any, index:number) => (
                         <tr key={index}>
                             {item.fileName.length > 0 ? (
                                 <td className={"border-b-small border-default-200 dark:border-default-100 " +
@@ -65,7 +57,8 @@ const DisplaySavedReportsTable = ({SavedBatchReports, Month}:any)=>{
                                     "dark:bg-cyan-900 dark:text-cyan-500"}>
                                     <div className={'flex items-center space-x-2 ml-5 my-1'}>
                                         <FaFileDownload className={"text-cyan-500"} />
-                                        <span onClick={() => downloadReport(item.dateStr)}
+                                        <span
+                                            onClick={() => downloadReport(item.dateStr)}
                                               className={"text-cyan-500"}>
                                                                     {item.fileName}</span>
                                     </div>
@@ -74,7 +67,8 @@ const DisplaySavedReportsTable = ({SavedBatchReports, Month}:any)=>{
                                 <td className={"border-b-small border-default-200 dark:border-default-100  " +
                                     "w-[250] text-center"}>
                                     <div className={"flex items-center space-x-2 p-1.5"}>
-                                        <span onClick={() => downloadReport(item.dateStr)}
+                                        <span
+                                            // onClick={() => downloadReport(item.dateStr)}
                                               className={"text-cyan-500"}>
                                                                     {item.fileName}</span>
                                     </div>

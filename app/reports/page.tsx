@@ -11,7 +11,7 @@ import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { useState } from "react";
 
 const ListboxWrapper = ({children}:any) => (
-    <div className="w-full max-w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
+    <div className="w-full max-w-[260px] px-1 py-2 rounded-small border-default-200 dark:border-default-100">
         {children}
     </div>
 );
@@ -22,7 +22,6 @@ export default function BlogPage() {
     const [hideMainContent3, setHideMainContent3] = useState(true);
 
     const ShowContent = (key:any) =>{
-        console.log("ShowContent key = ", key);
         setHideMainContent1(true);
         setHideMainContent2(true);
         setHideMainContent3(true);

@@ -10,7 +10,7 @@ const SearchInvoice = ({onInvoiceIdChange}:any) =>{
 
     // @ts-ignore
     const { data: searchResult, error: searchResultError } = useSWR(searchInput > 0?
-            "http://localhost:1118/invoiceCommissionService/invoiceLevel/searchInvoiceById?invoiceID=" + searchInput:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/searchInvoiceById?searchInput=${searchInput}`:null,
         fetcher
     );
 
@@ -23,15 +23,11 @@ const SearchInvoice = ({onInvoiceIdChange}:any) =>{
 
     return(
         <>
-            {/*<div>*/}
-                Search Invoice
-                <Spacer y={1}/>
-                <input className={'text-center bg-gray-200 dark:bg-gray-700 dark:border-gray-300'}
-                    placeholder={208072}
-                    type={'number'}
-                    onChange={(e) => setSearchInput(e.target.value)}/>
-                {/*<br/>*/}
-            {/*</div>*/}
+            <span>Search Invoice</span>
+            <Spacer y={1}/>
+            <input className={'text-center bg-gray-200 dark:bg-gray-700 dark:border-gray-300'}
+                type={'number'}
+                onChange={(e) => setSearchInput(e.target.value)}/>
             <Spacer y={4}/>
             <div className={"m-auto w-[30vw] max-h-[50vh] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 overflow-y-auto"}>
                 <Table removeWrapper={true}
@@ -48,7 +44,7 @@ const SearchInvoice = ({onInvoiceIdChange}:any) =>{
                         <TableColumn>Job ID</TableColumn>
                     </TableHeader>
                     <TableBody>
-                        {searchResult !== undefined && searchResult.length > 0? searchResult.map((obj:Object, index:any)=>(
+                        {searchResult !== undefined && searchResult.length > 0? searchResult.map((obj:any, index:any)=>(
                                 <TableRow key={index}
                                           onClick={()=>clickHandler(obj.invoiceID)}
                                           className={'hover:cursor-pointer'}>
@@ -57,7 +53,6 @@ const SearchInvoice = ({onInvoiceIdChange}:any) =>{
                                     <TableCell>{obj.jobID}</TableCell>
                                 </TableRow>
                         )) : null}
-
                     </TableBody>
                 </Table>
             </div>

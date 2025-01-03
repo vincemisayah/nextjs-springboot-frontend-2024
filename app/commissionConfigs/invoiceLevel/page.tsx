@@ -6,13 +6,10 @@ import DisplayInvoice from "@/app/commissionConfigs/invoiceLevel/DisplayInvoice"
 export default function CustomerLevelPage(){
     return(
         <section>
-            {/*<h1>Invoice Level</h1>*/}
             <main>
-                <div className={'flex'}>
+                <div>
                     <InvoiceLevelContent/>
-                    {/*<DisplayInvoice invoiceNumber={123}/>*/}
                 </div>
-
             </main>
         </section>
     );

@@ -10,11 +10,7 @@ import DisplaySavedReportsTable from "@/app/reports/savedBatchReports/DisplaySav
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 export default function SavedBatchReports() {
-    const getCurrentYear = () => {
-        return new Date( ).getFullYear();
-    }
-
-    const { data: savedBatchReports, error: savedBatchReportsError } = useSWR("http://localhost:1118/invoiceCommissionService/report/v1/savedBatchReports/" + getCurrentYear( ),
+    const { data: savedBatchReports, error: savedBatchReportsError } = useSWR(`${process.env.NEXT_PUBLIC_BASE_URL}/reports/savedBatchReports/api/commissionReports`,
         fetcher
     );
 
@@ -24,7 +20,7 @@ export default function SavedBatchReports() {
         <main>
             <div>
                 <div className={'pb-3'}>
-                    <span className={'font-semibold text-lg'}>{getCurrentYear( )} Saved Commission Batch Reports</span>
+                    <span className={'font-semibold text-lg'}>{process.env.NEXT_PUBLIC_BATCH_REPORT_YEAR} Saved Commission Batch Reports</span>
                 </div>
                 <div className="flex flex-col gap-y-4">
                     {savedBatchReports !== undefined? (

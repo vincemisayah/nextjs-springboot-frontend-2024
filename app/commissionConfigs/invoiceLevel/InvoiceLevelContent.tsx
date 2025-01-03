@@ -1,10 +1,6 @@
 'use client'
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useState } from "react";
 import DisplayInvoice from "@/app/commissionConfigs/invoiceLevel/DisplayInvoice";
-import { FaMagnifyingGlass } from "react-icons/fa6";
-import { Spacer } from "@nextui-org/react";
-import { Button } from "@nextui-org/button";
-import ShowSearchResults from "@/app/commissionConfigs/invoiceLevel/ShowSearchResults";
 import SearchInvoice from "@/app/commissionConfigs/invoiceLevel/SearchInvoice";
 
 
@@ -17,16 +13,20 @@ const InvoiceLevelContent = () => {
             changeInvoiceBtn.hidden = false;
         }
         setTargetInvoiceNumber(newInvoiceID);
+        const displayInvoiceContainer = document.getElementById('displayInvoiceContainer');
+        // @ts-ignore
+        displayInvoiceContainer.hidden = false;
     };
 
     return (
         <>
-            <div className={'flex gap-4'}>
+            <div className={'flex flex-row gap-5 bg'}>
                 <div id={'searchInvoiceContainer'}
-                     className={'border-1 h-fit rounded shadow-md text-center p-3 w-[100%]'}>
-                    <SearchInvoice onInvoiceIdChange={handleNameChange}/>
+                     className={'m-auto text-center border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 pr-5'}>
+                    <SearchInvoice onInvoiceIdChange={handleNameChange} />
                 </div>
-                <div>
+                <div id={'displayInvoiceContainer'}
+                     className={'m-auto'}>
                     <DisplayInvoice invoiceNumber={targetInvoiceNumber} />
                 </div>
             </div>

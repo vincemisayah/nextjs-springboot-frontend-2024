@@ -1,23 +1,29 @@
 'use client'
 
-import { Popover, PopoverContent, PopoverTrigger, Spinner, Switch } from "@nextui-org/react";
+import { Popover, PopoverContent, PopoverTrigger, Spinner } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Button } from "@nextui-org/button";
 import { IoInformationCircleSharp } from "react-icons/io5";
+import {Switch} from "@nextui-org/react";
 
 // @ts-ignore
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 // @ts-ignore
 const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
-    const [loggedIn, setLoggedIn] = useState(3667);
+    const [loggedIn, setLoggedIn] = useState(-1);
     const [isSelected, setIsSelected] = React.useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
+    useEffect(() => {
+        const userID = Number(localStorage.getItem("userID"));
+        if(userID !== null)
+            setLoggedIn(userID);
+    }, [localStorage.getItem("userID")]);
+
     const { data: invoiceTaskRateInfo, data:invoiceTaskRateInfoError } = useSWR(invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceTaskRateInfo?invoiceID=" + invoiceNumber +
-            "&taskID="+taskItem.taskID:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceTaskRateInfo?invoiceID=${invoiceNumber}&taskID=${taskItem.taskID}`:null,
         fetcher
     );
 
@@ -51,13 +57,14 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
             const empRateInfo = {
                 empID: empId,
                 salesRate: empRate,
-                note:'test note for employee'
+                note:''
             }
             // @ts-ignore
             OBJ_TO_SAVE.empRates.push(empRateInfo);
         });
         setIsSaving(true);
-        const response = await fetch("http://localhost:1118/invoiceCommissionService/invoiceLevel/saveInvoiceTaskConfig", {
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/saveInvoiceTaskConfig`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(OBJ_TO_SAVE)
@@ -95,11 +102,6 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
                     color={'default'}
                     defaultSelected={invoiceTaskRateInfo.active}
                     onValueChange={setIsSelected}
-
-                    // onChange={(isSelected)=>{
-                    //     console.log("val = ", isSelected.target.checked);
-                    //     updateInvoiceLevelConfigStatus(isSelected.target.checked);
-                    // }}
                 />
                 <Button onPress={updateInvoiceLevelConfigStatus}
                     size={'sm'}>
@@ -125,6 +127,7 @@ const EnableDisableConfig = ({customerId, invoiceNumber, taskItem})=>{
                             : (<p>Save</p>)}
                     </span>
             </Button>
+            {/*<Switch defaultSelected aria-label="Automatic updates" />*/}
         </div>
     )
 }

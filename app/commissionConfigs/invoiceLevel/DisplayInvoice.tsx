@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { Accordion, Divider, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import {
+    Accordion,
+    Divider,
+    Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow
+} from "@nextui-org/react";
 import { AccordionItem } from "@nextui-org/accordion";
 import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
@@ -17,31 +27,30 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
     const [selectedTaskId, setSelectedTaskId] = useState(-1);
     const [customerInfo, setCustomerInfo] = useState([]);
 
+//  `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/searchInvoiceById?searchInput=${searchInput}`:null,
     const { data: invoiceChargedItems, error: invoiceChargedItemsError } = useSWR(props.invoiceNumber > 0?
-        "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceChargedTaskItems?invoiceId=" + props.invoiceNumber:null,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceChargedTaskItems?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
     // http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=208072
     const { data: customerJobInfo, error: customerJobInfoError } = useSWR(props.invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/customerAndJobInfo?invoiceId=" + props.invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/customerAndJobInfo?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
     const { data: customerInfoWithSalesEmployeeList, error: customerInfoWithSalesEmployeeListError } = useSWR(props.invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/customerlevel/customerInfo?invoiceId=" + props.invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/customerInfo?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
     // http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceDistinctTaskItems?invoiceID=208072
     const { data: distinctInvoiceTaskItems, error: distinctInvoiceTaskItemsError } = useSWR(props.invoiceNumber > 0?
-            "http://localhost:1118/invoiceCommissionService/invoiceLevel/invoiceDistinctTaskItems?invoiceID=" + props.invoiceNumber:null,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/commissionConfigs/invoiceLevel/api/invoiceDistinctTaskItems?invoiceId=${props.invoiceNumber}`:null,
         fetcher
     );
 
     const openModal = (taskId: React.SetStateAction<number>, order: React.SetStateAction<number>) => {
-        console.log("openModal = ",customerInfoWithSalesEmployeeList.salesPersonList);
-        console.log('taskId = ', taskId)
         setSelectedOrder(order);
         setSelectedTaskId(taskId);
         // salesPersonList
@@ -62,13 +71,31 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
         const changeInvoiceBtn = document.getElementById('changeInvoiceBtn');
         // @ts-ignore
         changeInvoiceBtn.hidden = true;
+
+        const displayInvoiceContainer = document.getElementById('displayInvoiceContainer');
+        // @ts-ignore
+        displayInvoiceContainer.hidden = true;
     }
 
     return(
         <div id={'mainConfigContent'}
-            className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]'}>
+             className={'rounded-small border-small border-default-200 dark:border-default-100 bg-[#f4f4f5] dark:bg-[#222222]'}>
+
+            <div id={'changeInvoiceBtn'} hidden={false} className={'px-4 pt-1.5 text-end'}>
+                <button
+                    onClick={expandInvoiceSelector}
+                    className={'border-small px-3 py-1 mt-1.5 rounded-small ' +
+                        'border-default-200 dark:border-default-100 ' +
+                        'bg-white dark:bg-[#414147] shadow-sm text-gray-500 ' +
+                        'text-md hover:bg-[#e7e7e9] active:bg-[#dadadd] ' +
+                        'dark:text-gray-300 dark:hover:bg-[#3c3c3c] transition ease-in-out duration-100'}
+                >
+                    Select different invoice
+                </button>
+            </div>
+
             <div
-                className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
+                className={"min-w-[50vw] p-4 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c] bg-white"}>
                 <h1>Customer and Job Details</h1>
                 {(customerJobInfo !== undefined) ? (
                     <>
@@ -88,13 +115,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                         </ul>
                     </>
                 ) : null}
-                <div  id={'changeInvoiceBtn'} hidden={true}>
-                    <Button
-                        onPress={expandInvoiceSelector}
-                        className={'mt-2'} size={'sm'}>
-                        Select different invoice
-                    </Button>
-                </div>
+
 
                 <ModalSalesCommission invoiceId={props.invoiceNumber}
                                       customerJobInfo={customerJobInfo}
@@ -106,18 +127,19 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                                       customerInfo={customerInfo}
                 />
             </div>
-            <div className={"rounded-small dark:border-default-100 bg-[#ffffff] dark:bg-[#222222]"}>
+            <div className={"bg-[#f4f4f5] dark:bg-[#222222]"}>
                 {(customerJobInfo !== undefined) ? (
                     <ShowDistinctInvoiceTaskItems
                         customerId={customerJobInfo.customerID}
                         invoiceNumber={props.invoiceNumber}
                         distinctInvoiceTaskItems={distinctInvoiceTaskItems}
                     />
-                ): null}
+                ) : null}
+
 
             </div>
             <div
-                className={"p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c]"}>
+                className={"p-1.5 m-3 rounded-small border-small border-default-200 dark:border-default-100 dark:bg-[#3c3c3c] bg-white"}>
                 <Table aria-label="Example static collection table" removeWrapper={true} isCompact>
                     <TableHeader>
                         <TableColumn className={"dark:bg-[#222222]"}>Task</TableColumn>
@@ -147,11 +169,7 @@ const DisplayInvoice = (props: { invoiceNumber: number }) =>{
                     </TableBody>
                 </Table>
             </div>
-
-
         </div>
-
-
     )
 }
 export default DisplayInvoice;

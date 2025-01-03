@@ -29,8 +29,8 @@ interface ViewFilteredInvoicesProps {
     selectedFile?: File | any;
 }
 
-const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
-    const [loggedIn, setLoggedIn] = useState(3667);
+const ViewFilteredInvoices = ({ parsedSelectedFile }:any) => {
+    const [loggedIn, setLoggedIn] = useState(-1);
     const [isFetching, setIsFetching] = useState(false);
     const [shortPaidInvoices, setShortPaidInvoices] = useState([]);
     const [fullyPaidInvoices, setFullyPaidInvoices] = useState([]);
@@ -49,6 +49,14 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
     const [failedToSaveFullyPaidInvoices, setFailedToSaveFullyPaidInvoices] = useState([]);
     const [failedToSaveOverPaidInvoices, setFailedToSaveOverPaidInvoices] = useState([]);
 
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const userID = Number(localStorage.getItem("userID"));
+            if(userID !== null)
+                setLoggedIn(userID);
+        }
+    });
+
     const postData = async ( ) =>{
         setShortPaidInvoices([]);
         setFullyPaidInvoices([]);
@@ -60,37 +68,35 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         setFailedToSaveFullyPaidInvoices([])
         setFailedToSaveOverPaidInvoices([]);
 
-        if(selectedFile !== null){
-            let data = new FormData();
-            // @ts-ignore
-            data.append('file', selectedFile);
-            data.append('empIDStr', loggedIn.toString( ));
-
+        if(parsedSelectedFile !== null){
             setIsFetching(true);
+            if(parsedSelectedFile.length > 0){
+                const routeURL = `${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/filterInvoices`
 
-            await fetch('http://localhost:1118/invoiceCommissionService/fileUpload/v1/excelFile/filterPaidInvoices',{
-                method: 'POST',
-                body: data,
-            }).then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); // Assuming the response is JSON
-            })
-                .then(data => {
-                    setIsFetching(false);
-                    console.log(data);
-                    setShortPaidInvoices(data.ShortPaidInvoices);
-                    setFullyPaidInvoices(data.FullyPaidInvoices);
-                    setOverPaidInvoices(data.OverPaidInvoices);
-                    setViewFullyPaidInvoices(data.ViewableFullyPaidInvoices);
-                    setViewShortPaidInvoices(data.ViewableShortPaidInvoices);
-                    setViewOverPaidInvoices(data.ViewableOverPaidInvoices);
-                    setDuplicateInvoices(data.InvoiceDupsFound);
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
+                let data = new URLSearchParams(); // @ts-ignore
+                data.append("empID", loggedIn); // @ts-ignore
+                data.append("invoiceRowData", JSON.stringify(parsedSelectedFile));
+
+                const response = await fetch(routeURL,{
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    method: 'POST',
+                    body: data,
                 });
+                const result = await response.json();
+
+                setIsFetching(false);
+                setShortPaidInvoices(result.ShortPaidInvoices);
+                setFullyPaidInvoices(result.FullyPaidInvoices);
+                setOverPaidInvoices(result.OverPaidInvoices);
+                setViewFullyPaidInvoices(result.ViewableFullyPaidInvoices);
+                setViewShortPaidInvoices(result.ViewableShortPaidInvoices);
+                setViewOverPaidInvoices(result.ViewableOverPaidInvoices);
+                setDuplicateInvoices(result.InvoiceDupsFound);
+            }else{
+                // Nothing to send. Do nothing.
+            }
         }
     }
 
@@ -113,57 +119,49 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
         }
     }
 
-    // const showWarningSaveMsg = (idName:string, second:any) =>{
-    //     const saveMsg = document.getElementById(idName);
-        // if(saveMsg !== null){
-        //     saveMsg.hidden = false;
-        //     setTimeout(() => {
-        //         saveMsg.style.opacity = '100%';
-        //     }, second);
-        // }
-    // }
-
     const saveInvoiceData = async (idName:string, idName2:string, invoiceData:any, setIsSaving: ((arg0: boolean) => void) | undefined) =>{
         setFailedToSaveFullyPaidInvoices([])
         setFailedToSaveOverPaidInvoices([])
         if (setIsSaving) {
             setIsSaving(true);
         }
-        await fetch('http://localhost:1118/invoiceCommissionService/fileUpload/v1/excelFile/saveInvoiceData',{
+
+        const routeURL = `${process.env.NEXT_PUBLIC_BASE_URL}/reports/filterPaidInvoices/api/saveFilteredInvoiceData`
+
+        let data = new URLSearchParams(); // @ts-ignore
+        data.append("invoiceData", JSON.stringify(invoiceData));
+
+        await fetch(routeURL,{
+            headers: {
+                "Content-Type": "application/json",
+            },
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(invoiceData),
+            body: data,
         }).then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         }).then(data => {
-                if (setIsSaving)
-                    setIsSaving(false);
-                if(data.SavedInvoicesCount === invoiceData.length){
-                    showSaveMsg(idName, 2000);
+            if (setIsSaving)
+                setIsSaving(false);
+            if(data.SavedInvoicesCount === invoiceData.length){
+                showSaveMsg(idName, 2000);
+            }
+            else if(data.SavedInvoicesCount < invoiceData.length){
+                if(idName2 === 'warningSaveMsgFullyPaid'){
+                    setFailedToSaveFullyPaidInvoices(data.UnsavedInvoices)
+                }else if(idName2 === 'warningSaveMsgOverPaid'){
+                    setFailedToSaveOverPaidInvoices(data.UnsavedInvoices)
                 }
-                else if(data.SavedInvoicesCount < invoiceData.length){
-                    // showWarningSaveMsg(idName2, 2000);
-                    console.log("idName = ", idName);
-                    console.log("idName2 = ", idName2);
-
-                    if(idName2 === 'warningSaveMsgFullyPaid'){
-                        setFailedToSaveFullyPaidInvoices(data.UnsavedInvoices)
-                    }else if(idName2 === 'warningSaveMsgOverPaid'){
-                        setFailedToSaveOverPaidInvoices(data.UnsavedInvoices)
-                    }
-                }
-                console.log("Unsaved Invoices = ", data.UnsavedInvoices);
+            }
         }).catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
+            console.error('There was a problem with the fetch operation:', error);
         });
     }
 
     const WarningMessage = ({ warningID }:any) =>{
         const closeWarningMessage = ( ) =>{
-            console.log("Closing warning message");
             const warningSaveMsg = document.getElementById(warningID);
             if(warningSaveMsg !== null){
                 warningSaveMsg.style.opacity = '0';
@@ -326,7 +324,6 @@ const ViewFilteredInvoices = ({ selectedFile }: ViewFilteredInvoicesProps) => {
                                                         </div>
                                                     </PopoverContent>
                                                 </Popover>
-
                                             </div>
                                         </div>
                                     ) :
