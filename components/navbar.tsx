@@ -21,10 +21,12 @@ export const Navbar = () => {
     const { push } = useRouter();
 
     useEffect(() => {
-        const fullName = localStorage.getItem("Fullname");
-        if(fullName !== null)
-            setLoggedInUser(fullName);
-    }, [localStorage.getItem("Fullname")]);
+        if (typeof window !== 'undefined') {
+            const fullName = localStorage.getItem("Fullname");
+            if(fullName !== null)
+                setLoggedInUser(fullName);
+        }
+    });
 
     const menuItems = {
         CUSTOMER: {title:"Customer Level",

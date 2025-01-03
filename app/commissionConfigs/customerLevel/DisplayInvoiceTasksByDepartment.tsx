@@ -36,7 +36,6 @@ import { GoHorizontalRule, GoPlus } from "react-icons/go";
 const fetcher = (...args: any[]) => fetch(...args).then((res) => res.json());
 
 const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
-    const router = useRouter();
     const [loggedIn, setLoggedIn] = useState(-1);
     const [startFetching, setStartFetching] = useState(false);
     const [startFetchingTaskItems, setStartFetchingTaskItems] = useState(false);
@@ -45,8 +44,6 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [arNumber, setArNumber] = useState("");
     const [customerId, setCustomerId] = useState(-1);
     const [customerName, setCustomerName] = useState("");
-    const [selectedTaskItems] = useState([]);
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [salesPersonList, setSalesPersonList] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -54,15 +51,12 @@ const DisplayInvoiceTasksByDepartment = (props: { url: any; }) => {
     const [searchCustomerVisible, setSearchCustomerVisible] = useState(true);
 
     useEffect(() => {
-        const userID = Number(localStorage.getItem("userID"));
-        if(userID !== null)
-            setLoggedIn(userID);
-    }, [localStorage.getItem("userID")]);
-
-    const selectedValue = React.useMemo(
-        () => Array.from(selectedKeys).join(", "),
-        [selectedKeys]
-    );
+        if (typeof window !== 'undefined'){
+            const userID = Number(localStorage.getItem("userID"));
+            if(userID !== null)
+                setLoggedIn(userID);
+        }
+    });
 
     const searchCustomerRef = useRef(null);
 
